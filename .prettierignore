@@ -1,0 +1,14 @@
+.next
+node_modules
+coverage
+playwright-report
+test-results
+supabase/.temp
+supabase/.branches
+package-lock.json
+*.sql
+
+# Hand-formatted docs and aligned token comments
+*.md
+src/app/globals.css
+supabase/tests/database/*.inc
