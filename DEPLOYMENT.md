@@ -56,7 +56,7 @@ where u.email = 'you@example.com' and r.code = 'super_admin';
 | `CRON_SECRET` | 32+ random characters | Vercel Cron sends it automatically to `/api/cron/notifications` |
 | `RAZORPAY_KEY_ID` / `RAZORPAY_KEY_SECRET` / `RAZORPAY_WEBHOOK_SECRET` | From Razorpay | Test keys first. Live keys only after the CA review (D8) |
 
-**Cron:** `vercel.json` runs `/api/cron/notifications` every 5 minutes. **Vercel's Hobby plan only allows daily cron jobs, and the deploy fails otherwise.** Either use the Pro plan, or change the schedule to `"0 3 * * *"` until you upgrade. Holds and payment expiry don't depend on it, because they run in Supabase `pg_cron`.
+**Cron:** `vercel.json` runs `/api/cron/notifications` once a day at 03:00 UTC (08:30 IST), because Vercel's Hobby plan only allows daily cron jobs and the deploy fails otherwise. After upgrading to Pro, change the schedule back to `"*/5 * * * *"` so WhatsApp/email messages go out within minutes. Holds and payment expiry don't depend on it, because they run in Supabase `pg_cron`.
 
 **Razorpay webhook:** `https://<your-domain>/api/webhooks/razorpay`, with the events listed in the README.
 
