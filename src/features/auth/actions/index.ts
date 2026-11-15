@@ -76,7 +76,8 @@ export async function signUp(input: RegisterInput): Promise<ActionResult> {
     email,
     password,
     options: {
-      data: { full_name: fullName, preferred_locale: locale },
+      // accepted_policies: the sign-up trigger records consent to the Terms and Privacy versions in force.
+      data: { full_name: fullName, preferred_locale: locale, accepted_policies: parsed.data.acceptPolicies },
       emailRedirectTo: callbackUrl(accountPath),
     },
   });

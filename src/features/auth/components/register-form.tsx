@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { FormError, FormField } from "@/components/form/form-field";
 import { PasswordInput } from "@/components/form/password-input";
+import { ConsentCheckbox } from "@/components/form/consent-checkbox";
 import { applyServerFieldErrors } from "@/components/form/apply-server-errors";
 import { registerSchema, type RegisterInput } from "../schemas";
 import { signUp } from "../actions";
@@ -23,7 +24,7 @@ export function RegisterForm() {
 
   const form = useForm<RegisterInput>({
     resolver: zodResolver(registerSchema),
-    defaultValues: { fullName: "", email: "", password: "", confirmPassword: "", locale },
+    defaultValues: { fullName: "", email: "", password: "", confirmPassword: "", locale, acceptPolicies: false },
   });
   const { errors } = form.formState;
 
@@ -57,6 +58,23 @@ export function RegisterForm() {
       <FormField id="confirmPassword" label={t("confirmPassword")} error={errors.confirmPassword?.message}>
         <PasswordInput autoComplete="new-password" {...form.register("confirmPassword")} />
       </FormField>
+
+      <ConsentCheckbox
+        {...form.register("acceptPolicies")}
+        error={errors.acceptPolicies?.message}
+        label={t.rich("acceptPolicies", {
+          terms: (chunks) => (
+            <Link href="/legal/terms" target="_blank" className="text-primary underline underline-offset-4">
+              {chunks}
+            </Link>
+          ),
+          privacy: (chunks) => (
+            <Link href="/legal/privacy" target="_blank" className="text-primary underline underline-offset-4">
+              {chunks}
+            </Link>
+          ),
+        })}
+      />
 
       <Button type="submit" size="lg" disabled={pending}>
         {pending ? <Loader2 className="animate-spin" aria-hidden /> : null}

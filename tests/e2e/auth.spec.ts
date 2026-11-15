@@ -19,6 +19,7 @@ async function register(page: Page, email: string, name = "E2E Customer") {
   await page.getByLabel("Email").fill(email);
   await page.getByLabel("Password", { exact: true }).fill(PASSWORD);
   await page.getByLabel("Confirm password", { exact: true }).fill(PASSWORD);
+  await page.getByLabel(/I agree to the Terms of Use/).check();
   await page.getByRole("button", { name: "Create account" }).click();
   await expect(page).toHaveURL(/\/account$/);
   await expect(page.getByRole("heading", { level: 1, name: "My account" })).toBeVisible();
@@ -94,6 +95,7 @@ test.describe("password visibility (eye icon)", () => {
 
     await page.getByLabel("Full name").fill("Eye Toggle");
     await page.getByLabel("Email").fill(uniqueEmail("eye"));
+    await page.getByLabel(/I agree to the Terms of Use/).check();
     await page.getByRole("button", { name: "Create account" }).click();
     await expect(page).toHaveURL(/\/account$/);
   });
@@ -158,5 +160,34 @@ test.describe("authorisation", () => {
     await page.goto("/kn/vendor");
     await expect(page).toHaveURL(/\/kn\/login\?next=%2Fkn%2Fvendor$/);
     await expect(page.locator("html")).toHaveAttribute("lang", "kn");
+  });
+});
+
+test.describe("legal pages and consent (Roadmap A8)", () => {
+  test("footer links open the four policies, marked as drafts until reviewed", async ({ page }) => {
+    await page.goto("/");
+    const footer = page.getByRole("navigation", { name: "Legal" });
+    for (const [link, heading] of [
+      ["Terms of Use", "Terms of Use"],
+      ["Privacy Policy", "Privacy Policy"],
+      ["Refund & Cancellation", "Refund & Cancellation Policy"],
+      ["Vendor Agreement", "Vendor Agreement"],
+    ]) {
+      await page.goto("/");
+      await footer.getByRole("link", { name: link }).click();
+      await expect(page.getByRole("heading", { level: 1, name: heading })).toBeVisible();
+      await expect(page.getByTestId("policy-draft")).toContainText("under legal review");
+    }
+  });
+
+  test("sign-up needs the Terms and Privacy tick", async ({ page }) => {
+    await page.goto("/register");
+    await page.getByLabel("Full name").fill("No Tick");
+    await page.getByLabel("Email").fill(uniqueEmail("notick"));
+    await page.getByLabel("Password", { exact: true }).fill(PASSWORD);
+    await page.getByLabel("Confirm password", { exact: true }).fill(PASSWORD);
+    await page.getByRole("button", { name: "Create account" }).click();
+    await expect(page.getByText("Please accept the Terms of Use and Privacy Policy to continue.")).toBeVisible();
+    await expect(page).toHaveURL(/\/register$/);
   });
 });

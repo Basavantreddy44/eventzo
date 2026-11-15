@@ -45,6 +45,10 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     entry("/muhurtham", 0.6),
     entry("/budget-estimator", 0.6),
     entry("/become-a-vendor", 0.5),
+    entry("/legal/terms", 0.2),
+    entry("/legal/privacy", 0.2),
+    entry("/legal/refunds", 0.2),
+    entry("/legal/vendor-agreement", 0.2),
     ...listings.map((slug) => entry(`/listings/${slug}`, 0.8)),
   ];
 }

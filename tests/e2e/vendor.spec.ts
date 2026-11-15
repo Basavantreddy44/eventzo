@@ -23,6 +23,7 @@ async function register(page: Page, name: string) {
   await page.getByLabel("Email", { exact: true }).fill(email);
   await page.getByLabel("Password", { exact: true }).fill(PASSWORD);
   await page.getByLabel("Confirm password", { exact: true }).fill(PASSWORD);
+  await page.getByLabel(/I agree to the Terms of Use/).check();
   await page.getByRole("button", { name: "Create account" }).click();
   await expect(page).toHaveURL(/\/account$/);
   return email;
@@ -45,6 +46,7 @@ async function createVendor(page: Page, businessName: string) {
   await page.getByLabel("Business name").fill(businessName);
   await page.getByLabel("Primary category").selectOption({ label: "Venues" });
   await page.getByLabel("City", { exact: true }).selectOption({ label: "Kalaburagi, Karnataka" });
+  await page.getByLabel(/I agree to the Vendor Agreement/).check();
   await page.getByRole("button", { name: "Create business workspace" }).click();
   await expect(page).toHaveURL(/\/vendor$/);
 }

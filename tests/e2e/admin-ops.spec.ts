@@ -19,6 +19,7 @@ async function register(page: Page, name: string) {
   await page.getByLabel("Email", { exact: true }).fill(email);
   await page.getByLabel("Password", { exact: true }).fill(PASSWORD);
   await page.getByLabel("Confirm password", { exact: true }).fill(PASSWORD);
+  await page.getByLabel(/I agree to the Terms of Use/).check();
   await page.getByRole("button", { name: "Create account" }).click();
   await expect(page).toHaveURL(/\/account$/);
   return email;
@@ -41,6 +42,7 @@ test("vendor suspension: the owner is told why, the vendor is hidden, and an adm
   await owner.getByLabel("Business name").fill(business);
   await owner.getByLabel("Primary category").selectOption({ label: "Venues" });
   await owner.getByLabel("City", { exact: true }).selectOption({ label: "Kalaburagi, Karnataka" });
+  await owner.getByLabel(/I agree to the Vendor Agreement/).check();
   await owner.getByRole("button", { name: "Create business workspace" }).click();
   await expect(owner).toHaveURL(/\/vendor$/);
 

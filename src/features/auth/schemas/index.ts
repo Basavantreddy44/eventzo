@@ -39,6 +39,8 @@ export const registerSchema = z
     password: passwordSchema,
     confirmPassword: z.string().min(1, "validation.required"),
     locale: z.enum(routing.locales).default(routing.defaultLocale),
+    /** Terms of Use + Privacy Policy (Roadmap A8); recorded in consent_records at sign-up. */
+    acceptPolicies: z.boolean().refine((v) => v === true, "validation.acceptPolicies"),
   })
   .refine((v) => v.password === v.confirmPassword, {
     path: ["confirmPassword"],

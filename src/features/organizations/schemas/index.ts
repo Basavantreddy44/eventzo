@@ -5,6 +5,8 @@ export const createOrganizationSchema = z.object({
   businessCategoryId: z.uuid("validation.select"),
   cityId: z.uuid("validation.select"),
   idempotencyKey: z.string().min(8).max(100),
+  /** Vendor Agreement (Roadmap A8); recorded in consent_records. */
+  acceptVendorAgreement: z.boolean().refine((v) => v === true, "validation.acceptVendorAgreement"),
 });
 export type CreateOrganizationInput = z.infer<typeof createOrganizationSchema>;
 

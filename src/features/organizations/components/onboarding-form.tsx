@@ -9,6 +9,8 @@ import { Button } from "@/components/ui/button";
 import { Input, NativeSelect } from "@/components/ui/input";
 import { FormError, FormField } from "@/components/form/form-field";
 import { applyServerFieldErrors } from "@/components/form/apply-server-errors";
+import { ConsentCheckbox } from "@/components/form/consent-checkbox";
+import { Link } from "@/i18n/navigation";
 import { createOrganizationSchema, type CreateOrganizationInput } from "../schemas";
 import { createOrganization } from "../actions";
 
@@ -23,7 +25,7 @@ export function OnboardingForm({ categories, cities }: { categories: Option[]; c
 
   const form = useForm<CreateOrganizationInput>({
     resolver: zodResolver(createOrganizationSchema),
-    defaultValues: { name: "", businessCategoryId: "", cityId: "", idempotencyKey },
+    defaultValues: { name: "", businessCategoryId: "", cityId: "", idempotencyKey, acceptVendorAgreement: false },
   });
   const { errors } = form.formState;
 
@@ -71,6 +73,17 @@ export function OnboardingForm({ categories, cities }: { categories: Option[]; c
       </div>
 
       <p className="text-muted-foreground text-sm">{t("reviewNote")}</p>
+      <ConsentCheckbox
+        {...form.register("acceptVendorAgreement")}
+        error={errors.acceptVendorAgreement?.message}
+        label={t.rich("acceptVendorAgreement", {
+          agreement: (chunks) => (
+            <Link href="/legal/vendor-agreement" target="_blank" className="text-primary underline underline-offset-4">
+              {chunks}
+            </Link>
+          ),
+        })}
+      />
 
       <Button type="submit" size="lg" disabled={pending} className="sm:justify-self-start">
         {pending ? <Loader2 className="animate-spin" aria-hidden /> : null}

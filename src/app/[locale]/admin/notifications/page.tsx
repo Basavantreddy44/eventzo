@@ -16,7 +16,7 @@ import { hasPermission } from "@/lib/auth/permissions";
 import { localizedPath } from "@/lib/auth/portal-user";
 import { localeFrom } from "@/i18n/params";
 import { processOutboxNow } from "@/features/notifications/actions";
-import { getDeliveryMode } from "@/features/notifications/lib/delivery";
+import { getDeliveryChannels, getDeliveryMode } from "@/features/notifications/lib/delivery";
 import { isKnownKind, maskAddress, NOTIFICATION_KINDS } from "@/features/notifications/lib/templates";
 import { listOutbox, outboxCounts } from "@/features/notifications/queries";
 
@@ -53,6 +53,7 @@ export default async function OutboxPage({ params, searchParams }: PageProps<"/[
     ? (sp.filter as (typeof FILTERS)[number])
     : "queued";
   const mode = getDeliveryMode();
+  const whatsapp = getDeliveryChannels().whatsapp;
   const tInt = await getTranslations("integrations");
   const [rows, counts] = await Promise.all([listOutbox(filter), outboxCounts()]);
   type Row = (typeof rows)[number];
@@ -82,8 +83,14 @@ export default async function OutboxPage({ params, searchParams }: PageProps<"/[
         <IntegrationNotice
           provider="whatsapp"
           className="sm:max-w-2xl"
-          state={mode === "simulator" ? "simulator" : "comingSoon"}
-          description={mode === "simulator" ? t("modeSimulator") : tInt("whatsapp.adminComingSoon")}
+          state={whatsapp === "meta" ? "live" : whatsapp === "simulator" ? "simulator" : "comingSoon"}
+          description={
+            whatsapp === "meta"
+              ? tInt("whatsapp.adminLive")
+              : whatsapp === "simulator"
+                ? t("modeSimulator")
+                : tInt("whatsapp.adminComingSoon")
+          }
         />
       </div>
       <dl className="grid grid-cols-3 gap-3 sm:max-w-md">

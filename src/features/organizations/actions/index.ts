@@ -4,6 +4,7 @@ import { cookies } from "next/headers";
 import { redirect as nextRedirect } from "next/navigation";
 import { getLocale } from "next-intl/server";
 import { getPathname } from "@/i18n/navigation";
+import type { AppLocale } from "@/i18n/routing";
 import { appCookies } from "@/config/site";
 import { getCurrentUser } from "@/lib/auth/session";
 import { hasOrgRole, resolveActiveMembership } from "@/lib/auth/permissions";
@@ -44,6 +45,19 @@ export async function createOrganization(input: CreateOrganizationInput): Promis
     p_idempotency_key: parsed.data.idempotencyKey,
   });
   if (error || !organizationId) return fail(`errors.${mapDbError(error)}`);
+
+  // Record acceptance of the Vendor Agreement version in force (Roadmap A8).
+  const { data: policy } = await supabase.rpc("current_policy", {
+    p_type: "vendor_agreement",
+    p_locale: (await getLocale()) as AppLocale,
+  });
+  await supabase.from("consent_records").insert({
+    user_id: user.id,
+    purpose: "vendor_agreement",
+    granted: true,
+    policy_version_id: policy?.[0]?.id ?? null,
+    source: "become_a_vendor",
+  });
 
   const store = await cookies();
   store.set(appCookies.activeOrganization, organizationId, cookieOptions);

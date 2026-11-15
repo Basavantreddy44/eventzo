@@ -4,7 +4,7 @@ import { Bell } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { PageHeader } from "@/components/page-header";
 import { IntegrationNotice } from "@/components/integration-notice";
-import { getDeliveryMode } from "@/features/notifications/lib/delivery";
+import { getDeliveryChannels } from "@/features/notifications/lib/delivery";
 import { EmptyState } from "@/components/states/empty-state";
 import { formatDateTime } from "@/lib/datetime";
 import { formatPaise } from "@/lib/money";
@@ -35,7 +35,7 @@ export default async function NotificationsPage({ params }: PageProps<"/[locale]
   ]);
   const tKinds = t as unknown as DynamicT;
   const tInt = await getTranslations("integrations");
-  const whatsappMode = getDeliveryMode();
+  const whatsappMode = getDeliveryChannels().whatsapp;
 
   const items: NotificationView[] = rows.map((n) => {
     const values = notificationValues(n.params, (p) => formatPaise(p));

@@ -3181,7 +3181,7 @@ export type Database = {
         }[];
       };
       claim_outbox: {
-        Args: { p_limit?: number };
+        Args: { p_channels?: Database["public"]["Enums"]["notification_channel"][]; p_limit?: number };
         Returns: {
           attempts: number;
           channel: Database["public"]["Enums"]["notification_channel"];
@@ -3254,6 +3254,20 @@ export type Database = {
       create_organization: {
         Args: { p_business_category_id: string; p_city_id: string; p_idempotency_key: string; p_name: string };
         Returns: string;
+      };
+      current_policy: {
+        Args: {
+          p_locale?: Database["public"]["Enums"]["app_locale"];
+          p_type: Database["public"]["Enums"]["policy_type"];
+        };
+        Returns: {
+          body_md: string;
+          effective_from: string;
+          id: string;
+          locale: Database["public"]["Enums"]["app_locale"];
+          title: string;
+          version: string;
+        }[];
       };
       decline_enquiry: { Args: { p_enquiry_id: string; p_reason: string }; Returns: undefined };
       enquiry_contact: {
@@ -3647,7 +3661,7 @@ export type Database = {
         | "identity_proof"
         | "other";
       cancellation_policy: "flexible" | "moderate" | "strict";
-      consent_purpose: "transactional" | "marketing" | "whatsapp_updates" | "terms" | "privacy";
+      consent_purpose: "transactional" | "marketing" | "whatsapp_updates" | "terms" | "privacy" | "vendor_agreement";
       delivery_status: "queued" | "sent" | "failed" | "skipped";
       document_status: "uploaded" | "under_review" | "approved" | "rejected" | "expired";
       enquiry_status: "open" | "quoted" | "accepted" | "reserved" | "declined" | "cancelled" | "expired" | "booked";
@@ -3811,7 +3825,7 @@ export const Constants = {
         "other",
       ],
       cancellation_policy: ["flexible", "moderate", "strict"],
-      consent_purpose: ["transactional", "marketing", "whatsapp_updates", "terms", "privacy"],
+      consent_purpose: ["transactional", "marketing", "whatsapp_updates", "terms", "privacy", "vendor_agreement"],
       delivery_status: ["queued", "sent", "failed", "skipped"],
       document_status: ["uploaded", "under_review", "approved", "rejected", "expired"],
       enquiry_status: ["open", "quoted", "accepted", "reserved", "declined", "cancelled", "expired", "booked"],

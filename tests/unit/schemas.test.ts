@@ -46,6 +46,7 @@ describe("auth schemas", () => {
       password: "mantapa2027",
       confirmPassword: "mantapa2027",
       locale: "kn",
+      acceptPolicies: true,
     });
     expect(ok.success).toBe(true);
 
@@ -54,15 +55,30 @@ describe("auth schemas", () => {
       email: "priya@example.com",
       password: "mantapa2027",
       confirmPassword: "mantapa2028",
+      acceptPolicies: true,
     });
     expect(mismatch.success).toBe(false);
     if (!mismatch.success) expect(toFieldErrors(mismatch.error).confirmPassword).toBe("validation.passwordsMismatch");
   });
 
   it("register defaults the locale and rejects unknown locales", () => {
-    const base = { fullName: "Ravi", email: "ravi@example.com", password: "abc12345", confirmPassword: "abc12345" };
+    const base = {
+      fullName: "Ravi",
+      email: "ravi@example.com",
+      password: "abc12345",
+      confirmPassword: "abc12345",
+      acceptPolicies: true,
+    };
     expect(registerSchema.parse(base).locale).toBe("en");
     expect(registerSchema.safeParse({ ...base, locale: "fr" }).success).toBe(false);
+  });
+
+  it("register requires accepting the Terms and Privacy Policy (Roadmap A8)", () => {
+    const base = { fullName: "Ravi", email: "ravi@example.com", password: "abc12345", confirmPassword: "abc12345" };
+    const unticked = registerSchema.safeParse({ ...base, acceptPolicies: false });
+    expect(unticked.success).toBe(false);
+    if (!unticked.success) expect(toFieldErrors(unticked.error).acceptPolicies).toBe("validation.acceptPolicies");
+    expect(registerSchema.safeParse(base).success).toBe(false);
   });
 
   it("reset requires matching passwords", () => {
@@ -96,11 +112,18 @@ describe("phone normalisation (E.164)", () => {
 
 describe("organisation schemas", () => {
   it("validates onboarding input", () => {
-    const valid = { name: "Sri Lakshmi Kalyana Mantapa", businessCategoryId: UUID, cityId: UUID, idempotencyKey: UUID };
+    const valid = {
+      name: "Sri Lakshmi Kalyana Mantapa",
+      businessCategoryId: UUID,
+      cityId: UUID,
+      idempotencyKey: UUID,
+      acceptVendorAgreement: true,
+    };
     expect(createOrganizationSchema.safeParse(valid).success).toBe(true);
     expect(createOrganizationSchema.safeParse({ ...valid, name: "A" }).success).toBe(false);
     expect(createOrganizationSchema.safeParse({ ...valid, cityId: "" }).success).toBe(false);
     expect(createOrganizationSchema.safeParse({ ...valid, idempotencyKey: "short" }).success).toBe(false);
+    expect(createOrganizationSchema.safeParse({ ...valid, acceptVendorAgreement: false }).success).toBe(false);
   });
 
   it("branch selection is 'all' or a uuid", () => {

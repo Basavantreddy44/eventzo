@@ -99,7 +99,8 @@
       "submit": "Create account",
       "submitting": "Creating account…",
       "haveAccount": "Already have an account?",
-      "loginLink": "Log in"
+      "loginLink": "Log in",
+      "acceptPolicies": "I agree to the <terms>Terms of Use</terms> and <privacy>Privacy Policy</privacy>."
     },
     "forgot": {
       "title": "Reset your password",
@@ -182,7 +183,9 @@
     "rsvpCount": "Check the number of people",
     "budgetLine": "Choose a category or name your own line",
     "tooLong": "This is too long",
-    "slug": "Use lower-case letters, numbers and hyphens."
+    "slug": "Use lower-case letters, numbers and hyphens.",
+    "acceptPolicies": "Please accept the Terms of Use and Privacy Policy to continue.",
+    "acceptVendorAgreement": "Please accept the Vendor Agreement to register your business."
   },
   "home": {
     "heroEyebrow": "Weddings · Functions · Celebrations",
@@ -250,7 +253,8 @@
       "loginRequired": "Log in or create an account to register your business.",
       "existingTitle": "You already manage a business",
       "existingBody": "You can create another workspace below, or go to your dashboard.",
-      "reviewNote": "New businesses start as drafts. Listings go live after Eventzo verifies your documents."
+      "reviewNote": "New businesses start as drafts. Listings go live after Eventzo verifies your documents.",
+      "acceptVendorAgreement": "I agree to the <agreement>Vendor Agreement</agreement> on behalf of this business."
     },
     "switcher": {
       "organization": "Business",
@@ -2162,7 +2166,8 @@
       "name": "WhatsApp updates",
       "customerComingSoon": "WhatsApp messages about your enquiries, quotes, bookings and RSVPs are coming soon. Your choice below is saved and will be used as soon as WhatsApp is switched on. Until then, updates appear here in the app.",
       "adminComingSoon": "WhatsApp will be configurable once a provider is connected (Meta Cloud API or a WhatsApp partner such as Gupshup or Interakt) with approved message templates. Until then, messages wait in the queue below.",
-      "adminSimulator": "Simulator on (NOTIFICATIONS_SIMULATOR=true): messages are marked sent without contacting anyone. Turn it off before real customers use the site."
+      "adminSimulator": "Simulator on (NOTIFICATIONS_SIMULATOR=true): messages are marked sent without contacting anyone. Turn it off before real customers use the site.",
+      "adminLive": "Connected to the WhatsApp Cloud API. Queued messages are sent within about a minute using your approved templates; failures retry automatically and show their reason below."
     },
     "razorpay": {
       "name": "Razorpay online payments",
@@ -2171,6 +2176,18 @@
       "adminSimulator": "Payment simulator is on: online payments and refunds are simulated, no real money moves.",
       "adminTest": "Razorpay is connected with test keys: no real money moves.",
       "adminLive": "Razorpay is connected with live keys: real payments and refunds."
+    }
+  },
+  "legal": {
+    "meta": "Version {version} · in force from {date}",
+    "draftNotice": "Draft – under legal review. This text explains how Eventzo works today and may change before launch; items in [brackets] are still to be filled in.",
+    "englishOnly": "This document is available in English only for now.",
+    "links": {
+      "label": "Legal",
+      "terms": "Terms of Use",
+      "privacy": "Privacy Policy",
+      "refunds": "Refund & Cancellation",
+      "vendorAgreement": "Vendor Agreement"
     }
   }
 }

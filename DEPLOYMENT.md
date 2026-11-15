@@ -55,14 +55,86 @@ where u.email = 'you@example.com' and r.code = 'super_admin';
 | `NOTIFICATIONS_SIMULATOR` | `false` | **Must be false for real customers** |
 | `CRON_SECRET` | 32+ random characters | Vercel Cron sends it automatically to `/api/cron/notifications` |
 | `RAZORPAY_KEY_ID` / `RAZORPAY_KEY_SECRET` / `RAZORPAY_WEBHOOK_SECRET` | From Razorpay | Test keys first. Live keys only after the CA review (D8) |
+| `WHATSAPP_ACCESS_TOKEN` / `WHATSAPP_PHONE_NUMBER_ID` | From Meta (section 3.2) | **Server-only.** Use a System User token, not a 24-hour test token |
+| `WHATSAPP_TEMPLATE_LANGUAGES` | `en` (later `en,kn,hi`) | Languages whose templates are approved; others fall back to the first |
+| `RESEND_API_KEY` / `EMAIL_FROM` | From Resend; `Eventzo <noreply@your-domain>` | Booking, payment and RSVP emails. **Server-only** key |
 
-**Cron:** `vercel.json` runs `/api/cron/notifications` once a day at 03:00 UTC (08:30 IST), because Vercel's Hobby plan only allows daily cron jobs and the deploy fails otherwise. After upgrading to Pro, change the schedule back to `"*/5 * * * *"` so WhatsApp/email messages go out within minutes. Holds and payment expiry don't depend on it, because they run in Supabase `pg_cron`.
+**Sending within a minute (any Vercel plan):** Supabase `pg_cron` checks the outbox every minute and, only when messages are waiting, calls `/api/cron/notifications` through `pg_net`. It needs two Supabase Vault secrets (SQL Editor, once):
+
+```sql
+select vault.create_secret('https://<your-domain>', 'eventzo_site_url');
+select vault.create_secret('<the same value as CRON_SECRET>', 'eventzo_cron_secret');
+```
+
+The daily Vercel Cron in `vercel.json` stays as a backstop. Holds and payment expiry don't depend on either; they run in `pg_cron`.
 
 **Razorpay webhook:** `https://<your-domain>/api/webhooks/razorpay`, with the events listed in the README.
 
 ---
 
-## 3. Before real customers (go / no-go)
+---
+
+## 3. Connecting Razorpay, WhatsApp and email (Roadmap A1–A4)
+
+The code for all three is finished and tested. Each switches on by itself when its settings are added in Vercel → Settings → Environment Variables (then **Redeploy**). The "Coming soon" cards change to *Test mode* / *Live* automatically.
+
+### 3.1 Razorpay (payments and refunds)
+
+1. Sign up at razorpay.com as a business and complete **KYC** (PAN, bank account, business proof). Razorpay checks that the website shows Terms, Privacy, Refund & Cancellation and contact details: these are in the footer (`/legal/*`); replace the `[bracketed]` items first.
+2. Dashboard → **Test mode** → Account & Settings → **API Keys** → Generate. Copy the Key ID (`rzp_test_…`) and Key Secret.
+3. Account & Settings → **Webhooks** → Add: URL `https://<your-domain>/api/webhooks/razorpay`; secret: any long random text; events: `payment.captured`, `order.paid`, `payment.failed`, `refund.processed`, `refund.failed`.
+4. In Vercel set `RAZORPAY_KEY_ID`, `RAZORPAY_KEY_SECRET`, `RAZORPAY_WEBHOOK_SECRET`, and `PAYMENTS_SIMULATOR=false`. Redeploy.
+5. Test: book as a customer → **Pay advance** → pay with Razorpay's test UPI `success@razorpay` → the booking turns **Confirmed** by itself; Admin → Payments shows it as online.
+6. Live money only after the CA review (D8) and Razorpay's live activation: swap to `rzp_live_…` keys and create the same webhook in live mode.
+
+### 3.2 WhatsApp (Meta Cloud API)
+
+1. **Meta Business account** at business.facebook.com → Business settings → **Business verification** (GST/PAN certificate, address, website with the legal pages). Takes 1–5 days.
+2. developers.facebook.com → Create app → type **Business** → add the **WhatsApp** product.
+3. WhatsApp → API Setup → **Add phone number**: a number that is *not* already on WhatsApp (a new SIM or a landline that can receive a call/SMS). Set the display name **Eventzo** (Meta approves it).
+4. Business settings → Users → **System users** → Add (Admin) → Assign assets: the app and the WhatsApp account (full control) → **Generate token** with permissions `whatsapp_business_messaging` and `whatsapp_business_management`, expiry **Never**. This is `WHATSAPP_ACCESS_TOKEN`.
+5. WhatsApp → API Setup: copy the **Phone number ID** (not the phone number). This is `WHATSAPP_PHONE_NUMBER_ID`.
+6. WhatsApp Manager → **Message templates** → create each template below: category **Utility**, language **English** (add Kannada `kn` / Hindi `hi` versions later with the same name), body exactly as shown with the variables in this order. Submit; approval usually takes minutes to a day.
+7. In Vercel set `WHATSAPP_ACCESS_TOKEN`, `WHATSAPP_PHONE_NUMBER_ID`, `WHATSAPP_TEMPLATE_LANGUAGES=en`, and `NOTIFICATIONS_SIMULATOR=false`. Add the two Vault secrets from section 2 if not done. Redeploy.
+8. Test: on Account → Notifications add your mobile and turn WhatsApp on; send an enquiry to a test vendor whose owner has WhatsApp on → the message arrives within about a minute; Admin → Outbox shows **Sent** (or the exact Meta error).
+
+Pricing: Meta charges per 24-hour conversation (Utility category in India is roughly ₹0.12–0.15). Add a payment method in Business settings → WhatsApp accounts → Payment settings.
+
+| Template name | Body (English) | Variables |
+|---|---|---|
+| `eventzo_enquiry_new` | New enquiry for {{1}} on {{2}} | {{1}} = listing, {{2}} = date |
+| `eventzo_enquiry_declined` | {{1}} declined your enquiry | {{1}} = listing |
+| `eventzo_enquiry_expired` | Your hold on {{1}} expired | {{1}} = listing |
+| `eventzo_enquiry_cancelled` | The customer cancelled the enquiry for {{1}} on {{2}} | {{1}} = listing, {{2}} = date |
+| `eventzo_quote_received` | {{1}} sent a quote for {{2}}: {{3}} | {{1}} = vendor, {{2}} = listing, {{3}} = amount |
+| `eventzo_quote_accepted` | Your quote for {{1}} on {{2}} was accepted | {{1}} = listing, {{2}} = date |
+| `eventzo_message_customer` | New message about {{1}} | {{1}} = listing |
+| `eventzo_message_vendor` | New message from {{1}} | {{1}} = vendor |
+| `eventzo_booking_new` | New booking for {{1}} on {{2}}: waiting for the advance | {{1}} = listing, {{2}} = date |
+| `eventzo_booking_confirmed` | Booking confirmed: {{1}} on {{2}} | {{1}} = listing, {{2}} = date |
+| `eventzo_booking_expired` | The booking for {{1}} on {{2}} lapsed (advance not paid in time) | {{1}} = listing, {{2}} = date |
+| `eventzo_booking_cancelled_vendor` | {{1}} cancelled your booking on {{2}} | {{1}} = vendor, {{2}} = date |
+| `eventzo_booking_cancelled_customer` | The customer cancelled the booking for {{1}} on {{2}} | {{1}} = listing, {{2}} = date |
+| `eventzo_payment_received` | Payment of {{1}} received for {{2}} | {{1}} = amount, {{2}} = listing |
+| `eventzo_refund_processed` | Refund of {{1}} for {{2}} has been issued | {{1}} = amount, {{2}} = listing |
+| `eventzo_event_invited` | {{1}} invited you to help plan {{2}} ({role}) | {{1}} = by, {{2}} = event |
+| `eventzo_rsvp_received` | {{1}} replied “{status}” for {{2}} | {{1}} = guest, {{2}} = event |
+| `eventzo_job_assigned` | You have a new job: {{1}} on {{2}} | {{1}} = listing, {{2}} = date |
+| `eventzo_job_cancelled` | Job cancelled: {{1}} on {{2}} | {{1}} = listing, {{2}} = date |
+| `eventzo_job_declined` | {{1}} can't make it to {{2}} on {{3}} | {{1}} = guest, {{2}} = listing, {{3}} = date |
+| `eventzo_vendor_suspended` | {{1}} has been suspended by Eventzo: {{2}} | {{1}} = vendor, {{2}} = reason |
+| `eventzo_vendor_closed` | {{1}} has been closed by Eventzo: {{2}} | {{1}} = vendor, {{2}} = reason |
+| `eventzo_vendor_reinstated` | {{1}} has been reinstated | {{1}} = vendor |
+
+### 3.3 Email (Resend) — also fixes sign-up emails (A4)
+
+1. resend.com → add your domain → add the DNS records it shows (SPF, DKIM) at your domain registrar → wait for **Verified**.
+2. API Keys → create a key with *Sending access*. In Vercel set `RESEND_API_KEY` and `EMAIL_FROM=Eventzo <noreply@your-domain>`. Redeploy.
+3. Same account for sign-up/reset emails: Supabase → Authentication → **SMTP Settings** → enable custom SMTP: host `smtp.resend.com`, port `465`, user `resend`, password = a Resend API key, sender `noreply@your-domain`, name `Eventzo`. This removes the "powered by Supabase" sender and its rate limit.
+
+---
+
+## 4. Before real customers (go / no-go)
 
 | # | Check | Owner |
 |---|---|---|
@@ -81,7 +153,7 @@ where u.email = 'you@example.com' and r.code = 'super_admin';
 
 ---
 
-## 4. After each release
+## 5. After each release
 
 - CI (`.github/workflows/ci.yml`) must be green: format, lint, types, unit, PGlite migrations, then pgTAP + build + E2E on a throw-away local Supabase.
 - Database changes go only through `supabase/migrations` → `npx supabase db push`. Never edit tables in the dashboard.
@@ -89,7 +161,7 @@ where u.email = 'you@example.com' and r.code = 'super_admin';
 
 ---
 
-## 5. Security notes for operators
+## 6. Security notes for operators
 
 - **Headers:** a Content-Security-Policy (only this site, Supabase and Razorpay), `X-Frame-Options: DENY`, `nosniff`, a strict referrer policy and HSTS on https.
 - **Blocking a user** (*Admin → Users*) ends their sessions and bans sign-in in Supabase Auth. An already-issued access token can still reach the API directly for up to an hour (its lifetime), but the app treats the person as signed out at once.

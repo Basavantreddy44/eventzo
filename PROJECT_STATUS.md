@@ -26,6 +26,34 @@ Phase 5 (booking & payments) is complete and on Eventzoo; online payment runs on
 
 ---
 
+## Roadmap to 9.9 (15 Nov 2026) — in progress
+
+Source: "Eventzo — Roadmap to 9.9 / 10" (tester, 15 Nov 2026). Worked in its phase order (A → D); each gate is checked on the live site.
+
+**Product-owner decisions (15 Nov 2026)**
+
+| # | Decision |
+|---|---|
+| R-1 | Adopt the roadmap and its simplifications, **except the category cut**: all categories stay available, because one vendor may offer several services. (The roadmap suggested launching with 3 and hiding the rest.) |
+| R-2 | WhatsApp provider: **Meta Cloud API** (direct, no partner fee). |
+| R-3 | Legal pages: Eventzo drafts the text from how the product works; the owner's lawyer/CA reviews. Versions below 1.0 show "Draft – under legal review". |
+| R-4 | QA test data deleted from Eventzoo (A7). |
+
+**Phase A — launch blockers**
+
+| Item | Status |
+|---|---|
+| A1 Razorpay payments | ✅ Code complete since Phase 5 (checkout, webhook, auto-confirm). **Needs your keys** — DEPLOYMENT.md §3.1 |
+| A2 Razorpay refunds | ✅ Code complete since Phase 5 (policy-computed amount, "Issue refund"). Needs keys |
+| A3 WhatsApp | ✅ Meta Cloud API sender built (approved templates, recipient language with fallback, Meta errors recorded and retried). Sends within ~1 minute on any Vercel plan via pg_cron + pg_net. **Needs Meta account, templates and token** — §3.2 (all 23 templates listed) |
+| A4 Custom email | ✅ Resend sender built for booking/payment/RSVP emails. **Needs domain + Resend key**; the same account fixes sign-up emails via Supabase SMTP — §3.3 |
+| A5 Mobile OTP login | ⏳ Next. Needs an SMS/WhatsApp OTP provider decision |
+| A6 Real launch content | Yours: onboard pilot vendors; enter real muhurtham dates and estimator ranges in Admin |
+| A7 QA data cleanup | ✅ Done on Eventzoo (audit `platform.qa_data_removed`) |
+| A8 Legal pages + consent | ✅ /legal/terms, /legal/privacy, /legal/refunds, /legal/vendor-agreement (versioned in `policy_versions`, footer links); sign-up and business registration require a tick, recorded in `consent_records` against the exact version. **Needs:** lawyer review and the [bracketed] facts (legal entity, address, grievance officer) |
+
+Migrations: `20261119000100_outbox_channels.sql`, `20261119000200_legal_policies.sql`.
+
 ## QA report, 15 Nov 2026 — fixes
 
 | Bug | Status | Fix |
