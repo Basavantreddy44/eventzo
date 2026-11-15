@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { personNameSchema } from "@/lib/names";
 import { routing } from "@/i18n/routing";
 
 const E164 = /^\+[1-9][0-9]{7,14}$/;
@@ -19,7 +20,7 @@ export function normalizePhone(input: string): string | null {
 }
 
 export const profileSchema = z.object({
-  fullName: z.string().trim().min(2, "validation.nameLength").max(120, "validation.nameLength"),
+  fullName: personNameSchema(2),
   displayName: z.string().trim().max(60, "validation.displayNameLength"),
   phone: z
     .string()

@@ -69,3 +69,15 @@ create or replace function tests.city_id(p_slug text) returns uuid language sql 
   $$ select id from public.cities where slug = p_slug $$;
 
 grant execute on all functions in schema tests to anon, authenticated;
+
+-- Mark a vendor verified as the platform would (vendors go live only once
+-- verified, QA B11). Security definer so fixtures can call it while logged in.
+create or replace function tests.verify_org(p_organization_id uuid)
+returns void
+language sql
+security definer
+set search_path = ''
+as $$
+  update public.organizations set verification_status = 'verified', verified_at = now() where id = p_organization_id;
+$$;
+grant execute on function tests.verify_org(uuid) to anon, authenticated;

@@ -67,11 +67,13 @@ export function EnquiryPanel({
     );
   }
 
-  const onDateChange = (value: string) => {
+  // Re-check whenever the date or the hours change; the check covers the requested hours (QA B12).
+  const recheck = (next: Partial<Pick<EnquiryInput, "date" | "startTime" | "endTime">> = {}) => {
+    const v = { ...form.getValues(), ...next };
     setAvailability(null);
-    if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) return;
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(v.date) || !v.startTime || !v.endTime || v.endTime <= v.startTime) return;
     startCheck(async () => {
-      const result = await checkAvailability(serviceId, value);
+      const result = await checkAvailability(serviceId, v.date, v.startTime, v.endTime);
       if (result.ok) setAvailability(result.data);
     });
   };
@@ -103,7 +105,11 @@ export function EnquiryPanel({
     >
       <FormError message={formError} />
       <FormField id="enq-date" label={t("date")} error={errors.date?.message}>
-        <Input type="date" min={today} {...form.register("date", { onChange: (e) => onDateChange(e.target.value) })} />
+        <Input
+          type="date"
+          min={today}
+          {...form.register("date", { onChange: (e) => recheck({ date: e.target.value }) })}
+        />
       </FormField>
 
       {date ? (
@@ -144,10 +150,18 @@ export function EnquiryPanel({
 
       <div className="grid grid-cols-2 gap-3">
         <FormField id="enq-start" label={t("start")} error={errors.startTime?.message}>
-          <Input type="time" step={900} {...form.register("startTime")} />
+          <Input
+            type="time"
+            step={900}
+            {...form.register("startTime", { onChange: (e) => recheck({ startTime: e.target.value }) })}
+          />
         </FormField>
         <FormField id="enq-end" label={t("end")} error={errors.endTime?.message}>
-          <Input type="time" step={900} {...form.register("endTime")} />
+          <Input
+            type="time"
+            step={900}
+            {...form.register("endTime", { onChange: (e) => recheck({ endTime: e.target.value }) })}
+          />
         </FormField>
       </div>
       <p className="text-muted-foreground -mt-2 text-xs">{t("timesHint")}</p>

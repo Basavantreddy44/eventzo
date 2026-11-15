@@ -15,12 +15,28 @@ export type AvailabilityCheck = {
 };
 
 /** Public, read-only: availability + auspicious-date surcharge for one listing/date. */
-export async function checkAvailability(serviceId: string, date: string): Promise<ActionResult<AvailabilityCheck>> {
-  if (!z.uuid().safeParse(serviceId).success || !/^\d{4}-\d{2}-\d{2}$/.test(date)) return fail("errors.invalidInput");
+export async function checkAvailability(
+  serviceId: string,
+  date: string,
+  startTime = "10:00",
+  endTime = "22:00",
+): Promise<ActionResult<AvailabilityCheck>> {
+  const time = /^([01]\d|2[0-3]):[0-5]\d$/;
+  if (
+    !z.uuid().safeParse(serviceId).success ||
+    !/^\d{4}-\d{2}-\d{2}$/.test(date) ||
+    !time.test(startTime) ||
+    !time.test(endTime) ||
+    endTime <= startTime
+  )
+    return fail("errors.invalidInput");
+  // Check the hours the customer asked for, not the whole day (QA B12).
   const { data, error } = await createPublicClient().rpc("listing_availability", {
     p_service_id: serviceId,
     p_from: date,
     p_to: date,
+    p_start: startTime,
+    p_end: endTime,
   });
   if (error) return fail(`errors.${mapDbError(error)}`);
   const day = data?.[0];

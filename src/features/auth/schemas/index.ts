@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { personNameSchema } from "@/lib/names";
 import { routing } from "@/i18n/routing";
 
 /**
@@ -33,7 +34,7 @@ export type MagicLinkInput = z.infer<typeof magicLinkSchema>;
 
 export const registerSchema = z
   .object({
-    fullName: z.string().trim().min(2, "validation.nameLength").max(120, "validation.nameLength"),
+    fullName: personNameSchema(2),
     email: emailSchema,
     password: passwordSchema,
     confirmPassword: z.string().min(1, "validation.required"),

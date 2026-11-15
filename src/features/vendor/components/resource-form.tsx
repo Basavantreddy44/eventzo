@@ -20,13 +20,13 @@ export const EMPTY_RESOURCE: ResourceInput = {
   name: "",
   kind: "venue_space",
   allocationMode: "exclusive",
-  capacity: "1",
+  capacity: "",
   serviceId: "",
   branchId: "",
   staffProfileId: "",
-  setupBufferMin: "0",
-  breakdownBufferMin: "0",
-  travelBufferMin: "0",
+  setupBufferMin: "",
+  breakdownBufferMin: "",
+  travelBufferMin: "",
 };
 
 export function ResourceForm({
@@ -94,7 +94,7 @@ export function ResourceForm({
       </FormField>
       {allocation === "capacity" ? (
         <FormField id="res-capacity" label={t("capacity")} error={errors.capacity?.message}>
-          <Input inputMode="numeric" {...form.register("capacity")} />
+          <Input inputMode="numeric" placeholder="1" {...form.register("capacity")} />
         </FormField>
       ) : null}
       <FormField
@@ -142,13 +142,13 @@ export function ResourceForm({
       </FormField>
       <div className="grid grid-cols-3 gap-2">
         <FormField id="res-setup" label={t("setup")} error={errors.setupBufferMin?.message}>
-          <Input inputMode="numeric" {...form.register("setupBufferMin")} />
+          <Input inputMode="numeric" placeholder="0" {...form.register("setupBufferMin")} />
         </FormField>
         <FormField id="res-breakdown" label={t("breakdown")} error={errors.breakdownBufferMin?.message}>
-          <Input inputMode="numeric" {...form.register("breakdownBufferMin")} />
+          <Input inputMode="numeric" placeholder="0" {...form.register("breakdownBufferMin")} />
         </FormField>
         <FormField id="res-travel" label={t("travel")} error={errors.travelBufferMin?.message}>
-          <Input inputMode="numeric" {...form.register("travelBufferMin")} />
+          <Input inputMode="numeric" placeholder="0" {...form.register("travelBufferMin")} />
         </FormField>
       </div>
       <p className="text-muted-foreground text-xs">{t("buffersHint")}</p>

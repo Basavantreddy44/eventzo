@@ -7,6 +7,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { ActionButton } from "@/components/action-button";
 import { DataTable } from "@/components/data-table";
 import { PageHeader } from "@/components/page-header";
+import { IntegrationNotice } from "@/components/integration-notice";
 import { StatusBadge } from "@/components/status-badge";
 import { EmptyState } from "@/components/states/empty-state";
 import { formatDateTime } from "@/lib/datetime";
@@ -52,6 +53,7 @@ export default async function OutboxPage({ params, searchParams }: PageProps<"/[
     ? (sp.filter as (typeof FILTERS)[number])
     : "queued";
   const mode = getDeliveryMode();
+  const tInt = await getTranslations("integrations");
   const [rows, counts] = await Promise.all([listOutbox(filter), outboxCounts()]);
   type Row = (typeof rows)[number];
 
@@ -76,9 +78,14 @@ export default async function OutboxPage({ params, searchParams }: PageProps<"/[
           )
         }
       />
-      <p className="text-muted-foreground text-sm" data-testid="outbox-mode">
-        {mode === "simulator" ? t("modeSimulator") : t("modeNone")}
-      </p>
+      <div data-testid="outbox-mode">
+        <IntegrationNotice
+          provider="whatsapp"
+          className="sm:max-w-2xl"
+          state={mode === "simulator" ? "simulator" : "comingSoon"}
+          description={mode === "simulator" ? t("modeSimulator") : tInt("whatsapp.adminComingSoon")}
+        />
+      </div>
       <dl className="grid grid-cols-3 gap-3 sm:max-w-md">
         {(["queued", "sent", "failed"] as const).map((k) => (
           <div key={k} className="bg-card rounded-lg border p-3">

@@ -143,7 +143,12 @@ export default async function VendorCalendarPage({ params, searchParams }: PageP
                             : "—"}
                         </span>
                         <span className="text-muted-foreground text-xs">
-                          {resourceName.get(r.resource_id)} · {r.enquiryId ? t("enquiryHold") : tSource(r.source)}
+                          {resourceName.get(r.resource_id)} ·{" "}
+                          {r.enquiryId
+                            ? r.status === "confirmed"
+                              ? t("booking")
+                              : t("enquiryHold")
+                            : tSource(r.source)}
                           {r.notes && !r.enquiryId ? ` · ${r.notes}` : ""}
                         </span>
                       </div>

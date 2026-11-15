@@ -250,7 +250,7 @@
       "loginRequired": "Log in or create an account to register your business.",
       "existingTitle": "You already manage a business",
       "existingBody": "You can create another workspace below, or go to your dashboard.",
-      "reviewNote": "New businesses start as drafts. Listings go live after verification."
+      "reviewNote": "New businesses start as drafts. Listings go live after Eventzo verifies your documents."
     },
     "switcher": {
       "organization": "Business",
@@ -283,14 +283,18 @@
     "ownerOnly": "Only the business owner can change this.",
     "golive": {
       "draftTitle": "Your business isn't live yet",
-      "draftBody": "Customers can find you once your business profile has a description and phone number and at least one listing is published.",
+      "draftBody": "Customers can find you once your business profile has a description and phone number, at least one listing is published, and Eventzo has verified your business.",
+      "pendingTitle": "Waiting for verification",
+      "pendingBody": "Your profile and listing are ready. Eventzo reviews your documents and lists your business as soon as it is verified.",
+      "needsDocsBody": "Your profile and listing are ready. Upload a verification document so Eventzo can review and list your business.",
       "activeTitle": "Your business is live",
       "activeBody": "Customers can find your published listings in search.",
       "blockedTitle": "Your business is not visible",
       "blockedBody": "Your business is {status}. Please contact Eventzo support.",
       "stepProfile": "Add a description and business phone",
       "stepListing": "Publish at least one listing",
-      "stepDocuments": "Upload verification documents (for the Verified badge)"
+      "stepDocuments": "Upload verification documents",
+      "stepVerified": "Eventzo verifies your business"
     },
     "profile": {
       "title": "Business profile",
@@ -1338,6 +1342,7 @@
     "releaseBody": "The time becomes available to customers again.",
     "released": "Released.",
     "enquiryHold": "Enquiry hold",
+    "booking": "Booking",
     "viewEnquiry": "View enquiry",
     "allResources": "All resources"
   },
@@ -1408,7 +1413,7 @@
     "payAmount": "Pay {amount}",
     "payBalance": "Pay balance {amount}",
     "payOfflineHint": "Paying the vendor directly (cash or UPI)? Ask them to record it here so your booking is confirmed.",
-    "paymentsUnavailable": "Online payment isn't switched on yet. You can pay the vendor directly; they'll record it here.",
+    "paymentsUnavailable": "Online payment is coming soon.",
     "cannotPay": "This booking can't be paid right now.",
     "gatewayError": "The payment service didn't respond. Please try again.",
     "signatureInvalid": "We couldn't verify this payment. If money was taken, it will be matched automatically or refunded.",
@@ -2145,5 +2150,27 @@
     "refunded": "Refunded from this payment",
     "notInvoice": "This is a payment receipt, not a GST tax invoice.",
     "issuedVia": "Issued through {site}."
+  },
+  "integrations": {
+    "states": {
+      "comingSoon": "Coming soon",
+      "simulator": "Simulator",
+      "test": "Test mode",
+      "live": "Live"
+    },
+    "whatsapp": {
+      "name": "WhatsApp updates",
+      "customerComingSoon": "WhatsApp messages about your enquiries, quotes, bookings and RSVPs are coming soon. Your choice below is saved and will be used as soon as WhatsApp is switched on. Until then, updates appear here in the app.",
+      "adminComingSoon": "WhatsApp will be configurable once a provider is connected (Meta Cloud API or a WhatsApp partner such as Gupshup or Interakt) with approved message templates. Until then, messages wait in the queue below.",
+      "adminSimulator": "Simulator on (NOTIFICATIONS_SIMULATOR=true): messages are marked sent without contacting anyone. Turn it off before real customers use the site."
+    },
+    "razorpay": {
+      "name": "Razorpay online payments",
+      "customerComingSoon": "Paying online by UPI, card or net banking through Razorpay is coming soon. For now, pay the vendor directly and they'll record it here, so your booking and receipt stay up to date.",
+      "adminComingSoon": "Razorpay will be configurable: add the Razorpay key ID, key secret and webhook secret to the deployment settings to switch on online payments and refunds. Until then, vendors record payments and refunds offline.",
+      "adminSimulator": "Payment simulator is on: online payments and refunds are simulated, no real money moves.",
+      "adminTest": "Razorpay is connected with test keys: no real money moves.",
+      "adminLive": "Razorpay is connected with live keys: real payments and refunds."
+    }
   }
 }

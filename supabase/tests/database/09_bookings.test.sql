@@ -21,6 +21,8 @@ select tests.grant_platform_role((select v from ctx where k = 'fin'), 'finance_o
 -- linked resource, and an instant room (50% advance, flexible policy).
 select tests.login_as((select v from ctx where k = 'owner'));
 insert into ctx values ('org', public.create_organization('Tau Test Mantapa', tests.category_id('venues'), tests.city_id('kalaburagi'), 'test-idem-tau-0001'));
+-- Verified first: vendors go live only after verification (QA B11).
+select tests.verify_org((select v from ctx where k = 'org'));
 update public.business_profiles set description = 'Test hall', contact_phone = '+919845000000' where organization_id = (select v from ctx where k = 'org');
 insert into public.services (organization_id, service_category_id, slug, title, status, price_type, price_unit, base_price_paise, city_id, created_by)
 values ((select v from ctx where k = 'org'), (select id from public.service_categories where slug = 'kalyana-mantapa'), '',

@@ -2,7 +2,7 @@
 begin;
 \ir 00_helpers.sql.inc
 
-select plan(28);
+select plan(34);
 
 create temp table ctx (k text primary key, v uuid) on commit drop;
 grant all on ctx to anon, authenticated;
@@ -31,15 +31,15 @@ select is((select status::text from public.organizations where id = (select v fr
   'without a contact phone the vendor stays in draft');
 
 update public.business_profiles set contact_phone = '+919845012345' where organization_id = (select v from ctx where k = 'org');
-select is((select status::text from public.organizations where id = (select v from ctx where k = 'org')), 'active',
-  'profile complete + published listing → the vendor goes live automatically');
+select is((select status::text from public.organizations where id = (select v from ctx where k = 'org')), 'draft',
+  'profile complete + published listing, but not verified → still draft (QA B11)');
 
 select tests.login_anon();
-select is((select count(*)::int from public.search_listings('Kappa')), 1, 'the listing is now public');
+select is((select count(*)::int from public.search_listings('Kappa')), 0, 'an unverified vendor is not public');
 
 select tests.logout();
-select ok(exists (select 1 from public.audit_logs where action = 'organization.activated'
-                   and organization_id = (select v from ctx where k = 'org')), 'go-live is audited');
+select ok(not exists (select 1 from public.audit_logs where action = 'organization.activated'
+                   and organization_id = (select v from ctx where k = 'org')), 'no go-live before verification');
 
 -- ---------- verification workflow ------------------------------------------------------
 select tests.login_as((select v from ctx where k = 'owner'));
@@ -67,6 +67,23 @@ select is((public.review_business_document((select v from ctx where k = 'doc'), 
   'an operator can approve a document');
 select is((public.set_organization_verification((select v from ctx where k = 'org'), 'verified')).verification_status::text, 'verified',
   'an operator can then mark the vendor verified');
+select is((select status::text from public.organizations where id = (select v from ctx where k = 'org')), 'active',
+  'verifying a complete vendor makes it go live');
+select tests.logout();
+select ok(exists (select 1 from public.audit_logs where action = 'organization.activated'
+                   and organization_id = (select v from ctx where k = 'org')), 'go-live is audited');
+select tests.login_anon();
+select is((select count(*)::int from public.search_listings('Kappa')), 1, 'the verified vendor is now public');
+
+-- Withdrawing verification takes the vendor out of search; re-verifying brings it back.
+select tests.login_as((select v from ctx where k = 'operator'));
+select is((public.set_organization_verification((select v from ctx where k = 'org'), 'rejected', 'Licence expired')).status::text, 'draft',
+  'rejecting verification moves a live vendor back to draft');
+select tests.login_anon();
+select is((select count(*)::int from public.search_listings('Kappa')), 0, 'and hides it from search');
+select tests.login_as((select v from ctx where k = 'operator'));
+select is((public.set_organization_verification((select v from ctx where k = 'org'), 'verified')).status::text, 'active',
+  're-verifying puts it live again');
 
 -- ---------- invitations ------------------------------------------------------------------
 select tests.login_as((select v from ctx where k = 'stranger'));

@@ -30,7 +30,7 @@ Phase 5 (booking & payments) is complete and on Eventzoo; online payment runs on
 
 | Bug | Status | Fix |
 |---|---|---|
-| B1 Critical: sign-up/magic-link emails land on a Vercel-protected deployment | ⚠️ **Code fixed; one dashboard step left** | The app sent `localhost` as the return address because `NEXT_PUBLIC_SITE_URL` wasn't set, so Supabase used its Site URL. The app now falls back to Vercel's production domain. **You:** Supabase → Eventzoo → Authentication → URL Configuration → Site URL `https://eventzo-two.vercel.app`; add `https://eventzo-two.vercel.app/**` to Redirect URLs |
+| B1 Critical: sign-up/magic-link emails land on a Vercel-protected deployment | ✅ Fixed (15 Nov, after retest) | The app sent `localhost` as the return address because `NEXT_PUBLIC_SITE_URL` wasn't set, so Supabase used its Site URL. The app now falls back to Vercel's production domain. **You:** Supabase → Eventzoo → Authentication → URL Configuration → Site URL `https://eventzo-two.vercel.app`; add `https://eventzo-two.vercel.app/**` to Redirect URLs |
 | B2 Critical: DEV seed and its super admin on the live database | ✅ Fixed on Eventzoo | Your account was made super admin, then the 4 dev logins, 7 sample businesses (8 listings), 8 DEV SAMPLE muhurtham dates and 12 DEV SAMPLE estimator ranges were deleted in one transaction (rehearsed locally first; audit action `platform.dev_seed_removed`). Your draft business "Event" was kept |
 | B3 High: seed vendor can't log in | ✅ Not reproducible; account now removed | Both seed vendors signed in with the documented password over the API on 15 Nov; the address was probably mistyped |
 | B4 High: "You don't have access" panel lingers over later pages | ✅ Fixed | `/admin` and `/vendor` now redirect users without the role to a separate `/access-denied` page |
@@ -40,6 +40,19 @@ Phase 5 (booking & payments) is complete and on Eventzoo; online payment runs on
 | B8 Medium: public site shows sample data | ✅ Fixed with B2 | Site is empty until real vendors go live |
 | B9 Low: typing lands in a hidden field from the previous page | ✅ Fixed | Next keeps visited pages mounted (hidden); form ids were shared (`email`). Every form field id is now unique per instance |
 | B10 Low: brand "Eventzo" vs blueprint "UtsavSetu" | Open: your decision | `CLAUDE.md` names the product Eventzo; the brand is set in `src/config/site.ts` |
+
+### Retest, 15 Nov 2026 (rated 7.0/10) — follow-up fixes
+
+| Item | Status | Fix |
+|---|---|---|
+| B1 still open on retest | ✅ Fixed | Eventzoo Auth settings changed through the Supabase management API (owner approved): Site URL `https://eventzo-two.vercel.app`; Redirect URLs `https://eventzo-two.vercel.app/**`, the existing `eventzo-kns21` preview patterns and `http://localhost:3000/**` |
+| B9 "hidden forms stay in the DOM" | ✅ By design | Next.js keeps recently visited pages mounted but hidden so Back is instant. Field ids are unique since the first fix, so a hidden form can no longer take focus or input |
+| B11 High: vendor listed before verification | ✅ Fixed | **Decision (product owner, 15 Nov 2026), replaces P2-1:** a vendor goes live only when profile + published listing + **verified**. Verifying a complete vendor makes it live; withdrawing verification takes it back to draft (bookings untouched). Existing unverified live vendors were moved to draft. Dashboard shows "Waiting for verification" (migration `20261118000100_qa_fixes.sql`) |
+| B12 Medium: day after a booking shows "Not available" | ✅ Fixed | The date check tested 00:00–24:00 plus buffers. It now tests the requested hours (default 10:00–22:00) and re-checks when the times change |
+| B13 Low: name with trailing comma | ✅ Fixed | The stored name had the comma (typed at sign-up). Names are now tidied on save (stray commas and spaces removed) |
+| B14 Low: "0" prefix, calendar label, language names | ✅ Fixed | Buffer/capacity fields start empty with a placeholder; confirmed bookings read "Booking"; languages read "Kannada (ಕನ್ನಡ)" |
+| I2 Custom email sender (SMTP) | Open: needs your provider account | Resend, Amazon SES or Zoho; then Supabase → Auth → SMTP |
+| I3 / I4 Razorpay, WhatsApp | Open: needs keys/accounts | Shown honestly as **Coming soon** with the Razorpay and WhatsApp marks on the booking page, notification settings, admin refunds and admin outbox |
 
 Tests after the fixes: Vitest 276/276; Playwright 47/47 (desktop) plus the auth suite on mobile 16/16, including new checks for B4, B5 and B9. The integration gaps (I2–I10) and missed blueprint features in the report are product scope for a next release, not regressions.
 

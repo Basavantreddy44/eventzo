@@ -3137,10 +3137,7 @@ export type Database = {
         }[];
       };
       admin_user_overview: { Args: { p_user_id: string }; Returns: Json };
-      admin_vendor_overview: {
-        Args: { p_organization_id: string };
-        Returns: Json;
-      };
+      admin_vendor_overview: { Args: { p_organization_id: string }; Returns: Json };
       assign_staff: {
         Args: {
           p_call_time?: string;
@@ -3151,10 +3148,7 @@ export type Database = {
         };
         Returns: string;
       };
-      attach_payment_order: {
-        Args: { p_order_id: string; p_payment_id: string };
-        Returns: undefined;
-      };
+      attach_payment_order: { Args: { p_order_id: string; p_payment_id: string }; Returns: undefined };
       begin_refund: {
         Args: { p_refund_id: string };
         Returns: {
@@ -3175,10 +3169,7 @@ export type Database = {
         }[];
       };
       can_access_branch: { Args: { p_branch_id: string }; Returns: boolean };
-      cancel_booking_item: {
-        Args: { p_booking_item_id: string; p_reason: string };
-        Returns: number;
-      };
+      cancel_booking_item: { Args: { p_booking_item_id: string; p_reason: string }; Returns: number };
       cancel_enquiry: { Args: { p_enquiry_id: string }; Returns: undefined };
       cancellation_quote: {
         Args: { p_booking_item_id: string };
@@ -3218,31 +3209,15 @@ export type Database = {
         };
       };
       complete_outbox: {
-        Args: {
-          p_error: string;
-          p_id: string;
-          p_provider: string;
-          p_provider_message_id: string;
-          p_success: boolean;
-        };
+        Args: { p_error: string; p_id: string; p_provider: string; p_provider_message_id: string; p_success: boolean };
         Returns: undefined;
       };
-      complete_refund: {
-        Args: { p_reference: string; p_refund_id: string; p_success: boolean };
-        Returns: undefined;
-      };
+      complete_refund: { Args: { p_reference: string; p_refund_id: string; p_success: boolean }; Returns: undefined };
       confirm_online_payment: {
-        Args: {
-          p_amount_paise: number;
-          p_order_id: string;
-          p_payment_id: string;
-        };
+        Args: { p_amount_paise: number; p_order_id: string; p_payment_id: string };
         Returns: string;
       };
-      create_booking: {
-        Args: { p_enquiry_id: string; p_idempotency_key: string };
-        Returns: string;
-      };
+      create_booking: { Args: { p_enquiry_id: string; p_idempotency_key: string }; Returns: string };
       create_enquiry: {
         Args: {
           p_end_time: string;
@@ -3277,18 +3252,10 @@ export type Database = {
         Returns: string;
       };
       create_organization: {
-        Args: {
-          p_business_category_id: string;
-          p_city_id: string;
-          p_idempotency_key: string;
-          p_name: string;
-        };
+        Args: { p_business_category_id: string; p_city_id: string; p_idempotency_key: string; p_name: string };
         Returns: string;
       };
-      decline_enquiry: {
-        Args: { p_enquiry_id: string; p_reason: string };
-        Returns: undefined;
-      };
+      decline_enquiry: { Args: { p_enquiry_id: string; p_reason: string }; Returns: undefined };
       enquiry_contact: {
         Args: { p_enquiry_id: string };
         Returns: {
@@ -3297,10 +3264,7 @@ export type Database = {
           phone: string;
         }[];
       };
-      ensure_job: {
-        Args: { p_booking_item_id?: string; p_reservation_id?: string };
-        Returns: string;
-      };
+      ensure_job: { Args: { p_booking_item_id?: string; p_reservation_id?: string }; Returns: string };
       event_member_directory: {
         Args: { p_event_id: string };
         Returns: {
@@ -3330,18 +3294,9 @@ export type Database = {
         }[];
       };
       get_listing: { Args: { p_slug: string }; Returns: Json };
-      guest_invite_token: {
-        Args: { p_guest_id: string; p_regenerate?: boolean };
-        Returns: string;
-      };
-      has_org_role: {
-        Args: { p_organization_id: string; p_roles: string[] };
-        Returns: boolean;
-      };
-      has_platform_permission: {
-        Args: { p_permission: string };
-        Returns: boolean;
-      };
+      guest_invite_token: { Args: { p_guest_id: string; p_regenerate?: boolean }; Returns: string };
+      has_org_role: { Args: { p_organization_id: string; p_roles: string[] }; Returns: boolean };
+      has_platform_permission: { Args: { p_permission: string }; Returns: boolean };
       invitation_by_token: {
         Args: { p_token: string };
         Returns: {
@@ -3362,17 +3317,13 @@ export type Database = {
         }[];
       };
       invite_event_member: {
-        Args: {
-          p_email: string;
-          p_event_id: string;
-          p_role: Database["public"]["Enums"]["event_role"];
-        };
+        Args: { p_email: string; p_event_id: string; p_role: Database["public"]["Enums"]["event_role"] };
         Returns: string;
       };
       is_org_member: { Args: { p_organization_id: string }; Returns: boolean };
       is_platform_admin: { Args: Record<PropertyKey, never>; Returns: boolean };
       listing_availability: {
-        Args: { p_from: string; p_service_id: string; p_to: string };
+        Args: { p_end?: string; p_from: string; p_service_id: string; p_start?: string; p_to: string };
         Returns: {
           auspicious: boolean;
           day: string;
@@ -3382,10 +3333,7 @@ export type Database = {
       };
       mark_guests_invited: { Args: { p_guest_ids: string[] }; Returns: number };
       mark_notifications_read: { Args: { p_ids?: string[] }; Returns: number };
-      mark_online_payment_failed: {
-        Args: { p_order_id: string };
-        Returns: undefined;
-      };
+      mark_online_payment_failed: { Args: { p_order_id: string }; Returns: undefined };
       my_access: { Args: Record<PropertyKey, never>; Returns: Json };
       my_event_invitations: {
         Args: Record<PropertyKey, never>;
@@ -3447,10 +3395,7 @@ export type Database = {
         }[];
       };
       payment_receipt: { Args: { p_payment_id: string }; Returns: Json };
-      post_enquiry_message: {
-        Args: { p_body: string; p_enquiry_id: string };
-        Returns: string;
-      };
+      post_enquiry_message: { Args: { p_body: string; p_enquiry_id: string }; Returns: string };
       record_offline_payment: {
         Args: {
           p_amount_paise: number;
@@ -3462,16 +3407,9 @@ export type Database = {
         };
         Returns: string;
       };
-      release_expired_holds: {
-        Args: Record<PropertyKey, never>;
-        Returns: number;
-      };
+      release_expired_holds: { Args: Record<PropertyKey, never>; Returns: number };
       release_reservation: {
-        Args: {
-          p_cancel?: boolean;
-          p_reason?: string;
-          p_reservation_id: string;
-        };
+        Args: { p_cancel?: boolean; p_reason?: string; p_reservation_id: string };
         Returns: {
           allocation_mode: Database["public"]["Enums"]["allocation_mode"];
           blocked_period: unknown;
@@ -3498,10 +3436,7 @@ export type Database = {
           isSetofReturn: false;
         };
       };
-      remove_event_member: {
-        Args: { p_event_id: string; p_user_id: string };
-        Returns: undefined;
-      };
+      remove_event_member: { Args: { p_event_id: string; p_user_id: string }; Returns: undefined };
       reserve_resource: {
         Args: {
           p_ends_at: string;
@@ -3540,22 +3475,13 @@ export type Database = {
           isSetofReturn: false;
         };
       };
-      respond_event_invitation: {
-        Args: { p_accept: boolean; p_invitation_id: string };
-        Returns: string;
-      };
-      respond_invitation: {
-        Args: { p_accept: boolean; p_invitation_id: string };
-        Returns: string;
-      };
+      respond_event_invitation: { Args: { p_accept: boolean; p_invitation_id: string }; Returns: string };
+      respond_invitation: { Args: { p_accept: boolean; p_invitation_id: string }; Returns: string };
       respond_job: {
         Args: { p_action: string; p_assignment_id: string; p_note?: string };
         Returns: Database["public"]["Enums"]["job_assignment_status"];
       };
-      respond_quotation: {
-        Args: { p_accept: boolean; p_quotation_id: string };
-        Returns: undefined;
-      };
+      respond_quotation: { Args: { p_accept: boolean; p_quotation_id: string }; Returns: undefined };
       respond_rsvp: {
         Args: {
           p_count: number;
@@ -3591,14 +3517,8 @@ export type Database = {
           isSetofReturn: false;
         };
       };
-      revoke_event_invitation: {
-        Args: { p_invitation_id: string };
-        Returns: undefined;
-      };
-      revoke_invitation: {
-        Args: { p_invitation_id: string };
-        Returns: undefined;
-      };
+      revoke_event_invitation: { Args: { p_invitation_id: string }; Returns: undefined };
+      revoke_invitation: { Args: { p_invitation_id: string }; Returns: undefined };
       search_listings: {
         Args: {
           p_category?: string;
@@ -3649,15 +3569,9 @@ export type Database = {
         };
         Returns: string;
       };
-      set_enquiry_event: {
-        Args: { p_enquiry_id: string; p_event_id: string };
-        Returns: undefined;
-      };
+      set_enquiry_event: { Args: { p_enquiry_id: string; p_event_id: string }; Returns: undefined };
       set_event_status: {
-        Args: {
-          p_event_id: string;
-          p_status: Database["public"]["Enums"]["event_status"];
-        };
+        Args: { p_event_id: string; p_status: Database["public"]["Enums"]["event_status"] };
         Returns: undefined;
       };
       set_organization_status: {
@@ -3695,18 +3609,9 @@ export type Database = {
           isSetofReturn: false;
         };
       };
-      set_user_block: {
-        Args: { p_block: boolean; p_reason?: string; p_user_id: string };
-        Returns: undefined;
-      };
-      set_whatsapp_consent: {
-        Args: { p_granted: boolean; p_user_agent?: string };
-        Returns: undefined;
-      };
-      settle_online_refund: {
-        Args: { p_razorpay_refund_id: string; p_success: boolean };
-        Returns: undefined;
-      };
+      set_user_block: { Args: { p_block: boolean; p_reason?: string; p_user_id: string }; Returns: undefined };
+      set_whatsapp_consent: { Args: { p_granted: boolean; p_user_agent?: string }; Returns: undefined };
+      settle_online_refund: { Args: { p_razorpay_refund_id: string; p_success: boolean }; Returns: undefined };
       start_payment: {
         Args: { p_booking_item_id: string };
         Returns: {
@@ -3719,22 +3624,11 @@ export type Database = {
       };
       unassign_staff: { Args: { p_assignment_id: string }; Returns: undefined };
       update_assignment: {
-        Args: {
-          p_assignment_id: string;
-          p_call_time: string;
-          p_pay_paise: number;
-          p_role_label: string;
-        };
+        Args: { p_assignment_id: string; p_call_time: string; p_pay_paise: number; p_role_label: string };
         Returns: undefined;
       };
-      vendor_report: {
-        Args: { p_from: string; p_organization_id: string; p_to: string };
-        Returns: Json;
-      };
-      withdraw_quotation: {
-        Args: { p_quotation_id: string };
-        Returns: undefined;
-      };
+      vendor_report: { Args: { p_from: string; p_organization_id: string; p_to: string }; Returns: Json };
+      withdraw_quotation: { Args: { p_quotation_id: string }; Returns: undefined };
     };
     Enums: {
       allocation_mode: "exclusive" | "capacity";
@@ -3813,9 +3707,7 @@ export type Tables<
     ? keyof (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
         DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])
     : never) = never,
-> = DefaultSchemaTableNameOrOptions extends {
-  schema: keyof DatabaseWithoutInternals;
-}
+> = DefaultSchemaTableNameOrOptions extends { schema: keyof DatabaseWithoutInternals }
   ? (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
       DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])[TableName] extends {
       Row: infer R;
@@ -3837,9 +3729,7 @@ export type TablesInsert<
   }
     ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
     : never) = never,
-> = DefaultSchemaTableNameOrOptions extends {
-  schema: keyof DatabaseWithoutInternals;
-}
+> = DefaultSchemaTableNameOrOptions extends { schema: keyof DatabaseWithoutInternals }
   ? DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
       Insert: infer I;
     }
@@ -3860,9 +3750,7 @@ export type TablesUpdate<
   }
     ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
     : never) = never,
-> = DefaultSchemaTableNameOrOptions extends {
-  schema: keyof DatabaseWithoutInternals;
-}
+> = DefaultSchemaTableNameOrOptions extends { schema: keyof DatabaseWithoutInternals }
   ? DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
       Update: infer U;
     }
@@ -3883,9 +3771,7 @@ export type Enums<
   }
     ? keyof DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"]
     : never) = never,
-> = DefaultSchemaEnumNameOrOptions extends {
-  schema: keyof DatabaseWithoutInternals;
-}
+> = DefaultSchemaEnumNameOrOptions extends { schema: keyof DatabaseWithoutInternals }
   ? DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"][EnumName]
   : DefaultSchemaEnumNameOrOptions extends keyof DefaultSchema["Enums"]
     ? DefaultSchema["Enums"][DefaultSchemaEnumNameOrOptions]
@@ -3899,9 +3785,7 @@ export type CompositeTypes<
   }
     ? keyof DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"]
     : never) = never,
-> = PublicCompositeTypeNameOrOptions extends {
-  schema: keyof DatabaseWithoutInternals;
-}
+> = PublicCompositeTypeNameOrOptions extends { schema: keyof DatabaseWithoutInternals }
   ? DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"][CompositeTypeName]
   : PublicCompositeTypeNameOrOptions extends keyof DefaultSchema["CompositeTypes"]
     ? DefaultSchema["CompositeTypes"][PublicCompositeTypeNameOrOptions]

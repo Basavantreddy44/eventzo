@@ -7,6 +7,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { ActionButton } from "@/components/action-button";
 import { DataTable } from "@/components/data-table";
 import { PageHeader } from "@/components/page-header";
+import { IntegrationNotice } from "@/components/integration-notice";
 import { StatusBadge } from "@/components/status-badge";
 import { EmptyState } from "@/components/states/empty-state";
 import { formatDateTime } from "@/lib/datetime";
@@ -50,6 +51,7 @@ export default async function AdminRefundsPage({ params, searchParams }: PagePro
   const canManage = hasPermission(user.access, "finance.manage");
   const config = getRazorpayConfig();
   const mode = getPaymentMode();
+  const tInt = await getTranslations("integrations");
   const all = sp.filter === "all";
   const rows = await listRefunds(!all);
   type Row = (typeof rows)[number];
@@ -70,15 +72,20 @@ export default async function AdminRefundsPage({ params, searchParams }: PagePro
           </div>
         }
       />
-      <p className="text-muted-foreground text-sm">
-        {config
-          ? isTestMode(config)
-            ? t("gatewayTest")
-            : t("gatewayLive")
-          : mode === "simulator"
-            ? t("gatewaySimulator")
-            : t("gatewayMissing")}
-      </p>
+      <IntegrationNotice
+        provider="razorpay"
+        className="sm:max-w-2xl"
+        state={config ? (isTestMode(config) ? "test" : "live") : mode === "simulator" ? "simulator" : "comingSoon"}
+        description={
+          config
+            ? isTestMode(config)
+              ? t("gatewayTest")
+              : t("gatewayLive")
+            : mode === "simulator"
+              ? tInt("razorpay.adminSimulator")
+              : tInt("razorpay.adminComingSoon")
+        }
+      />
       <DataTable<Row>
         rows={rows}
         rowKey={(r) => r.id}

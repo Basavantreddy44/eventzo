@@ -7,6 +7,7 @@ import { z } from "zod";
 import { Link } from "@/i18n/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { PageHeader } from "@/components/page-header";
+import { IntegrationNotice } from "@/components/integration-notice";
 import { StatusBadge } from "@/components/status-badge";
 import { formatDateTime } from "@/lib/datetime";
 import { formatPaise } from "@/lib/money";
@@ -47,6 +48,10 @@ export default async function MyBookingPage({ params }: PageProps<"/[locale]/acc
   const { payable } = amountsDue(item);
   const left = item.status === "pending_payment" ? holdRemaining(item.payment_due_at) : null;
   const payMode = getPaymentMode();
+  const tInt = await getTranslations("integrations");
+  const razorpaySoon = payMode ? null : (
+    <IntegrationNotice provider="razorpay" state="comingSoon" description={tInt("razorpay.customerComingSoon")} />
+  );
 
   return (
     <div className="grid gap-6">
@@ -95,6 +100,7 @@ export default async function MyBookingPage({ params }: PageProps<"/[locale]/acc
                       mode={payMode}
                       disabledReason={t("paymentsUnavailable")}
                     />
+                    {razorpaySoon}
                     <p className="text-muted-foreground text-xs">{t("payOfflineHint")}</p>
                   </>
                 ) : null}
@@ -115,6 +121,7 @@ export default async function MyBookingPage({ params }: PageProps<"/[locale]/acc
                   mode={payMode}
                   disabledReason={t("paymentsUnavailable")}
                 />
+                {razorpaySoon}
               </CardContent>
             </Card>
           ) : null}

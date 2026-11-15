@@ -4,7 +4,7 @@ import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
 import { localeLabels, routing } from "@/i18n/routing";
@@ -99,9 +99,9 @@ export function BusinessProfileForm({ defaults, readOnly }: { defaults: Business
             <legend className="mb-1 text-sm font-medium">{t("languages")}</legend>
             <div className="flex flex-wrap gap-3">
               {routing.locales.map((l) => (
-                <label key={l} className="flex items-center gap-2 text-sm" lang={l}>
+                <label key={l} className="flex items-center gap-2 text-sm">
                   <input type="checkbox" value={l} className="accent-primary size-4" {...form.register("languages")} />
-                  {localeLabels[l]}
+                  <LanguageName code={l} />
                 </label>
               ))}
             </div>
@@ -172,5 +172,25 @@ export function BusinessProfileForm({ defaults, readOnly }: { defaults: Business
         </Button>
       )}
     </form>
+  );
+}
+
+/**
+ * "Kannada (ಕನ್ನಡ)": the language named in the page's language, plus its own
+ * script when that differs, so screen readers announce a full name (QA B14).
+ */
+function LanguageName({ code }: { code: (typeof routing.locales)[number] }) {
+  const locale = useLocale();
+  let named: string = localeLabels[code];
+  try {
+    named = new Intl.DisplayNames([locale], { type: "language" }).of(code) ?? named;
+  } catch {
+    // Older engines: fall back to the native label.
+  }
+  if (named === localeLabels[code]) return <span lang={code}>{named}</span>;
+  return (
+    <span>
+      {named} (<span lang={code}>{localeLabels[code]}</span>)
+    </span>
   );
 }

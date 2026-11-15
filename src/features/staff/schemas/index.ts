@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { personNameSchema } from "@/lib/names";
 import { rupeesToPaise } from "@/lib/money";
 import { normalizePhone } from "@/features/account/schemas";
 
@@ -25,7 +26,7 @@ const toPaise = (v: string) => (v ? Number(rupeesToPaise(v)) : null);
 // ---------- roster ------------------------------------------------------------------
 export const staffSchema = z.object({
   id: z.uuid().optional(),
-  fullName: z.string().trim().min(1, "validation.required").max(120, "validation.nameLength"),
+  fullName: personNameSchema(1, "validation.required"),
   phone: z
     .string()
     .trim()

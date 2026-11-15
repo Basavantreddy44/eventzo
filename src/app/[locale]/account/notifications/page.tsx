@@ -3,6 +3,8 @@ import { getTranslations } from "next-intl/server";
 import { Bell } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { PageHeader } from "@/components/page-header";
+import { IntegrationNotice } from "@/components/integration-notice";
+import { getDeliveryMode } from "@/features/notifications/lib/delivery";
 import { EmptyState } from "@/components/states/empty-state";
 import { formatDateTime } from "@/lib/datetime";
 import { formatPaise } from "@/lib/money";
@@ -32,6 +34,8 @@ export default async function NotificationsPage({ params }: PageProps<"/[locale]
     getNotificationSettings(user.id),
   ]);
   const tKinds = t as unknown as DynamicT;
+  const tInt = await getTranslations("integrations");
+  const whatsappMode = getDeliveryMode();
 
   const items: NotificationView[] = rows.map((n) => {
     const values = notificationValues(n.params, (p) => formatPaise(p));
@@ -69,7 +73,14 @@ export default async function NotificationsPage({ params }: PageProps<"/[locale]
               <CardTitle>{t("whatsappTitle")}</CardTitle>
               <CardDescription>{t("whatsappBody")}</CardDescription>
             </CardHeader>
-            <CardContent>
+            <CardContent className="grid gap-4">
+              {whatsappMode ? null : (
+                <IntegrationNotice
+                  provider="whatsapp"
+                  state="comingSoon"
+                  description={tInt("whatsapp.customerComingSoon")}
+                />
+              )}
               <WhatsappOptIn phone={settings.phone} optedIn={settings.whatsappOptIn} />
             </CardContent>
           </Card>

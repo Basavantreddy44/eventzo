@@ -95,12 +95,12 @@ select v.id::uuid, v.name, v.slug, bc.id, c.id, 'active', v.ver::public.verifica
        case when v.ver = 'verified' then now() end, v.owner::uuid
 from (values
   ('bbbbbbbb-0000-4000-8000-000000000001', 'Sample Lakshmi Kalyana Mantapa',   'sample-lakshmi-kalyana-mantapa',   'venues',      'kalaburagi', 'verified',   'aaaaaaaa-0000-4000-8000-000000000002'),
-  ('bbbbbbbb-0000-4000-8000-000000000002', 'Sample Annapoorna Caterers',       'sample-annapoorna-caterers',       'catering',    'kalaburagi', 'unverified', 'aaaaaaaa-0000-4000-8000-000000000002'),
-  ('bbbbbbbb-0000-4000-8000-000000000003', 'Sample Mallige Decorators',        'sample-mallige-decorators',        'decoration',  'kalaburagi', 'unverified', 'aaaaaaaa-0000-4000-8000-000000000002'),
+  ('bbbbbbbb-0000-4000-8000-000000000002', 'Sample Annapoorna Caterers',       'sample-annapoorna-caterers',       'catering',    'kalaburagi', 'verified'  , 'aaaaaaaa-0000-4000-8000-000000000002'),
+  ('bbbbbbbb-0000-4000-8000-000000000003', 'Sample Mallige Decorators',        'sample-mallige-decorators',        'decoration',  'kalaburagi', 'verified'  , 'aaaaaaaa-0000-4000-8000-000000000002'),
   ('bbbbbbbb-0000-4000-8000-000000000004', 'Sample Royal Palace Convention',   'sample-royal-palace-convention',   'venues',      'bengaluru',  'verified',   'aaaaaaaa-0000-4000-8000-000000000003'),
   ('bbbbbbbb-0000-4000-8000-000000000005', 'Sample Bale Ele Caterers',         'sample-bale-ele-caterers',         'catering',    'bengaluru',  'verified',   'aaaaaaaa-0000-4000-8000-000000000003'),
-  ('bbbbbbbb-0000-4000-8000-000000000006', 'Sample Kalpavruksha Floral Decor', 'sample-kalpavruksha-floral-decor', 'decoration',  'bengaluru',  'unverified', 'aaaaaaaa-0000-4000-8000-000000000003'),
-  ('bbbbbbbb-0000-4000-8000-000000000007', 'Sample Lens and Light Studio',     'sample-lens-and-light-studio',     'photography', 'bengaluru',  'unverified', 'aaaaaaaa-0000-4000-8000-000000000003')
+  ('bbbbbbbb-0000-4000-8000-000000000006', 'Sample Kalpavruksha Floral Decor', 'sample-kalpavruksha-floral-decor', 'decoration',  'bengaluru',  'verified'  , 'aaaaaaaa-0000-4000-8000-000000000003'),
+  ('bbbbbbbb-0000-4000-8000-000000000007', 'Sample Lens and Light Studio',     'sample-lens-and-light-studio',     'photography', 'bengaluru',  'verified'  , 'aaaaaaaa-0000-4000-8000-000000000003')
 ) as v(id, name, slug, cat, city, ver, owner)
 join public.business_categories bc on bc.slug = v.cat
 join public.cities c on c.slug = v.city

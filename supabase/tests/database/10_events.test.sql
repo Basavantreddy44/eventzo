@@ -132,6 +132,8 @@ select throws_ok($$ insert into public.event_budget_lines (event_id, label, plan
 -- ---------- vendors of the event + notifications ---------------------------------------------------
 select tests.login_as((select v from ctx where k = 'vendor'));
 insert into ctx values ('org', public.create_organization('Ev Test Mantapa', tests.category_id('venues'), tests.city_id('kalaburagi'), 'test-idem-ev-0001'));
+-- Verified first: vendors go live only after verification (QA B11).
+select tests.verify_org((select v from ctx where k = 'org'));
 update public.business_profiles set description = 'Test hall', contact_phone = '+919845000000' where organization_id = (select v from ctx where k = 'org');
 insert into public.services (organization_id, service_category_id, slug, title, status, price_type, price_unit, base_price_paise, city_id, created_by)
 values ((select v from ctx where k = 'org'), (select id from public.service_categories where slug = 'kalyana-mantapa'), '',

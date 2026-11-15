@@ -256,7 +256,8 @@ export const SERVICE_STATUS_TRANSITIONS = {
 const minutes = z
   .string()
   .trim()
-  .refine((v) => /^\d{1,4}$/.test(v) && Number(v) <= 2880, "validation.minutes");
+  // Empty means 0, so the field can start blank instead of with a "0" typed after (QA B14).
+  .refine((v) => v === "" || (/^\d{1,4}$/.test(v) && Number(v) <= 2880), "validation.minutes");
 
 export const resourceSchema = z
   .object({

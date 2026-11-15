@@ -66,7 +66,9 @@ async function createPublishedListing(page: Page, title: string) {
 
 test.describe.configure({ mode: "serial" });
 
-test("a new vendor goes live automatically once profile and listing are complete", async ({ page }) => {
+test("a new vendor goes live once profile and listing are complete and Eventzo verifies it (QA B11)", async ({
+  page,
+}) => {
   await register(page, "Go Live Owner");
   const business = unique("Golive Mantapa");
   await createVendor(page, business);
@@ -80,7 +82,7 @@ test("a new vendor goes live automatically once profile and listing are complete
   await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
   await expect(page.getByRole("link", { name: title, exact: true })).toHaveCount(0);
 
-  // Completing the profile triggers go-live in the database.
+  // Completing the profile is not enough: an admin must verify the business first.
   await page.goto("/vendor/profile");
   await page.getByLabel("About your business").fill("A family-run kalyana mantapa for weddings.");
   await page.getByLabel("Business phone").fill("98450 12345");
@@ -88,7 +90,34 @@ test("a new vendor goes live automatically once profile and listing are complete
   await expect(page.getByText("Profile saved.")).toBeVisible();
 
   await page.goto("/vendor");
-  await expect(page.getByTestId("golive-card")).toContainText("Your business is live");
+  await expect(page.getByTestId("golive-card")).toContainText("Waiting for verification");
+  await expect(page.getByTestId("golive-card")).toContainText("Upload a verification document");
+  await page.goto(`/search?q=${encodeURIComponent(title)}`);
+  await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
+  await expect(page.getByRole("link", { name: title, exact: true })).toHaveCount(0);
+
+  await page.goto("/vendor/documents");
+  await page.getByLabel("Document type").selectOption("gst_certificate");
+  await page
+    .getByLabel("File", { exact: true })
+    .setInputFiles({ name: "gst.pdf", mimeType: "application/pdf", buffer: PDF });
+  await page.getByRole("button", { name: "Upload document" }).click();
+  await expect(page.getByText("Document uploaded.")).toBeVisible();
+  await page.goto("/vendor");
+  await expect(page.getByTestId("golive-card")).toContainText("Eventzo reviews your documents");
+
+  // An admin approves the document and verifies the business → it goes live.
+  await logout(page);
+  await login(page, "admin@sample.eventzo.test", "Eventzo2027");
+  await page.goto("/admin/verification");
+  await page
+    .getByRole("row", { name: new RegExp(business) })
+    .getByRole("link", { name: "Review" })
+    .click();
+  await page.getByTestId("review-documents").getByRole("button", { name: "Approve" }).click();
+  await expect(page.getByText("Document approved.")).toBeVisible();
+  await page.getByTestId("verify-vendor").click();
+  await expect(page).toHaveURL(/\/admin\/verification$/);
 
   await page.goto(`/search?q=${encodeURIComponent(title)}`);
   await expect(page.getByTestId("search-results").getByRole("link", { name: title })).toBeVisible();

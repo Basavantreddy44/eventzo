@@ -47,23 +47,33 @@ export default async function VendorDashboardPage({ params }: PageProps<"/[local
     { label: t("upcoming"), value: data.upcomingCount },
   ];
 
-  // Mirrors the database go-live rule (private.try_activate_organization).
+  // Mirrors the database go-live rule (private.try_activate_organization):
+  // profile complete + a published listing + verified (QA B11).
+  const verified = data.organization.verification_status === "verified";
+  const readyButUnverified = readiness.profileComplete && readiness.hasPublishedListing && !verified;
   const checklist = [
     { label: tGo("stepProfile"), done: readiness.profileComplete, href: "/vendor/profile" },
     { label: tGo("stepListing"), done: readiness.hasPublishedListing, href: "/vendor/listings" },
     { label: tGo("stepDocuments"), done: readiness.documentsUploaded, href: "/vendor/documents" },
+    { label: tGo("stepVerified"), done: verified, href: "/vendor/documents" },
     { label: t("checklistResources"), done: data.checklist.resourcesAdded, href: "/vendor/resources" },
   ];
   const golive =
     orgStatus === "active"
       ? { title: tGo("activeTitle"), body: tGo("activeBody"), tone: "border-success/30 bg-success/5" }
-      : orgStatus === "draft"
-        ? { title: tGo("draftTitle"), body: tGo("draftBody"), tone: "border-gold/40 bg-accent/40" }
-        : {
-            title: tGo("blockedTitle"),
-            body: tGo("blockedBody", { status: tStatus(orgStatus) }),
-            tone: "border-destructive/30 bg-destructive/5",
-          };
+      : orgStatus === "draft" && readyButUnverified
+        ? {
+            title: tGo("pendingTitle"),
+            body: readiness.documentsUploaded ? tGo("pendingBody") : tGo("needsDocsBody"),
+            tone: "border-gold/40 bg-accent/40",
+          }
+        : orgStatus === "draft"
+          ? { title: tGo("draftTitle"), body: tGo("draftBody"), tone: "border-gold/40 bg-accent/40" }
+          : {
+              title: tGo("blockedTitle"),
+              body: tGo("blockedBody", { status: tStatus(orgStatus) }),
+              tone: "border-destructive/30 bg-destructive/5",
+            };
 
   return (
     <div className="grid gap-6">
