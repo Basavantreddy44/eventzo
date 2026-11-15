@@ -1,10 +1,10 @@
 # Eventzo — Project Status
 
-_Last updated: 12 Nov 2026 (Phases 8 and 9)_
+_Last updated: 15 Nov 2026 (QA report fixes)_
 
 ## Current phase: 9 — Hardening: testing, security review, deployment
 
-**Status: ✅ Phases 7, 8 and 9 complete and tested locally (12 Nov 2026). Not pushed to Eventzoo yet**: migrations `20261116000100_vendor_ops.sql` and `20261117000100_admin_ops.sql` wait for your go-ahead (Eventzoo is at 16/18). Nothing is deployed to Vercel yet. `DEPLOYMENT.md` lists what's needed.
+**Status: ✅ All 9 phases complete. Eventzoo is at 18/18 migrations; the app is deployed on Vercel (Hobby) at https://eventzo-two.vercel.app from GitHub `main`.** A QA pass on 15 Nov 2026 (rated 6.1/10) found 10 bugs; the code and data fixes are below. B1 still needs one Supabase dashboard change.
 
 What's left belongs to you, not code: the launch decisions and reviews (D7 city, D8 CA, legal texts, translations), keys for Razorpay, WhatsApp and SMTP, and the go-ahead to push and deploy.
 
@@ -20,9 +20,28 @@ Phase 5 (booking & payments) is complete and on Eventzoo; online payment runs on
 | 4 — Availability, enquiries, quotations (A, G, B pricing) | ✅ complete |
 | 5 — Booking & payments (Razorpay test mode) | ✅ complete (simulated gateway until Razorpay keys are added) |
 | 6 — Event workspace, messaging, notifications (C, E) | ✅ complete (WhatsApp/email simulated until a provider is connected) |
-| 7 — Advanced vendor ERP (staff, resources, finance, reports, H) | ✅ complete (local; push pending) |
-| 8 — Admin & platform operations | ✅ complete (local; push pending) |
-| 9 — Hardening: testing, security review, deployment | ✅ complete (deployment itself waits for your go-ahead and keys) |
+| 7 — Advanced vendor ERP (staff, resources, finance, reports, H) | ✅ complete |
+| 8 — Admin & platform operations | ✅ complete |
+| 9 — Hardening: testing, security review, deployment | ✅ complete; deployed to Vercel (payments/WhatsApp keys still pending) |
+
+---
+
+## QA report, 15 Nov 2026 — fixes
+
+| Bug | Status | Fix |
+|---|---|---|
+| B1 Critical: sign-up/magic-link emails land on a Vercel-protected deployment | ⚠️ **Code fixed; one dashboard step left** | The app sent `localhost` as the return address because `NEXT_PUBLIC_SITE_URL` wasn't set, so Supabase used its Site URL. The app now falls back to Vercel's production domain. **You:** Supabase → Eventzoo → Authentication → URL Configuration → Site URL `https://eventzo-two.vercel.app`; add `https://eventzo-two.vercel.app/**` to Redirect URLs |
+| B2 Critical: DEV seed and its super admin on the live database | ✅ Fixed on Eventzoo | Your account was made super admin, then the 4 dev logins, 7 sample businesses (8 listings), 8 DEV SAMPLE muhurtham dates and 12 DEV SAMPLE estimator ranges were deleted in one transaction (rehearsed locally first; audit action `platform.dev_seed_removed`). Your draft business "Event" was kept |
+| B3 High: seed vendor can't log in | ✅ Not reproducible; account now removed | Both seed vendors signed in with the documented password over the API on 15 Nov; the address was probably mistyped |
+| B4 High: "You don't have access" panel lingers over later pages | ✅ Fixed | `/admin` and `/vendor` now redirect users without the role to a separate `/access-denied` page |
+| B5 Medium: forbidden portal pages answer 200 with the portal title | ✅ Fixed | The proxy checks the role and answers 307 → `/access-denied?area=…`; the layouts redirect as a backstop |
+| B6 Medium: sitemap/robots point to localhost | ✅ Fixed (verified live) | Same root cause as B1 |
+| B7 Medium: ~0.8 s database latency | ✅ Fixed (verified live: 27–36 ms) | Functions pinned to `syd1` next to the Sydney database. Visitors in India still cross to Sydney once per page; a Mumbai (ap-south-1) project before launch would remove that |
+| B8 Medium: public site shows sample data | ✅ Fixed with B2 | Site is empty until real vendors go live |
+| B9 Low: typing lands in a hidden field from the previous page | ✅ Fixed | Next keeps visited pages mounted (hidden); form ids were shared (`email`). Every form field id is now unique per instance |
+| B10 Low: brand "Eventzo" vs blueprint "UtsavSetu" | Open: your decision | `CLAUDE.md` names the product Eventzo; the brand is set in `src/config/site.ts` |
+
+Tests after the fixes: Vitest 276/276; Playwright 47/47 (desktop) plus the auth suite on mobile 16/16, including new checks for B4, B5 and B9. The integration gaps (I2–I10) and missed blueprint features in the report are product scope for a next release, not regressions.
 
 ---
 
@@ -42,7 +61,7 @@ Phase 5 (booking & payments) is complete and on Eventzoo; online payment runs on
 - **12 Nov 2026:** Phase 4 migration pushed (14/14 in sync), plus the 3 sample-venue resources. Verified: listing availability and search via the public API, all 4 dev logins, and app pages served from Eventzoo with no errors.
 - **Network note:** some Indian ISPs (e.g. Jio, some Airtel lines) block `supabase.co`. If you see `fetch failed`, use Cloudflare WARP/VPN or another network, or switch to the local stack (`cp .env.docker .env.local`; Eventzoo values are kept in `.env.eventzoo`). Before launch, consider a Supabase custom domain so customers on those ISPs are not affected.
 - Not done yet (needs your go-ahead): running the pgTAP suite against Eventzoo (`npx supabase test db --remote --yes`; it runs in rolled-back transactions).
-- **Eventzoo contains the DEV seed by your choice** (Sample vendors, dev logins with password `Eventzo2027`). Remove it before real launch, or create a clean production project (ideally Mumbai, ap-south-1) and push migrations only.
+- **15 Nov 2026:** DEV seed and QA test data removed from Eventzoo (QA B2). Never push with `--include-seed` again. For a launch in India, consider a clean Mumbai (ap-south-1) project with migrations only.
 - The unrelated **Orbit Social** project in the same Supabase account was never used and must not be.
 
 ---
