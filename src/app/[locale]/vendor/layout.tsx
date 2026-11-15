@@ -1,7 +1,7 @@
 import { getTranslations } from "next-intl/server";
 import { PortalShell } from "@/components/layout/portal-shell";
 import type { NavItem } from "@/components/layout/nav-icons";
-import { AccessDenied } from "@/components/states/access-denied";
+import { redirect } from "@/i18n/navigation";
 import { requireUser } from "@/lib/auth/session";
 import { vendorMemberships } from "@/lib/auth/permissions";
 import { getUserMenuProps, localizedPath } from "@/lib/auth/portal-user";
@@ -19,12 +19,8 @@ export default async function VendorLayout({ children, params }: LayoutProps<"/[
 
   const ctx = await getVendorContext();
   if (!ctx) {
-    return (
-      <AccessDenied
-        description={t("errors.accessDeniedVendor")}
-        action={{ href: "/become-a-vendor", label: t("home.vendorCtaButton") }}
-      />
-    );
+    // The proxy already redirects; this is the server-side backstop.
+    return redirect({ href: { pathname: "/access-denied", query: { area: "vendor" } }, locale });
   }
 
   const isStaff = ctx.membership.role === "staff";

@@ -2,7 +2,8 @@ import createIntlMiddleware from "next-intl/middleware";
 import { NextResponse, type NextRequest } from "next/server";
 import { routing } from "@/i18n/routing";
 import { refreshSession } from "@/lib/supabase/proxy";
-import { isProtectedPath, stripLocale } from "@/lib/auth/paths";
+import { deniedPortal, isProtectedPath, stripLocale } from "@/lib/auth/paths";
+import { isPlatformAdmin, isVendorMember } from "@/lib/auth/permissions";
 
 const intl = createIntlMiddleware(routing);
 
@@ -12,6 +13,9 @@ const intl = createIntlMiddleware(routing);
  * 3. Coarse gate: signed-out users can't open /account, /vendor or /admin.
  *    Real authorisation (roles, membership) happens server-side in each
  *    layout/page/action and in RLS. This gate is only for UX.
+ * 4. Signed-in users without the role for /admin or /vendor get a 307 to
+ *    /access-denied instead of a 200 portal page (QA B4, B5). The layouts
+ *    check again; RLS remains the real enforcement.
  */
 export async function proxy(request: NextRequest) {
   const { pathname, search } = request.nextUrl;
@@ -28,6 +32,19 @@ export async function proxy(request: NextRequest) {
     const url = new URL(loginPath, request.url);
     url.searchParams.set("next", pathname + search);
     return session.applyTo(NextResponse.redirect(url));
+  }
+
+  const portal = session.userId ? deniedPortal(path) : null;
+  if (portal) {
+    const access = await session.access();
+    // Null access (blocked user, RPC error): let the layout decide.
+    const allowed = !access || (portal === "admin" ? isPlatformAdmin(access) : isVendorMember(access));
+    if (!allowed) {
+      const deniedPath = locale === routing.defaultLocale ? "/access-denied" : `/${locale}/access-denied`;
+      const url = new URL(deniedPath, request.url);
+      url.searchParams.set("area", portal);
+      return session.applyTo(NextResponse.redirect(url));
+    }
   }
 
   return session.applyTo(intl(request));

@@ -15,6 +15,14 @@ export function isProtectedPath(path: string): boolean {
   return PROTECTED_PREFIXES.some((prefix) => path === prefix || path.startsWith(prefix + "/"));
 }
 
+/** Which role-gated portal a path belongs to (/admin or /vendor), if any. */
+export function deniedPortal(path: string): "admin" | "vendor" | null {
+  for (const portal of ["admin", "vendor"] as const) {
+    if (path === `/${portal}` || path.startsWith(`/${portal}/`)) return portal;
+  }
+  return null;
+}
+
 /**
  * Validates a post-login redirect target. Only same-origin, absolute paths are
  * allowed — prevents open redirects via ?next=https://evil.example.

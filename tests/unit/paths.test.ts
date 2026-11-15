@@ -45,3 +45,15 @@ describe("safeNextPath (open-redirect protection)", () => {
     expect(safeNextPath(value as string | null | undefined, "/account")).toBe("/account");
   });
 });
+
+describe("deniedPortal (QA B4, B5)", () => {
+  it("names the role-gated portal a path belongs to", async () => {
+    const { deniedPortal } = await import("@/lib/auth/paths");
+    expect(deniedPortal("/admin")).toBe("admin");
+    expect(deniedPortal("/admin/users")).toBe("admin");
+    expect(deniedPortal("/vendor/finance")).toBe("vendor");
+    expect(deniedPortal("/administrator")).toBeNull();
+    expect(deniedPortal("/vendors")).toBeNull();
+    expect(deniedPortal("/account")).toBeNull();
+  });
+});

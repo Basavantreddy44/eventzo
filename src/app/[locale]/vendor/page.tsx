@@ -29,7 +29,7 @@ export default async function VendorDashboardPage({ params }: PageProps<"/[local
   // Re-check here too: layouts don't re-run on every navigation.
   await requireUser(locale, localizedPath(locale, "/vendor"));
   const ctx = await getVendorContext();
-  if (!ctx) return null; // the layout renders <AccessDenied/>
+  if (!ctx) return null; // the layout redirects to /access-denied
 
   const [t, tGo, tSource, data, readiness] = await Promise.all([
     getTranslations("vendor.dashboard"),

@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useTransition } from "react";
+import { useId, useRef, useTransition } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
@@ -33,6 +33,7 @@ export function PhotoManager({
   const tListing = useTranslations("listing");
   const router = useRouter();
   const inputRef = useRef<HTMLInputElement>(null);
+  const inputId = `photo-input-${useId().replace(/[^a-zA-Z0-9_-]/g, "")}`; // unique: hidden pages stay mounted (QA B9)
   const [pending, startTransition] = useTransition();
   const remaining = MAX_PHOTOS - photos.length;
 
@@ -124,7 +125,7 @@ export function PhotoManager({
       <div className="grid gap-1">
         <input
           ref={inputRef}
-          id="photo-input"
+          id={inputId}
           type="file"
           multiple
           accept={PHOTO_MIME_TYPES.join(",")}
@@ -134,7 +135,7 @@ export function PhotoManager({
           data-testid="photo-input"
         />
         <Button asChild variant="outline" disabled={pending || remaining <= 0} className="sm:justify-self-start">
-          <label htmlFor="photo-input" className="cursor-pointer">
+          <label htmlFor={inputId} className="cursor-pointer">
             {pending ? <Loader2 className="animate-spin" aria-hidden /> : <ImagePlus aria-hidden />}
             {pending ? t("photosUploading") : t("photosAdd")}
           </label>

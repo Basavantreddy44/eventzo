@@ -25,7 +25,7 @@ export async function generateMetadata({ params }: PageProps<"/[locale]/admin">)
 export default async function AdminDashboardPage({ params }: PageProps<"/[locale]/admin">) {
   const locale = await localeFrom(params);
   const user = await requireUser(locale, localizedPath(locale, "/admin"));
-  if (!isPlatformAdmin(user.access)) return null; // the layout renders <AccessDenied/>
+  if (!isPlatformAdmin(user.access)) return null; // the layout redirects to /access-denied
 
   const [t, data] = await Promise.all([getTranslations("admin.dashboard"), getAdminOverview(user)]);
   const noPermission = <p className="text-muted-foreground text-sm">{t("noPermission")}</p>;

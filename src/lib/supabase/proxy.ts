@@ -1,6 +1,6 @@
 import { createServerClient, type CookieOptions } from "@supabase/ssr";
 import type { NextRequest, NextResponse } from "next/server";
-import type { Database } from "@/types/database";
+import type { Database, MyAccess } from "@/types/database";
 
 /**
  * Refreshes the Supabase session for this request.
@@ -39,6 +39,12 @@ export async function refreshSession(request: NextRequest) {
 
   return {
     userId,
+    /** Roles, permissions and memberships (same RPC the layouts use). Null if blocked or on error. */
+    async access(): Promise<MyAccess | null> {
+      if (!userId) return null;
+      const { data, error } = await supabase.rpc("my_access");
+      return error || !data ? null : (data as unknown as MyAccess);
+    },
     applyTo(response: NextResponse): NextResponse {
       for (const { name, value, options } of pending) response.cookies.set(name, value, options);
       for (const [key, value] of Object.entries(cacheHeaders)) response.headers.set(key, value);

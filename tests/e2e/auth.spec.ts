@@ -118,6 +118,40 @@ test.describe("authorisation", () => {
     await page.goto("/admin");
     await expect(page.getByTestId("access-denied")).toBeVisible();
     await expect(page.getByText("This area is restricted to Eventzo staff.")).toBeVisible();
+
+    // QA B4: leaving the denied page by in-app navigation must not keep the panel on screen.
+    await page.getByRole("link", { name: "My account" }).click();
+    await expect(page).toHaveURL(/\/account$/);
+    await expect(page.getByRole("heading", { level: 1, name: "My account" })).toBeVisible();
+    // (Next may keep the previous page mounted but hidden; it must not be visible.)
+    await expect(page.getByTestId("access-denied")).toBeHidden();
+
+    // QA B5: the server answers with a redirect, not a 200 admin page.
+    for (const path of ["/admin", "/admin/users", "/vendor", "/vendor/finance"]) {
+      const res = await page.request.get(path, { maxRedirects: 0 });
+      expect(res.status(), path).toBe(307);
+      expect(res.headers()["location"], path).toMatch(/\/access-denied\?area=(admin|vendor)$/);
+    }
+  });
+
+  test("after moving from login to register in the app, clicking a label fills the visible field (QA B9)", async ({
+    page,
+  }) => {
+    await page.goto("/login");
+    await page.getByRole("link", { name: "Create an account" }).click();
+    await expect(page).toHaveURL(/\/register$/);
+    // Click the label text itself: it must focus the register form's field, not the hidden login one.
+    const form = page.getByRole("form", { name: "Create your account" });
+    await form.getByText("Email", { exact: true }).click();
+    await page.keyboard.type("label-check@example.test");
+    await expect(form.getByLabel("Email")).toHaveValue("label-check@example.test");
+    // Every id on the page is unique, even with the login page kept alive in the background.
+    const duplicates = await page.evaluate(() => {
+      const seen = new Map<string, number>();
+      for (const el of document.querySelectorAll("[id]")) seen.set(el.id, (seen.get(el.id) ?? 0) + 1);
+      return [...seen].filter(([, n]) => n > 1).map(([id]) => id);
+    });
+    expect(duplicates).toEqual([]);
   });
 
   test("localised routes keep the locale prefix", async ({ page }) => {

@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState, useTransition } from "react";
+import { useId, useRef, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
@@ -20,6 +20,7 @@ import { DOCUMENT_MAX_BYTES, DOCUMENT_MIME_TYPES, DOCUMENT_TYPES, extensionFor }
  */
 export function DocumentUploadForm({ organizationId }: { organizationId: string }) {
   const t = useTranslations("vendor.documents");
+  const uid = useId().replace(/[^a-zA-Z0-9_-]/g, ""); // unique ids: hidden pages stay mounted (QA B9)
   const router = useRouter();
   const fileRef = useRef<HTMLInputElement>(null);
   const [type, setType] = useState<(typeof DOCUMENT_TYPES)[number]>("gst_certificate");
@@ -61,8 +62,8 @@ export function DocumentUploadForm({ organizationId }: { organizationId: string 
     <form onSubmit={onSubmit} noValidate className="grid gap-4" aria-label={t("upload")}>
       <FormError message={error} />
       <div className="grid gap-2">
-        <Label htmlFor="doc-type">{t("type")}</Label>
-        <NativeSelect id="doc-type" value={type} onChange={(e) => setType(e.target.value as typeof type)}>
+        <Label htmlFor={`doc-type-${uid}`}>{t("type")}</Label>
+        <NativeSelect id={`doc-type-${uid}`} value={type} onChange={(e) => setType(e.target.value as typeof type)}>
           {DOCUMENT_TYPES.map((d) => (
             <option key={d} value={d}>
               {t(`types.${d}`)}
@@ -71,15 +72,15 @@ export function DocumentUploadForm({ organizationId }: { organizationId: string 
         </NativeSelect>
       </div>
       <div className="grid gap-2">
-        <Label htmlFor="doc-file">{t("file")}</Label>
+        <Label htmlFor={`doc-file-${uid}`}>{t("file")}</Label>
         <Input
-          id="doc-file"
+          id={`doc-file-${uid}`}
           ref={fileRef}
           type="file"
           accept={DOCUMENT_MIME_TYPES.join(",")}
-          aria-describedby="doc-file-hint"
+          aria-describedby={`doc-file-hint-${uid}`}
         />
-        <p id="doc-file-hint" className="text-muted-foreground text-xs">
+        <p id={`doc-file-hint-${uid}`} className="text-muted-foreground text-xs">
           {t("fileHint")}
         </p>
       </div>

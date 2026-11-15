@@ -1024,6 +1024,7 @@
     "accessDeniedTitle": "You don't have access",
     "accessDeniedVendor": "The vendor dashboard is for registered businesses. Register your business to get started.",
     "accessDeniedAdmin": "This area is restricted to Eventzo staff.",
+    "accessDeniedGeneric": "Your account can't open that page.",
     "unauthenticated": "Please log in to continue.",
     "forbidden": "You don't have permission to do that.",
     "conflict": "That time is no longer available.",

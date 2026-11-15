@@ -14,12 +14,25 @@ export type PublicEnv = z.infer<typeof publicEnvSchema>;
 
 let cached: PublicEnv | undefined;
 
+/**
+ * The site's own address. When NEXT_PUBLIC_SITE_URL is not set on Vercel, use
+ * the project's production domain (a Vercel system variable) rather than
+ * localhost, so auth emails, the sitemap and robots.txt never point at
+ * localhost (QA B1, B6). Setting NEXT_PUBLIC_SITE_URL still wins, e.g. for a
+ * custom domain.
+ */
+function siteUrl(): string | undefined {
+  if (process.env.NEXT_PUBLIC_SITE_URL) return process.env.NEXT_PUBLIC_SITE_URL;
+  const vercel = process.env.VERCEL_PROJECT_PRODUCTION_URL;
+  return vercel ? `https://${vercel}` : undefined;
+}
+
 export function getPublicEnv(): PublicEnv {
   if (cached) return cached;
   const parsed = publicEnvSchema.safeParse({
     NEXT_PUBLIC_SUPABASE_URL: process.env.NEXT_PUBLIC_SUPABASE_URL,
     NEXT_PUBLIC_SUPABASE_ANON_KEY: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
-    NEXT_PUBLIC_SITE_URL: process.env.NEXT_PUBLIC_SITE_URL || undefined,
+    NEXT_PUBLIC_SITE_URL: siteUrl(),
   });
   if (!parsed.success) {
     const missing = parsed.error.issues.map((i) => i.path.join(".")).join(", ");

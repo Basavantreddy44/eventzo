@@ -9,6 +9,7 @@ import { Toaster } from "@/components/ui/sonner";
 import { cn } from "@/lib/utils";
 import "../globals.css";
 import { localeFrom } from "@/i18n/params";
+import { getPublicEnv } from "@/lib/env";
 
 const geist = Geist({ subsets: ["latin"], variable: "--font-geist" });
 const geistMono = Geist_Mono({ subsets: ["latin"], variable: "--font-geist-mono", preload: false });
@@ -28,7 +29,7 @@ export async function generateMetadata({ params }: LayoutProps<"/[locale]">): Pr
   return {
     title: { default: `${siteConfig.name} · ${tBrand("tagline")}`, template: `%s · ${siteConfig.name}` },
     description: t("description"),
-    metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000"),
+    metadataBase: new URL(getPublicEnv().NEXT_PUBLIC_SITE_URL),
     alternates: {
       languages: Object.fromEntries(routing.locales.map((l) => [l, l === routing.defaultLocale ? "/" : `/${l}`])),
     },

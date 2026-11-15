@@ -1,7 +1,7 @@
 import { getTranslations } from "next-intl/server";
 import { PortalShell } from "@/components/layout/portal-shell";
 import type { NavItem } from "@/components/layout/nav-icons";
-import { AccessDenied } from "@/components/states/access-denied";
+import { redirect } from "@/i18n/navigation";
 import { requireUser } from "@/lib/auth/session";
 import { hasPermission, isPlatformAdmin } from "@/lib/auth/permissions";
 import { getUserMenuProps, localizedPath } from "@/lib/auth/portal-user";
@@ -15,7 +15,8 @@ export default async function AdminLayout({ children, params }: LayoutProps<"/[l
   const t = await getTranslations();
 
   if (!isPlatformAdmin(user.access)) {
-    return <AccessDenied description={t("errors.accessDeniedAdmin")} />;
+    // The proxy already redirects; this is the server-side backstop.
+    return redirect({ href: { pathname: "/access-denied", query: { area: "admin" } }, locale });
   }
 
   const can = (permission: string) => hasPermission(user.access, permission);
