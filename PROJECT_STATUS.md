@@ -39,7 +39,7 @@ Phase 5 (booking & payments) is complete and on Eventzoo; online payment runs on
 | B7 Medium: ~0.8 s database latency | ✅ Fixed (verified live: 27–36 ms) | Functions pinned to `syd1` next to the Sydney database. Visitors in India still cross to Sydney once per page; a Mumbai (ap-south-1) project before launch would remove that |
 | B8 Medium: public site shows sample data | ✅ Fixed with B2 | Site is empty until real vendors go live |
 | B9 Low: typing lands in a hidden field from the previous page | ✅ Fixed | Next keeps visited pages mounted (hidden); form ids were shared (`email`). Every form field id is now unique per instance |
-| B10 Low: brand "Eventzo" vs blueprint "UtsavSetu" | Open: your decision | `CLAUDE.md` names the product Eventzo; the brand is set in `src/config/site.ts` |
+| B10 Low: brand name | ✅ Decided (product owner, 15 Nov 2026) | The brand is **Eventzo** everywhere; the old working name is retired. Set in `src/config/site.ts` |
 
 ### Retest, 15 Nov 2026 (rated 7.0/10) — follow-up fixes
 

@@ -2,7 +2,7 @@
 
 > Every Celebration, One Platform.
 
-This file is the single source of truth for building UtsavSetu. It combines the Project Master Instruction, the Project Blueprint v1.0 (with the Makeup & Mehendi addendum) and the decisions approved by the product owner on 10 Nov 2026. Where this file and older documents disagree, **this file wins**.
+This file is the single source of truth for building Eventzo. It combines the Project Master Instruction, the Project Blueprint v1.0 (with the Makeup & Mehendi addendum) and the decisions approved by the product owner on 10 Nov 2026. Where this file and older documents disagree, **this file wins**.
 
 ---
 
