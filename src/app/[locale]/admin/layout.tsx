@@ -35,6 +35,8 @@ export default async function AdminLayout({ children, params }: LayoutProps<"/[l
     { href: "/admin/pricing", label: t("nav.pricing"), icon: "finance", permission: "pricing.manage" },
     { href: "/admin/payments", label: t("nav.paymentsLedger"), icon: "ledger", permission: "finance.read" },
     { href: "/admin/refunds", label: t("nav.refunds"), icon: "refunds", permission: "finance.read" },
+    { href: "/admin/support", label: t("nav.supportDesk"), icon: "support", permission: "support.manage" },
+    { href: "/admin/reviews", label: t("nav.reviews"), icon: "reviews", permission: "reviews.moderate" },
     { href: "/admin/notifications", label: t("nav.outbox"), icon: "notifications", permission: "notifications.manage" },
     { href: "/admin/audit", label: t("nav.auditLog"), icon: "audit", permission: "audit.read" },
   ];

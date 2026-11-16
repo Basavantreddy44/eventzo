@@ -10,6 +10,7 @@ import { cn } from "@/lib/utils";
 import "../globals.css";
 import { localeFrom } from "@/i18n/params";
 import { getPublicEnv } from "@/lib/env";
+import { TEXT_SIZE_SCRIPT } from "@/lib/text-size";
 
 const geist = Geist({ subsets: ["latin"], variable: "--font-geist" });
 const geistMono = Geist_Mono({ subsets: ["latin"], variable: "--font-geist-mono", preload: false });
@@ -44,7 +45,12 @@ export default async function LocaleLayout({ children, params }: LayoutProps<"/[
     <html
       lang={locale}
       className={cn(geist.variable, geistMono.variable, fraunces.variable, kannada.variable, devanagari.variable)}
+      // data-text is set by the inline script below before React hydrates (large-text mode).
+      suppressHydrationWarning
     >
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: TEXT_SIZE_SCRIPT }} />
+      </head>
       <body className="min-h-dvh">
         <NextIntlClientProvider>
           {children}

@@ -21,6 +21,8 @@ import { holdRemaining } from "@/features/enquiries/lib/quote";
 import { getEnquiryThread, rangeOf, snapshotOf } from "@/features/enquiries/queries";
 import { formatPaise } from "@/lib/money";
 import { BookNow } from "@/features/bookings/components/book-now";
+import { eventBudget, overPlanAfter } from "@/features/events/lib/budget";
+import { getEventVendors, listBudgetLines } from "@/features/events/queries";
 import { getBookingForEnquiry, getBookingPreview } from "@/features/bookings/queries";
 import { EnquiryEventSelect } from "@/features/events/components/people-forms";
 import { listOwnedEvents } from "@/features/events/queries";
@@ -58,6 +60,19 @@ export default async function MyEnquiryPage({ params }: PageProps<"/[locale]/acc
     bookable ? getBookingPreview(e.id) : null,
     isOwner ? listOwnedEvents(user.id) : Promise.resolve([]),
   ]);
+  // Roadmap C13: warn before booking above the event's plan for this category.
+  const overPlan =
+    bookable && preview?.preview && e.event_id
+      ? await Promise.all([listBudgetLines(e.event_id), getEventVendors(e.event_id)])
+          .then(([lines, vendors]) =>
+            overPlanAfter(
+              eventBudget(lines, vendors),
+              vendors.find((v) => v.enquiry_id === e.id)?.business_category_id ?? null,
+              Number(preview.preview!.total_paise),
+            ),
+          )
+          .catch(() => null)
+      : null;
   const snap = snapshotOf(e.price_snapshot);
   const range = rangeOf(e.period);
   const active = ACTIVE.has(e.status);
@@ -151,6 +166,19 @@ export default async function MyEnquiryPage({ params }: PageProps<"/[locale]/acc
                     <p className="text-muted-foreground text-xs">
                       {tB(`policyHints.${preview.preview.cancellation_policy}`)}
                     </p>
+                    {overPlan ? (
+                      <p
+                        className="border-destructive/40 bg-destructive/10 text-destructive rounded-md border p-2 text-xs"
+                        role="status"
+                        data-testid="over-plan"
+                      >
+                        {tEv("budget.overPlanWarning", {
+                          after: formatPaise(overPlan.afterPaise),
+                          planned: formatPaise(overPlan.plannedPaise),
+                          over: formatPaise(overPlan.overPaise),
+                        })}
+                      </p>
+                    ) : null}
                     <BookNow
                       enquiryId={e.id}
                       confirmBody={tB("bookBody", {

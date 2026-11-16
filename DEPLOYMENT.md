@@ -116,7 +116,13 @@ Pricing: Meta charges per 24-hour conversation (Utility category in India is rou
 | `eventzo_booking_cancelled_vendor` | {{1}} cancelled your booking on {{2}} | {{1}} = vendor, {{2}} = date |
 | `eventzo_booking_cancelled_customer` | The customer cancelled the booking for {{1}} on {{2}} | {{1}} = listing, {{2}} = date |
 | `eventzo_payment_received` | Payment of {{1}} received for {{2}} | {{1}} = amount, {{2}} = listing |
+| `eventzo_payment_reminder` | Balance of {{1}} for {{2}} is due on {{3}} | {{1}} = amount, {{2}} = listing, {{3}} = date |
 | `eventzo_refund_processed` | Refund of {{1}} for {{2}} has been issued | {{1}} = amount, {{2}} = listing |
+| `eventzo_review_request` | How was {{1}}? Leave a review to help other families | {{1}} = listing |
+| `eventzo_review_new` | New {{1}}★ review for {{2}} | {{1}} = rating, {{2}} = listing |
+| `eventzo_review_replied` | The vendor replied to your review of {{1}} | {{1}} = listing |
+| `eventzo_support_replied` | Eventzo support replied to your request #{{1}} | {{1}} = request number |
+| `eventzo_support_resolved` | Your support request #{{1}} is resolved | {{1}} = request number |
 | `eventzo_event_invited` | {{1}} invited you to help plan {{2}} ({role}) | {{1}} = by, {{2}} = event |
 | `eventzo_rsvp_received` | {{1}} replied “{status}” for {{2}} | {{1}} = guest, {{2}} = event |
 | `eventzo_job_assigned` | You have a new job: {{1}} on {{2}} | {{1}} = listing, {{2}} = date |
@@ -144,7 +150,7 @@ Pricing: Meta charges per 24-hour conversation (Utility category in India is rou
 | 4 | Cancellation policy texts reviewed by a lawyer; terms & privacy written | Product owner + legal |
 | 5 | Launch city decided (D7). Mark it in *Admin → Categories & cities* | Product owner |
 | 6 | Custom SMTP sending, and signup / reset / invite emails tested from the real domain | Dev |
-| 7 | WhatsApp provider chosen and the 23 templates in `src/features/notifications/lib/templates.ts` approved by Meta, or keep WhatsApp off | Product owner |
+| 7 | WhatsApp provider chosen and the 29 templates in `src/features/notifications/lib/templates.ts` approved by Meta, or keep WhatsApp off | Product owner |
 | 8 | Kannada and Hindi translations reviewed by native speakers (the vendor and staff areas are English-only today) | Product owner |
 | 9 | Uptime monitor on `https://<your-domain>/api/health` (UptimeRobot, Better Stack…) | Dev |
 | 10 | PITR / backups on; restore tested once | Dev |

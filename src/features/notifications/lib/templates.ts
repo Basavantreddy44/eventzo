@@ -23,7 +23,13 @@ export const NOTIFICATION_KINDS = {
     whatsapp: { name: "eventzo_booking_cancelled_customer", vars: ["listing", "date"] },
   },
   "payment.received": { whatsapp: { name: "eventzo_payment_received", vars: ["amount", "listing"] } },
+  "payment.reminder": { whatsapp: { name: "eventzo_payment_reminder", vars: ["amount", "listing", "date"] } },
   "refund.processed": { whatsapp: { name: "eventzo_refund_processed", vars: ["amount", "listing"] } },
+  "review.request": { whatsapp: { name: "eventzo_review_request", vars: ["listing"] } },
+  "review.new": { whatsapp: { name: "eventzo_review_new", vars: ["rating", "listing"] } },
+  "review.replied": { whatsapp: { name: "eventzo_review_replied", vars: ["listing"] } },
+  "support.replied": { whatsapp: { name: "eventzo_support_replied", vars: ["ref"] } },
+  "support.resolved": { whatsapp: { name: "eventzo_support_resolved", vars: ["ref"] } },
   "event.invited": { whatsapp: { name: "eventzo_event_invited", vars: ["by", "event"] } },
   "rsvp.received": { whatsapp: { name: "eventzo_rsvp_received", vars: ["guest", "event"] } },
   "job.assigned": { whatsapp: { name: "eventzo_job_assigned", vars: ["listing", "date"] } },
@@ -63,6 +69,8 @@ const PARAM_KEYS = [
   "role",
   "by",
   "reason",
+  "ref",
+  "rating",
 ];
 
 /**

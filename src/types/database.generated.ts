@@ -252,6 +252,7 @@ export type Database = {
         Row: {
           advance_bps: number;
           advance_paise: number;
+          balance_due_on: string;
           booking_id: string;
           branch_id: string | null;
           cancel_reason: string | null;
@@ -273,6 +274,7 @@ export type Database = {
           quotation_id: string | null;
           refund_due_paise: number;
           reservation_id: string | null;
+          review_requested_at: string | null;
           service_id: string;
           snapshot: NonNullable<Json>;
           status: Database["public"]["Enums"]["booking_item_status"];
@@ -283,6 +285,7 @@ export type Database = {
         Insert: {
           advance_bps: number;
           advance_paise: number;
+          balance_due_on: string;
           booking_id: string;
           branch_id?: string | null;
           cancel_reason?: string | null;
@@ -304,6 +307,7 @@ export type Database = {
           quotation_id?: string | null;
           refund_due_paise?: number;
           reservation_id?: string | null;
+          review_requested_at?: string | null;
           service_id: string;
           snapshot?: NonNullable<Json>;
           status?: Database["public"]["Enums"]["booking_item_status"];
@@ -313,6 +317,7 @@ export type Database = {
         Update: {
           advance_bps?: number;
           advance_paise?: number;
+          balance_due_on?: string;
           booking_id?: string;
           branch_id?: string | null;
           cancel_reason?: string | null;
@@ -334,6 +339,7 @@ export type Database = {
           quotation_id?: string | null;
           refund_due_paise?: number;
           reservation_id?: string | null;
+          review_requested_at?: string | null;
           service_id?: string;
           snapshot?: NonNullable<Json>;
           status?: Database["public"]["Enums"]["booking_item_status"];
@@ -1926,6 +1932,36 @@ export type Database = {
           },
         ];
       };
+      payment_reminders: {
+        Row: {
+          booking_item_id: string;
+          days_before: number;
+          due_on: string;
+          sent_at: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          booking_item_id: string;
+          days_before: number;
+          due_on: string;
+          sent_at?: string;
+        };
+        Update: {
+          booking_item_id?: string;
+          days_before?: number;
+          due_on?: string;
+          sent_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "payment_reminders_booking_item_id_fkey";
+            columns: ["booking_item_id"];
+            isOneToOne: false;
+            referencedRelation: "booking_items";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       payment_webhook_events: {
         Row: {
           error: string | null;
@@ -2491,6 +2527,97 @@ export type Database = {
           },
         ];
       };
+      reviews: {
+        Row: {
+          body: string;
+          booking_item_id: string;
+          created_at: string;
+          customer_id: string;
+          hidden_reason: string | null;
+          id: string;
+          organization_id: string;
+          photos: string[];
+          rating: number;
+          service_id: string;
+          status: string;
+          updated_at: string;
+          vendor_replied_at: string | null;
+          vendor_replied_by: string | null;
+          vendor_reply: string | null;
+        };
+        ComputedFields: never;
+        Insert: {
+          body: string;
+          booking_item_id: string;
+          created_at?: string;
+          customer_id: string;
+          hidden_reason?: string | null;
+          id?: string;
+          organization_id: string;
+          photos?: string[];
+          rating: number;
+          service_id: string;
+          status?: string;
+          updated_at?: string;
+          vendor_replied_at?: string | null;
+          vendor_replied_by?: string | null;
+          vendor_reply?: string | null;
+        };
+        Update: {
+          body?: string;
+          booking_item_id?: string;
+          created_at?: string;
+          customer_id?: string;
+          hidden_reason?: string | null;
+          id?: string;
+          organization_id?: string;
+          photos?: string[];
+          rating?: number;
+          service_id?: string;
+          status?: string;
+          updated_at?: string;
+          vendor_replied_at?: string | null;
+          vendor_replied_by?: string | null;
+          vendor_reply?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "reviews_booking_item_id_fkey";
+            columns: ["booking_item_id"];
+            isOneToOne: true;
+            referencedRelation: "booking_items";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "reviews_customer_id_fkey";
+            columns: ["customer_id"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "reviews_organization_id_fkey";
+            columns: ["organization_id"];
+            isOneToOne: false;
+            referencedRelation: "organizations";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "reviews_service_id_fkey";
+            columns: ["service_id"];
+            isOneToOne: false;
+            referencedRelation: "services";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "reviews_vendor_replied_by_fkey";
+            columns: ["vendor_replied_by"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       role_permissions: {
         Row: {
           created_at: string;
@@ -2957,6 +3084,136 @@ export type Database = {
           },
         ];
       };
+      support_messages: {
+        Row: {
+          author_id: string | null;
+          body: string;
+          created_at: string;
+          id: string;
+          internal: boolean;
+          side: string;
+          ticket_id: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          author_id?: string | null;
+          body: string;
+          created_at?: string;
+          id?: string;
+          internal?: boolean;
+          side: string;
+          ticket_id: string;
+        };
+        Update: {
+          author_id?: string | null;
+          body?: string;
+          created_at?: string;
+          id?: string;
+          internal?: boolean;
+          side?: string;
+          ticket_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "support_messages_author_id_fkey";
+            columns: ["author_id"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "support_messages_ticket_id_fkey";
+            columns: ["ticket_id"];
+            isOneToOne: false;
+            referencedRelation: "support_tickets";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      support_tickets: {
+        Row: {
+          assigned_to: string | null;
+          booking_item_id: string | null;
+          created_at: string;
+          customer_id: string;
+          first_response_at: string | null;
+          id: string;
+          idempotency_key: string | null;
+          organization_id: string | null;
+          priority: string;
+          ref_no: number;
+          resolved_at: string | null;
+          sla_due_at: string;
+          status: string;
+          topic: string;
+          updated_at: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          assigned_to?: string | null;
+          booking_item_id?: string | null;
+          created_at?: string;
+          customer_id: string;
+          first_response_at?: string | null;
+          id?: string;
+          idempotency_key?: string | null;
+          organization_id?: string | null;
+          priority?: string;
+          ref_no?: never;
+          resolved_at?: string | null;
+          sla_due_at: string;
+          status?: string;
+          topic: string;
+          updated_at?: string;
+        };
+        Update: {
+          assigned_to?: string | null;
+          booking_item_id?: string | null;
+          created_at?: string;
+          customer_id?: string;
+          first_response_at?: string | null;
+          id?: string;
+          idempotency_key?: string | null;
+          organization_id?: string | null;
+          priority?: string;
+          ref_no?: never;
+          resolved_at?: string | null;
+          sla_due_at?: string;
+          status?: string;
+          topic?: string;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "support_tickets_assigned_to_fkey";
+            columns: ["assigned_to"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "support_tickets_booking_item_id_fkey";
+            columns: ["booking_item_id"];
+            isOneToOne: false;
+            referencedRelation: "booking_items";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "support_tickets_customer_id_fkey";
+            columns: ["customer_id"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "support_tickets_organization_id_fkey";
+            columns: ["organization_id"];
+            isOneToOne: false;
+            referencedRelation: "organizations";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       user_role_assignments: {
         Row: {
           created_at: string;
@@ -3354,6 +3611,27 @@ export type Database = {
         }[];
       };
       ensure_job: { Args: { p_booking_item_id?: string; p_reservation_id?: string }; Returns: string };
+      event_day_sheet: {
+        Args: { p_event_id: string };
+        Returns: {
+          arrival_at: string;
+          booking_item_id: string;
+          category_i18n: Json;
+          category_name: string;
+          category_slug: string;
+          contact_name: string;
+          contact_phone: string;
+          contact_role: string;
+          ends_at: string;
+          event_date: string;
+          instructions: string;
+          listing_title: string;
+          site_address: string;
+          starts_at: string;
+          vendor_name: string;
+          vendor_phone: string;
+        }[];
+      };
       event_member_directory: {
         Args: { p_event_id: string };
         Returns: {
@@ -3468,6 +3746,28 @@ export type Database = {
           price_unit: Database["public"]["Enums"]["price_unit"];
         }[];
       };
+      listing_rating: {
+        Args: { p_service_id: string };
+        Returns: {
+          average: number;
+          stars: number[];
+          total: number;
+        }[];
+      };
+      listing_reviews: {
+        Args: { p_limit?: number; p_offset?: number; p_service_id: string };
+        Returns: {
+          body: string;
+          created_at: string;
+          event_month: string;
+          id: string;
+          photos: string[];
+          rating: number;
+          reviewer: string;
+          vendor_replied_at: string;
+          vendor_reply: string;
+        }[];
+      };
       mark_guests_invited: { Args: { p_guest_ids: string[] }; Returns: number };
       mark_notifications_read: { Args: { p_ids?: string[] }; Returns: number };
       mark_online_payment_failed: { Args: { p_order_id: string }; Returns: undefined };
@@ -3517,6 +3817,10 @@ export type Database = {
           title: string;
         }[];
       };
+      open_support_ticket: {
+        Args: { p_body: string; p_booking_item_id: string; p_idempotency_key: string; p_topic: string };
+        Returns: string;
+      };
       org_member_directory: {
         Args: { p_organization_id: string };
         Returns: {
@@ -3533,6 +3837,7 @@ export type Database = {
       };
       payment_receipt: { Args: { p_payment_id: string }; Returns: Json };
       post_enquiry_message: { Args: { p_body: string; p_enquiry_id: string }; Returns: string };
+      post_support_message: { Args: { p_body: string; p_internal?: boolean; p_ticket_id: string }; Returns: string };
       record_offline_payment: {
         Args: {
           p_amount_paise: number;
@@ -3574,6 +3879,7 @@ export type Database = {
         };
       };
       remove_event_member: { Args: { p_event_id: string; p_user_id: string }; Returns: undefined };
+      reply_review: { Args: { p_reply: string; p_review_id: string }; Returns: undefined };
       reserve_resource: {
         Args: {
           p_ends_at: string;
@@ -3694,6 +4000,7 @@ export type Database = {
           verified: boolean;
         }[];
       };
+      send_daily_nudges: { Args: Record<PropertyKey, never>; Returns: Json };
       send_quotation: {
         Args: {
           p_discount_paise: number;
@@ -3746,6 +4053,7 @@ export type Database = {
           isSetofReturn: false;
         };
       };
+      set_review_status: { Args: { p_reason?: string; p_review_id: string; p_status: string }; Returns: undefined };
       set_user_block: { Args: { p_block: boolean; p_reason?: string; p_user_id: string }; Returns: undefined };
       set_whatsapp_consent: { Args: { p_granted: boolean; p_user_agent?: string }; Returns: undefined };
       settle_online_refund: { Args: { p_razorpay_refund_id: string; p_success: boolean }; Returns: undefined };
@@ -3776,9 +4084,25 @@ export type Database = {
           razorpay_order_id: string;
         }[];
       };
+      submit_review: {
+        Args: { p_body: string; p_booking_item_id: string; p_photos?: string[]; p_rating: number };
+        Returns: string;
+      };
+      support_agents: {
+        Args: Record<PropertyKey, never>;
+        Returns: {
+          full_name: string;
+          id: string;
+        }[];
+      };
+      support_ticket_context: { Args: { p_ticket_id: string }; Returns: Json };
       unassign_staff: { Args: { p_assignment_id: string }; Returns: undefined };
       update_assignment: {
         Args: { p_assignment_id: string; p_call_time: string; p_pay_paise: number; p_role_label: string };
+        Returns: undefined;
+      };
+      update_support_ticket: {
+        Args: { p_assigned_to: string; p_priority: string; p_status: string; p_ticket_id: string };
         Returns: undefined;
       };
       vendor_report: { Args: { p_from: string; p_organization_id: string; p_to: string }; Returns: Json };

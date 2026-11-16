@@ -18,6 +18,7 @@ import { BudgetTab, GuestsTab, OverviewTab, PeopleTab } from "@/features/events/
 import { getEvent } from "@/features/events/queries";
 import { EVENT_TABS, type EventTab } from "@/features/events/schemas";
 import { QuotesTab } from "@/features/events/components/quotes-tab";
+import { DaySheetTab } from "@/features/events/components/day-sheet";
 
 export const instant = false;
 
@@ -109,6 +110,7 @@ export default async function EventWorkspacePage({ params, searchParams }: PageP
 
       {tab === "overview" ? <OverviewTab {...props} /> : null}
       {tab === "quotes" ? <QuotesTab {...props} /> : null}
+      {tab === "day" ? <DaySheetTab {...props} /> : null}
       {tab === "guests" ? <GuestsTab {...props} /> : null}
       {tab === "budget" ? <BudgetTab {...props} /> : null}
       {tab === "people" ? <PeopleTab {...props} /> : null}

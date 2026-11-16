@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { connection } from "next/server";
 import { getTranslations } from "next-intl/server";
-import { ArrowLeft, Clock } from "lucide-react";
+import { ArrowLeft, Clock, LifeBuoy } from "lucide-react";
 import { z } from "zod";
 import { Link } from "@/i18n/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -10,6 +10,7 @@ import { PageHeader } from "@/components/page-header";
 import { IntegrationNotice } from "@/components/integration-notice";
 import { StatusBadge } from "@/components/status-badge";
 import { formatDateTime } from "@/lib/datetime";
+import { todayIn } from "@/features/muhurtham/lib/calendar";
 import { formatPaise } from "@/lib/money";
 import { requireUser } from "@/lib/auth/session";
 import { localizedPath } from "@/lib/auth/portal-user";
@@ -20,6 +21,13 @@ import { amountsDue } from "@/features/bookings/lib/money";
 import { BookingSummary } from "@/features/bookings/components/booking-summary";
 import { CancelBooking } from "@/features/bookings/components/cancel-booking";
 import { PayOnline } from "@/features/bookings/components/pay-online";
+import { PaymentTimeline } from "@/features/bookings/components/payment-timeline";
+import { ReviewCard } from "@/features/reviews/components/review-card";
+import { ReviewForm } from "@/features/reviews/components/review-form";
+import { getBookingReview } from "@/features/reviews/queries";
+import { canReview } from "@/features/reviews/schemas";
+import { HelpForm } from "@/features/support/components/help-form";
+import { getOpenTicketForItem } from "@/features/support/queries";
 import { bookingSnapshotOf, getBookingItem, getCancellationQuote } from "@/features/bookings/queries";
 import { getPaymentMode } from "@/features/payments/lib/razorpay";
 
@@ -41,7 +49,16 @@ export default async function MyBookingPage({ params }: PageProps<"/[locale]/acc
 
   const { item, payments, refunds } = data;
   const open = item.status === "pending_payment" || item.status === "confirmed";
-  const [t, quote] = await Promise.all([getTranslations("bookings"), open ? getCancellationQuote(item.id) : null]);
+  const today = todayIn("Asia/Kolkata");
+  const reviewable = canReview(item, today);
+  const [t, tReviews, tSupport, quote, review, openTicket] = await Promise.all([
+    getTranslations("bookings"),
+    getTranslations("reviews"),
+    getTranslations("support"),
+    open ? getCancellationQuote(item.id) : null,
+    reviewable ? getBookingReview(item.id) : null,
+    getOpenTicketForItem(item.id),
+  ]);
   const snap = bookingSnapshotOf(item.snapshot);
   const range = rangeOf(item.period);
   const money = (p: number) => formatPaise(p, { currency: item.currency });
@@ -138,6 +155,45 @@ export default async function MyBookingPage({ params }: PageProps<"/[locale]/acc
             </p>
           ) : null}
 
+          {reviewable ? (
+            <Card id="review" className="border-gold/50">
+              <CardHeader>
+                <CardTitle>{review ? tReviews("yourReview") : tReviews("askTitle")}</CardTitle>
+              </CardHeader>
+              <CardContent className="grid gap-4">
+                {review ? (
+                  <>
+                    <ReviewCard review={review} locale={locale} vendorName={snap.listing?.vendor_name} />
+                    {review.status === "hidden" ? (
+                      <p className="text-muted-foreground text-xs">{tReviews("hiddenNotice")}</p>
+                    ) : null}
+                    {!review.vendor_reply ? (
+                      <details>
+                        <summary className="text-primary cursor-pointer text-sm">{tReviews("edit")}</summary>
+                        <div className="pt-3">
+                          <ReviewForm
+                            itemId={item.id}
+                            userId={user.id}
+                            initial={{ rating: review.rating, body: review.body, photos: review.photos }}
+                          />
+                        </div>
+                      </details>
+                    ) : null}
+                  </>
+                ) : (
+                  <>
+                    <p className="text-muted-foreground text-sm">
+                      {tReviews("askBody", { vendor: snap.listing?.vendor_name ?? tReviews("theVendor") })}
+                    </p>
+                    <ReviewForm itemId={item.id} userId={user.id} />
+                  </>
+                )}
+              </CardContent>
+            </Card>
+          ) : null}
+
+          {item.status !== "expired" ? <PaymentTimeline item={item} locale={locale} today={today} /> : null}
+
           <BookingSummary item={item} snapshot={snap} payments={payments} refunds={refunds} locale={locale} />
         </div>
 
@@ -165,6 +221,28 @@ export default async function MyBookingPage({ params }: PageProps<"/[locale]/acc
               >
                 {t("toConversation")}
               </Link>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <LifeBuoy className="size-4" aria-hidden />
+                {tSupport("needHelp")}
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="grid gap-3 text-sm">
+              {openTicket ? (
+                <Link
+                  href={`/account/support/${openTicket.id}`}
+                  className="text-primary underline-offset-4 hover:underline"
+                  data-testid="open-ticket-link"
+                >
+                  {tSupport("openRequest", { ref: openTicket.ref_no })}
+                </Link>
+              ) : (
+                <p className="text-muted-foreground">{tSupport("helpIntro")}</p>
+              )}
+              <HelpForm itemId={item.id} cancelHint={open ? tSupport("cancelHint") : undefined} />
             </CardContent>
           </Card>
           {open && quote ? (

@@ -17,7 +17,7 @@ export const EVENT_TYPES = [
 ] as const;
 export type EventType = (typeof EVENT_TYPES)[number];
 
-export const EVENT_TABS = ["overview", "quotes", "guests", "budget", "people"] as const;
+export const EVENT_TABS = ["overview", "quotes", "day", "guests", "budget", "people"] as const;
 export type EventTab = (typeof EVENT_TABS)[number];
 
 export const RSVP_CHOICES = ["attending", "maybe", "declined"] as const;

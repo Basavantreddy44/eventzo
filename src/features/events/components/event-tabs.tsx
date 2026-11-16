@@ -13,6 +13,8 @@ import { formatPaise } from "@/lib/money";
 import type { EventRole } from "@/types/database";
 import { getBusinessCategories, getActiveCities, localizedName } from "@/features/taxonomy/queries";
 import { deleteBudgetLine, fillBudgetFromEstimate, removeEventMember, revokeEventInvitation } from "../actions";
+import { estimateBudget } from "@/features/budget/lib/estimate";
+import { getPublishedBenchmarks } from "@/features/budget/queries";
 import { eventBudget } from "../lib/budget";
 import { guestSummary } from "../lib/guests";
 import { getEventVendors, listBudgetLines, listEventInvitations, listGuests, listMembers } from "../queries";
@@ -324,14 +326,33 @@ export async function GuestsTab({ event, role }: TabProps) {
 // ---------- budget --------------------------------------------------------------------------
 export async function BudgetTab({ event, role, locale }: TabProps) {
   const editor = role !== "viewer";
-  const [t, vendors, lines, categories] = await Promise.all([
+  const [t, vendors, lines, categories, cities, benchmarks] = await Promise.all([
     getTranslations("events.budget"),
     getEventVendors(event.id),
     listBudgetLines(event.id),
     getBusinessCategories(),
+    getActiveCities(),
+    getPublishedBenchmarks().catch(() => []),
   ]);
   const budget = eventBudget(lines, vendors);
   const money = (p: number) => formatPaise(p, { currency: event.currency });
+  // Roadmap C13: typical cost ranges for this many guests in this city, per category.
+  const city = cities.find((c) => c.id === event.city_id);
+  const cityBenchmarks = city ? benchmarks.filter((b) => b.citySlug === city.slug) : [];
+  const estimate =
+    city && event.guest_estimate
+      ? estimateBudget({
+          guests: event.guest_estimate,
+          categories: cityBenchmarks.map((b) => b.categorySlug),
+          benchmarks: cityBenchmarks,
+        })
+      : null;
+  const slugOf = new Map(categories.map((c) => [c.id, c.slug]));
+  const typical = new Map((estimate?.lines ?? []).filter((l) => l.available).map((l) => [l.categorySlug, l]));
+  const typicalFor = (categoryId: string | null) =>
+    categoryId ? typical.get(slugOf.get(categoryId) ?? "") : undefined;
+  const range = (l: { lowPaise: number; highPaise: number }) => `${money(l.lowPaise)} – ${money(l.highPaise)}`;
+  const overRows = budget.rows.filter((r) => r.plannedPaise > 0 && r.bookedPaise > r.plannedPaise);
   const nameOf = new Map(categories.map((c) => [c.id, localizedName(c, locale)]));
   const used = new Set(lines.map((l) => l.business_category_id).filter(Boolean));
   const free = categories.filter((c) => !used.has(c.id)).map((c) => ({ id: c.id, name: localizedName(c, locale) }));
@@ -366,6 +387,48 @@ export async function BudgetTab({ event, role, locale }: TabProps) {
           {t("over", { amount: money(-budget.remainingPaise) })}
         </p>
       ) : null}
+      {overRows.length ? (
+        <p className="text-destructive text-sm" role="status" data-testid="budget-over-categories">
+          {t("overCategories", { categories: overRows.map((r) => label(r)).join(", ") })}
+        </p>
+      ) : null}
+
+      {estimate && lines.length === 0 && typical.size > 0 ? (
+        <Card className="border-gold/50" data-testid="budget-typical">
+          <CardHeader>
+            <CardTitle>
+              {t("typicalTitle", { guests: event.guest_estimate ?? 0, city: city ? localizedName(city, locale) : "" })}
+            </CardTitle>
+            <CardDescription>{t("typicalBody")}</CardDescription>
+          </CardHeader>
+          <CardContent className="grid gap-3 text-sm">
+            <dl className="grid grid-cols-[1fr_auto] gap-x-4 gap-y-1">
+              {[...typical.values()].map((l) => {
+                const cat = categories.find((c) => c.slug === l.categorySlug);
+                return (
+                  <div key={l.categorySlug} className="contents">
+                    <dt>{cat ? localizedName(cat, locale) : l.categorySlug}</dt>
+                    <dd className="text-right">{range(l)}</dd>
+                  </div>
+                );
+              })}
+              <dt className="border-t pt-1 font-medium">{t("typicalTotal")}</dt>
+              <dd className="border-t pt-1 text-right font-semibold">
+                {range({ lowPaise: estimate.totalLowPaise, highPaise: estimate.totalHighPaise })}
+              </dd>
+            </dl>
+            {editor ? (
+              <ActionButton
+                action={fillBudgetFromEstimate.bind(null, event.id)}
+                label={t("useTypical")}
+                successMessage={t("estimated")}
+                variant="default"
+                testId="budget-use-typical"
+              />
+            ) : null}
+          </CardContent>
+        </Card>
+      ) : null}
 
       <DataTable<Row>
         rows={budget.rows}
@@ -385,7 +448,32 @@ export async function BudgetTab({ event, role, locale }: TabProps) {
                 money(r.plannedPaise)
               ),
           },
-          { key: "booked", header: t("booked"), className: "text-right", cell: (r) => money(r.bookedPaise) },
+          {
+            key: "typical",
+            header: t("typical"),
+            className: "text-right",
+            hideOnMobile: true,
+            cell: (r) => {
+              const l = typicalFor(r.categoryId);
+              return l ? <span className="text-muted-foreground text-xs">{range(l)}</span> : "—";
+            },
+          },
+          {
+            key: "booked",
+            header: t("booked"),
+            className: "text-right",
+            cell: (r) =>
+              r.plannedPaise > 0 && r.bookedPaise > r.plannedPaise ? (
+                <span className="text-destructive font-semibold" data-testid="budget-row-over">
+                  {money(r.bookedPaise)}
+                  <span className="block text-xs font-normal">
+                    {t("overBy", { amount: money(r.bookedPaise - r.plannedPaise) })}
+                  </span>
+                </span>
+              ) : (
+                money(r.bookedPaise)
+              ),
+          },
           {
             key: "paid",
             header: t("paid"),

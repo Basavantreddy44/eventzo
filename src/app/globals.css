@@ -143,6 +143,10 @@
   html {
     -webkit-text-size-adjust: 100%;
   }
+  /* Large-text mode (Roadmap C12): every rem-based size grows ~19%. */
+  html[data-text="large"] {
+    font-size: 118.75%;
+  }
   body {
     @apply bg-background text-foreground font-sans antialiased;
   }

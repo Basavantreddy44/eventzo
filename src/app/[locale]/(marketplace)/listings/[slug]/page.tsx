@@ -15,6 +15,7 @@ import { formatListingPrice, type PriceTranslator } from "@/features/discovery/l
 import { getListing, getListingPackages } from "@/features/discovery/queries";
 import { forCity, getAuspiciousDates, significanceKey } from "@/features/muhurtham/queries";
 import { todayIn } from "@/features/muhurtham/lib/calendar";
+import { ListingReviews } from "@/features/reviews/components/listing-reviews";
 import { getActiveCities } from "@/features/taxonomy/queries";
 import type { ListingDetail } from "@/types/database";
 import { getCurrentUser } from "@/lib/auth/session";
@@ -152,6 +153,10 @@ async function ListingContent({ params }: { params: Props["params"] }) {
 
             {listing.venue ? <VenueDetails venue={listing.venue} t={t} /> : null}
             {listing.catering ? <CateringDetails catering={listing.catering} t={t} money={money} /> : null}
+
+            <Suspense fallback={<Skeleton className="h-40" />}>
+              <ListingReviews serviceId={listing.id} vendorName={listing.vendor.name} locale={locale} />
+            </Suspense>
 
             <section className="grid gap-2">
               <h2 className="text-xl font-semibold">{t("aboutVendor")}</h2>

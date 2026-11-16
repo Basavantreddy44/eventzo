@@ -19,6 +19,7 @@ export default async function AccountLayout({ children, params }: LayoutProps<"/
     { href: "/account/events", label: t("nav.events"), icon: "events" },
     { href: "/account/bookings", label: t("nav.bookings"), icon: "bookings" },
     { href: "/account/notifications", label: t("nav.notifications"), icon: "notifications" },
+    { href: "/account/support", label: t("nav.support"), icon: "support" },
   ];
 
   return (

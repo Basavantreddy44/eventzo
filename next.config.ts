@@ -15,14 +15,12 @@ function supabaseImagePattern() {
   const raw = process.env.NEXT_PUBLIC_SUPABASE_URL;
   if (!raw) return [];
   const url = new URL(raw);
-  return [
-    {
-      protocol: url.protocol.replace(":", "") as "http" | "https",
-      hostname: url.hostname,
-      port: url.port,
-      pathname: "/storage/v1/object/public/listing-media/**",
-    },
-  ];
+  return ["listing-media", "review-photos"].map((bucket) => ({
+    protocol: url.protocol.replace(":", "") as "http" | "https",
+    hostname: url.hostname,
+    port: url.port,
+    pathname: `/storage/v1/object/public/${bucket}/**`,
+  }));
 }
 
 /**

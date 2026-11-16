@@ -70,7 +70,12 @@
     "schedule": "Schedule",
     "staff": "Staff",
     "reports": "Reports",
-    "paymentsLedger": "Payments ledger"
+    "paymentsLedger": "Payments ledger",
+    "support": "Help & support",
+    "supportDesk": "Support desk",
+    "reviews": "Reviews",
+    "largeText": "Large text",
+    "display": "Display"
   },
   "auth": {
     "login": {
@@ -1540,7 +1545,21 @@
     "simFail": "Simulate a failure",
     "simBanner": "Test mode: online payments on this site are simulated. No real money is charged or refunded.",
     "methodSimulated": "Simulated online payment (test)",
-    "receipt": "Receipt"
+    "receipt": "Receipt",
+    "timeline": {
+      "title": "Payment plan",
+      "steps": {
+        "booked": "Booked",
+        "advance": "Advance",
+        "balance": "Balance",
+        "event": "Event day"
+      },
+      "paid": "Paid",
+      "advanceDue": "Pay by {time} to confirm",
+      "balanceDue": "Due by {date}",
+      "balanceOverdue": "Was due on {date}. Please pay or talk to the vendor",
+      "reminders": "We'll remind you 7 days and 1 day before"
+    }
   },
   "vendorBookings": {
     "title": "Bookings",
@@ -1617,7 +1636,8 @@
       "guests": "Guests & RSVP",
       "budget": "Budget",
       "people": "Family & helpers",
-      "quotes": "Quotes"
+      "quotes": "Quotes",
+      "day": "Day sheet"
     },
     "invitationsTitle": "You're invited to help plan",
     "invitedBy": "{name} added you as {role}",
@@ -1778,7 +1798,15 @@
       "fromEstimate": "Fill from estimate",
       "estimated": "Budget filled from the estimator",
       "estimateHint": "Uses the middle of the published price range for this city and guest count.",
-      "estimateNeeds": "Set the city and expected guests in the event details to use the estimator."
+      "estimateNeeds": "Set the city and expected guests in the event details to use the estimator.",
+      "typical": "Typical",
+      "typicalTitle": "Typical costs for {guests} guests in {city}",
+      "typicalBody": "Ranges entered by the Eventzo team for this city. Use them as your starting plan and change any amount later.",
+      "typicalTotal": "Total",
+      "useTypical": "Use these as my plan",
+      "overBy": "{amount} over plan",
+      "overCategories": "Over plan in: {categories}",
+      "overPlanWarning": "Booking this brings this category to {after}, which is {over} over your plan of {planned}. You can still book, or change the plan in the event's Budget tab."
     },
     "people": {
       "title": "Family & helpers",
@@ -1836,6 +1864,23 @@
       "nextStep": "Book and pay advance",
       "withdrawn": "Withdrawn",
       "withdrawNote": "Thank you for your quote. We have chosen another vendor for this event, so we're withdrawing this request."
+    },
+    "daySheet": {
+      "intro": "Who arrives when on the day, and who to call. Only confirmed bookings appear here.",
+      "arrives": "arrives",
+      "hours": "Booked {start}–{end}",
+      "noPhone": "No phone shared yet",
+      "office": "Office: {phone}",
+      "emptyTitle": "No confirmed vendors yet",
+      "emptyBody": "Once a vendor's booking is confirmed, their arrival time, contact person and phone appear here.",
+      "toQuotes": "Compare quotes",
+      "print": "Print",
+      "shareWhatsapp": "Share on WhatsApp",
+      "copyLink": "Copy link",
+      "copied": "Link copied.",
+      "copyFailed": "Couldn't copy. Select the address bar instead.",
+      "shareText": "Day sheet for {title}: {url} (open it after accepting the invitation to the event)",
+      "privacy": "Co-hosts and family you invited under People can open this page. Phone numbers are shown only for confirmed bookings."
     }
   },
   "rsvp": {
@@ -1894,7 +1939,8 @@
         "cancelled_by_customer": "The customer cancelled the booking for {listing} on {date}"
       },
       "payment": {
-        "received": "Payment of {amount} received for {listing}"
+        "received": "Payment of {amount} received for {listing}",
+        "reminder": "Balance of {amount} for {listing} is due on {date}"
       },
       "refund": {
         "processed": "Refund of {amount} for {listing} has been issued"
@@ -1914,6 +1960,15 @@
         "suspended": "{vendor} has been suspended by Eventzo: {reason}",
         "closed": "{vendor} has been closed by Eventzo: {reason}",
         "reinstated": "{vendor} has been reinstated"
+      },
+      "review": {
+        "request": "How was {listing}? Leave a review to help other families",
+        "new": "New {rating}★ review for {listing}",
+        "replied": "The vendor replied to your review of {listing}"
+      },
+      "support": {
+        "replied": "Eventzo support replied to your request #{ref}",
+        "resolved": "Your support request #{ref} is resolved"
       }
     },
     "rsvpStatus": {
@@ -2350,6 +2405,174 @@
       "nonvegPlate": "Non-veg per plate",
       "booking": "How to book",
       "verified": "Verified by Eventzo"
+    }
+  },
+  "reviews": {
+    "title": "Reviews",
+    "none": "No reviews yet.",
+    "onlyVerified": "Only customers who booked through Eventzo and whose event has taken place can leave a review.",
+    "verified": "Verified booking",
+    "outOf5": "{rating} out of 5",
+    "count": "{count, plural, one {# review} other {# reviews}}",
+    "starShort": "{count}★",
+    "eventIn": "Event in {month}",
+    "photoAlt": "Photo from the customer",
+    "replyFrom": "Reply from {vendor}",
+    "theVendor": "the vendor",
+    "askTitle": "How was it?",
+    "askBody": "Your review helps other families choose. Tell them about {vendor}.",
+    "yourReview": "Your review",
+    "edit": "Edit my review",
+    "hiddenNotice": "Eventzo has hidden this review from the listing.",
+    "ratingLabel": "Your rating",
+    "starsLabel": "{count, plural, one {# star} other {# stars}}",
+    "ratingWords": {
+      "1": "Poor",
+      "2": "Below expectations",
+      "3": "Okay",
+      "4": "Good",
+      "5": "Excellent"
+    },
+    "ratingRequired": "Choose a rating from 1 to 5 stars.",
+    "bodyLabel": "What went well, and what could be better?",
+    "bodyPlaceholder": "Food, decoration, staff, timing…",
+    "bodyTooShort": "Write at least 10 characters.",
+    "photosLabel": "Photos",
+    "photosHint": "optional, up to 4",
+    "photosLimit": "You can add up to 4 photos.",
+    "photoFailed": "A photo couldn't be added. Use JPG, PNG or WebP under 5 MB.",
+    "addPhoto": "Add photo",
+    "removePhoto": "Remove photo",
+    "submit": "Post review",
+    "update": "Update review",
+    "thanks": "Thank you for your review!",
+    "cannotReview": "This booking can't be reviewed (the event hasn't happened yet, or the vendor has already replied).",
+    "customerReview": "Customer review",
+    "hiddenByEventzo": "Hidden from your listing by Eventzo.",
+    "replyLabel": "Your public reply",
+    "replyPlaceholder": "Thank the customer or respond politely to concerns",
+    "replyHint": "Shown under the review on your listing. Once you reply, the customer can no longer change the review.",
+    "sendReply": "Post reply",
+    "updateReply": "Update reply",
+    "replySaved": "Reply saved.",
+    "hideReason": "Reason for hiding",
+    "hide": "Hide",
+    "restore": "Show again",
+    "reasonRequired": "Give a reason for hiding the review.",
+    "hiddenToast": "Review hidden.",
+    "restoredToast": "Review shown again.",
+    "admin": {
+      "title": "Reviews",
+      "subtitle": "Verified customer reviews. Hide only reviews that break the rules (abuse, personal details, spam).",
+      "filterAll": "All",
+      "filterHidden": "Hidden",
+      "hidden": "Hidden",
+      "hiddenBecause": "Hidden: {reason}",
+      "empty": "No reviews yet",
+      "emptyBody": "Reviews appear here after customers rate completed bookings."
+    }
+  },
+  "support": {
+    "title": "Help & support",
+    "subtitle": "Your requests to the Eventzo team.",
+    "empty": "No support requests",
+    "emptyBody": "Use the Help button on a booking if something goes wrong.",
+    "toBookings": "Go to my bookings",
+    "back": "All requests",
+    "view": "Open",
+    "colRef": "Request",
+    "colTopic": "About",
+    "colOpened": "Opened",
+    "status": "Status",
+    "priority": "Priority",
+    "owner": "Handled by",
+    "unassigned": "Not assigned",
+    "save": "Save",
+    "updated": "Request updated.",
+    "needHelp": "Need help?",
+    "helpIntro": "Tell us what's wrong and the Eventzo team will step in.",
+    "getHelp": "Get help",
+    "whatHappened": "What do you need help with?",
+    "topics": {
+      "vendor_not_responding": "Vendor not responding",
+      "change_date": "Change the date",
+      "cancel": "Cancel the booking",
+      "problem": "Report a problem",
+      "other": "Something else"
+    },
+    "topicRequired": "Choose what you need help with.",
+    "details": "Tell us more",
+    "detailsPlaceholder": "What happened, and what would you like us to do?",
+    "bodyTooShort": "Write at least 10 characters.",
+    "replyWithin": "We aim to reply within {hours} hours.",
+    "cancelHint": "You can cancel yourself in the Cancel card on this page; it shows the refund before you confirm. Ask us if something is unclear.",
+    "send": "Send",
+    "sent": "Request sent. We'll reply here and notify you.",
+    "openRequest": "You have an open request (#{ref}). Open it",
+    "message": "Message",
+    "customerPlaceholder": "Add a reply…",
+    "agentPlaceholder": "Reply to the customer…",
+    "internalNote": "Internal note",
+    "saveNote": "Save note",
+    "noteSaved": "Note saved (only the team sees it).",
+    "replySent": "Reply sent.",
+    "fromTeam": "Eventzo team",
+    "fromCustomer": "Customer",
+    "closedNotice": "This request is closed. Use Help on the booking if you need anything else.",
+    "closedTicket": "This request is closed. Open a new one if you still need help.",
+    "aboutRequest": "About this request",
+    "replyBy": "First reply due by {time}",
+    "repliedAt": "First replied {time}",
+    "toBooking": "View the booking",
+    "statuses": {
+      "open": "Open",
+      "in_progress": "In progress",
+      "waiting_customer": "Waiting for customer",
+      "resolved": "Resolved",
+      "closed": "Closed"
+    },
+    "priorities": {
+      "normal": "Normal",
+      "high": "High"
+    },
+    "desk": {
+      "title": "Support desk",
+      "subtitle": "Customer requests from the Help button, most urgent first.",
+      "filters": {
+        "active": "Active",
+        "overdue": "Overdue",
+        "mine": "Mine",
+        "closed": "Resolved",
+        "all": "All"
+      },
+      "empty": "Nothing here",
+      "emptyBody": "No support requests match this view.",
+      "colReplyBy": "Reply by",
+      "answered": "Answered",
+      "overdue": "Overdue",
+      "back": "Support desk",
+      "conversation": "Conversation",
+      "booking": "Booking",
+      "vendor": "Vendor",
+      "balanceDue": "Balance due",
+      "policy": "Cancellation policy",
+      "cancelReason": "Cancel reason",
+      "payments": "Payments and refunds",
+      "vendorChat": "Customer ↔ vendor messages",
+      "sides": {
+        "customer": "Customer",
+        "vendor": "Vendor",
+        "system": "System"
+      },
+      "none": "None",
+      "manage": "Manage",
+      "customer": "Customer",
+      "customerProfile": "Open profile",
+      "history": "History",
+      "system": "System",
+      "opened": "opened the request",
+      "statusChanged": "status → {status}",
+      "updatedFields": "updated {fields}"
     }
   }
 }

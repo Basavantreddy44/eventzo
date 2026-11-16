@@ -20,6 +20,9 @@ import { bookingSnapshotOf, getBookingItem } from "@/features/bookings/queries";
 import { loadVendorPage } from "@/features/vendor/lib/page";
 import { todayIn } from "@/features/muhurtham/lib/calendar";
 import { JobTeam } from "@/features/staff/components/job-team";
+import { ReplyForm } from "@/features/reviews/components/reply-form";
+import { ReviewCard } from "@/features/reviews/components/review-card";
+import { getBookingReview } from "@/features/reviews/queries";
 import { getJobForBooking, listAssignableStaff } from "@/features/staff/queries";
 
 export const instant = false;
@@ -40,10 +43,12 @@ export default async function VendorBookingPage({ params }: PageProps<"/[locale]
   if (!data || data.item.organization_id !== ctx.membership.organization_id) notFound();
 
   const { item, payments, refunds } = data;
-  const [t, tB, tStaff, contact, jobData, staffOptions] = await Promise.all([
+  const [t, tB, tStaff, tReviews, review, contact, jobData, staffOptions] = await Promise.all([
     getTranslations("vendorBookings"),
     getTranslations("bookings"),
     getTranslations("staff"),
+    getTranslations("reviews"),
+    getBookingReview(item.id),
     getEnquiryContact(item.enquiry_id),
     getJobForBooking(item.id),
     listAssignableStaff(ctx.membership.organization_id, item.branch_id ?? null),
@@ -147,6 +152,21 @@ export default async function VendorBookingPage({ params }: PageProps<"/[locale]
                   today={todayIn("Asia/Kolkata")}
                   idPrefix="bk"
                 />
+              </CardContent>
+            </Card>
+          ) : null}
+
+          {review ? (
+            <Card data-testid="vendor-review">
+              <CardHeader>
+                <CardTitle>{tReviews("customerReview")}</CardTitle>
+              </CardHeader>
+              <CardContent className="grid gap-4">
+                <ReviewCard review={review} locale={locale} vendorName={snap.listing?.vendor_name} />
+                {review.status === "hidden" ? (
+                  <p className="text-muted-foreground text-xs">{tReviews("hiddenByEventzo")}</p>
+                ) : null}
+                <ReplyForm reviewId={review.id} initial={review.vendor_reply} />
               </CardContent>
             </Card>
           ) : null}

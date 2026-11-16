@@ -61,6 +61,11 @@ const STATUS_VARIANTS: Record<string, Variant> = {
   // admin
   blocked_user: "destructive",
   hidden: "muted",
+  published: "success",
+  // support desk
+  in_progress: "info",
+  waiting_customer: "gold",
+  resolved: "success",
   created: "muted",
 };
 

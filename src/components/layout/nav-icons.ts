@@ -6,6 +6,8 @@ import {
   ChartColumn,
   Contact,
   Landmark,
+  LifeBuoy,
+  MessageSquareQuote,
   Building2,
   CalendarDays,
   ClipboardList,
@@ -55,6 +57,8 @@ export const navIcons = {
   staff: Contact,
   reports: ChartColumn,
   ledger: Landmark,
+  support: LifeBuoy,
+  reviews: MessageSquareQuote,
 } satisfies Record<string, LucideIcon>;
 
 export type NavIconName = keyof typeof navIcons;

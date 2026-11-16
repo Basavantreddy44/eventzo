@@ -63,6 +63,14 @@ export async function getEventQuoteOptions(eventId: string) {
   return data ?? [];
 }
 
+/** Roadmap C9: confirmed vendors with arrival time and who to call (members only). */
+export async function getEventDaySheet(eventId: string) {
+  const supabase = await createClient();
+  const { data, error } = await supabase.rpc("event_day_sheet", { p_event_id: eventId });
+  if (error) throw new Error(`Failed to load the day sheet: ${error.message}`);
+  return data ?? [];
+}
+
 export async function listGuests(eventId: string) {
   const supabase = await createClient();
   const { data, error } = await supabase

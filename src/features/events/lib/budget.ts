@@ -82,3 +82,21 @@ export function eventBudget(lines: BudgetLine[], vendors: EventVendorMoney[]): B
 export function plannedFromRange(lowPaise: number, highPaise: number): number {
   return Math.round((lowPaise + highPaise) / 2 / 100) * 100;
 }
+
+/**
+ * Roadmap C13: would booking `addPaise` more in this category go past the
+ * plan? Null when there is no plan for the category or it still fits.
+ */
+export function overPlanAfter(
+  summary: BudgetSummary,
+  categoryId: string | null,
+  addPaise: number,
+): { plannedPaise: number; afterPaise: number; overPaise: number } | null {
+  if (!categoryId) return null;
+  const row = summary.rows.find((r) => r.categoryId === categoryId);
+  if (!row || row.plannedPaise <= 0) return null;
+  const afterPaise = row.bookedPaise + addPaise;
+  return afterPaise > row.plannedPaise
+    ? { plannedPaise: row.plannedPaise, afterPaise, overPaise: afterPaise - row.plannedPaise }
+    : null;
+}

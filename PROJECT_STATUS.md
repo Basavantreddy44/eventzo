@@ -1,6 +1,6 @@
 # Eventzo — Project Status
 
-_Last updated: 15 Nov 2026 (QA report fixes)_
+_Last updated: 16 Nov 2026 (Roadmap Phase B batch 3)_
 
 ## Current phase: 9 — Hardening: testing, security review, deployment
 
@@ -38,6 +38,7 @@ Source: "Eventzo — Roadmap to 9.9 / 10" (tester, 15 Nov 2026). Worked in its p
 | R-2 | WhatsApp provider: **Meta Cloud API** (direct, no partner fee). |
 | R-3 | Legal pages: Eventzo drafts the text from how the product works; the owner's lawyer/CA reviews. Versions below 1.0 show "Draft – under legal review". |
 | R-4 | QA test data deleted from Eventzoo (A7). |
+| R-5 | Balance due **3 days before the event**; reminders 7 days and 1 day before; review request the day after the event (proposed default, 16 Nov 2026 — change if vendors prefer another rule). |
 
 **Phase A — launch blockers**
 
@@ -45,7 +46,7 @@ Source: "Eventzo — Roadmap to 9.9 / 10" (tester, 15 Nov 2026). Worked in its p
 |---|---|
 | A1 Razorpay payments | ✅ Code complete since Phase 5 (checkout, webhook, auto-confirm). **Needs your keys** — DEPLOYMENT.md §3.1 |
 | A2 Razorpay refunds | ✅ Code complete since Phase 5 (policy-computed amount, "Issue refund"). Needs keys |
-| A3 WhatsApp | ✅ Meta Cloud API sender built (approved templates, recipient language with fallback, Meta errors recorded and retried). Sends within ~1 minute on any Vercel plan via pg_cron + pg_net. **Needs Meta account, templates and token** — §3.2 (all 23 templates listed) |
+| A3 WhatsApp | ✅ Meta Cloud API sender built (approved templates, recipient language with fallback, Meta errors recorded and retried). Sends within ~1 minute on any Vercel plan via pg_cron + pg_net. **Needs Meta account, templates and token** — §3.2 (all 29 templates listed) |
 | A4 Custom email | ✅ Resend sender built for booking/payment/RSVP emails. **Needs domain + Resend key**; the same account fixes sign-up emails via Supabase SMTP — §3.3 |
 | A5 Mobile OTP login | ⏳ Next. Needs an SMS/WhatsApp OTP provider decision |
 | A6 Real launch content | Yours: onboard pilot vendors; enter real muhurtham dates and estimator ranges in Admin |
@@ -64,7 +65,23 @@ Migrations: `20261119000100_outbox_channels.sql`, `20261119000200_legal_policies
 | C6/V4 Packages | ✅ Up to 6 per listing with price, unit, includes / not included (`service_packages`, RLS like listings, audited); package cards on the listing; "Start from a package" fills the quote (surcharge applied, per-plate quantity from guests) |
 | C3 Get 3 quotes | ✅ Opt-in "Also ask up to 2 similar vendors" on the enquiry form: same category and city, free that day, fits the guests, request-to-book only, verified first (`similar_available_services`). **Decision:** opt-in (unticked) so vendors never get requests the customer didn't choose — change if you prefer it on by default |
 | C5 Quote comparison | ✅ Event → **Quotes** tab: quotes side by side per category (total, lines, advance, cancellation policy, validity, notes, lowest price). Accept → the other open requests in that category are withdrawn with a polite note (`accept_event_quote`). "For event" on the enquiry form files all requests under the event |
-| Next | C7 reviews, C10/S2 Help + support desk, C9 day sheet, C8 payment timeline + reminders, C12 Kannada-first + large text, C13 budget from guests |
+
+**Phase B — batch 3 (16 Nov 2026)**
+
+| Item | Status |
+|---|---|
+| C7 Verified reviews | ✅ Only the customer of a confirmed booking whose event day has passed can review (1–5 stars, text, up to 4 photos in the public `review-photos` bucket under their own folder). One per booking, editable until the vendor replies. "Verified booking" mark; reviewer shown as first name + initial. Listing page: average, star breakdown, newest reviews and the vendor's reply. The day after the event the customer gets a review request (in-app/WhatsApp/email). Admin → **Reviews** hides (with a reason) or restores; audited. (`reviews`, `submit_review`, `reply_review`, `set_review_status`, `listing_reviews`, `listing_rating`; permission `reviews.moderate` for super admin + support agent) |
+| C10 Help button | ✅ Every booking has **Need help?**: Vendor not responding / Change the date / Cancel the booking / Report a problem / Something else. "Cancel" points to the self-serve cancel card (which already shows the refund before confirming, C11). Creates a request linked to the booking; the customer follows it under **Help & support** |
+| S2 Support desk | ✅ Admin → **Support desk**: queue (active, overdue, mine, resolved, all) sorted by reply target. Reply targets: 4 h for "problem" and "vendor not responding", 24 h otherwise. One screen with the conversation, internal notes, booking, payments, refunds, the customer↔vendor messages and the request's history; status, priority and owner changes are audited. Customer is notified of replies and resolution; a customer reply reopens a resolved request (`support_tickets`, `support_messages`, `open_support_ticket`, `post_support_message`, `update_support_ticket`, `support_ticket_context`) |
+| C8 Pay and track | ✅ Booking page **Payment plan**: booked → advance → balance (due date) → event day, with "Pay advance"/"Pay balance" as before. The balance falls due **3 days before the event** (kept on each booking as `balance_due_on`). A daily job at 09:00 IST sends reminders **7 days and 1 day** before the due date (never twice). Payment messages now open the receipt. **Decision (R-5):** 3 days before the event; change it if vendors prefer another rule |
+| C9 Day sheet | ✅ Event → **Day sheet**: each confirmed vendor's arrival time (staff call time, else setup start, else booking start), contact person (first assigned staff member with role, else the business) and a tap-to-call phone, grouped by day. Nothing appears before a booking is confirmed. Print, Share on WhatsApp, Copy link; opens for the event's co-hosts and family viewers (`event_day_sheet`) |
+| C13 Budget from guests | ✅ Budget tab shows **typical costs for N guests in the city** per category (from the admin's estimator ranges) with "Use these as my plan"; a Typical column; categories whose bookings pass the plan turn red ("₹X over plan"); the enquiry's book card warns before booking above the plan |
+| C12 Kannada-first + large text | 🟡 Large-text mode (Language menu → Large text, remembered per device) and the language switch now shows the current language (EN / ಕ / हि) on every page. **Next:** Kannada translation of the customer pages, then opening Kalaburagi visitors in Kannada (needs a native-speaker review) |
+
+Migrations: `20261122000100_reviews_support_reminders.sql`, `20261122000200_event_day_sheet.sql`. WhatsApp templates: 6 new (29 in total, DEPLOYMENT.md §3.2).
+
+Tests (local stack, 16 Nov 2026): pgTAP **441/441** (new: `16_roadmap_b3.test.sql` reviews, support desk, reminders; `17_day_sheet.test.sql`), Vitest **306/306** (`roadmap-b3.test.ts`), Playwright **58/58** desktop (new: `support-reviews.spec.ts`, `day-sheet.spec.ts`) + mobile auth **10/10**. Also fixed on the way: batch 2's package-line check relied on a default permission that the new migration's tightening removed; it now has an explicit grant.
+
 
 ## QA report, 15 Nov 2026 — fixes
 

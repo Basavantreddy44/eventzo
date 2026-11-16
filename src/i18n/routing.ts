@@ -14,6 +14,9 @@ export const routing = defineRouting({
 
 export type AppLocale = (typeof routing.locales)[number];
 
+/** Shown next to the language icon so the switch is easy to spot (Roadmap C12). */
+export const localeShort: Record<AppLocale, string> = { en: "EN", kn: "ಕ", hi: "हि" };
+
 export const localeLabels: Record<AppLocale, string> = {
   en: "English",
   kn: "ಕನ್ನಡ",

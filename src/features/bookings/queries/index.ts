@@ -8,7 +8,7 @@ import type { Json } from "@/types/database";
  * the vendor's owners/branch managers, or finance.
  */
 const ITEM_FIELDS =
-  "id, booking_id, enquiry_id, quotation_id, customer_id, organization_id, branch_id, service_id, reservation_id, event_date, period, guests, status, currency, total_paise, advance_bps, advance_paise, paid_paise, refund_due_paise, cancellation_policy, snapshot, payment_due_at, confirmed_at, cancelled_at, cancelled_by_side, cancel_reason, created_at";
+  "id, booking_id, enquiry_id, quotation_id, customer_id, organization_id, branch_id, service_id, reservation_id, event_date, period, guests, status, currency, total_paise, advance_bps, advance_paise, paid_paise, refund_due_paise, cancellation_policy, snapshot, payment_due_at, balance_due_on, confirmed_at, cancelled_at, cancelled_by_side, cancel_reason, created_at";
 
 export type BookingSnapshot = {
   listing?: { title?: string; slug?: string; vendor_name?: string };
