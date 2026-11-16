@@ -1,6 +1,7 @@
 import createIntlMiddleware from "next-intl/middleware";
 import { NextResponse, type NextRequest } from "next/server";
 import { routing } from "@/i18n/routing";
+import { LOCALE_COOKIE, shouldOpenInKannada } from "@/i18n/geo";
 import { refreshSession } from "@/lib/supabase/proxy";
 import { deniedPortal, isProtectedPath, stripLocale } from "@/lib/auth/paths";
 import { isPlatformAdmin, isVendorMember } from "@/lib/auth/permissions";
@@ -8,7 +9,8 @@ import { isPlatformAdmin, isVendorMember } from "@/lib/auth/permissions";
 const intl = createIntlMiddleware(routing);
 
 /**
- * 1. Refresh the Supabase session (every request).
+ * 1. Refresh the Supabase session (every request). First visits from
+ *    Kannada-first cities are sent to /kn (Roadmap C12).
  * 2. Apply locale routing (next-intl), except for non-localised route handlers.
  * 3. Coarse gate: signed-out users can't open /account, /vendor or /admin.
  *    Real authorisation (roles, membership) happens server-side in each
@@ -27,6 +29,22 @@ export async function proxy(request: NextRequest) {
   }
 
   const { locale, path } = stripLocale(pathname);
+
+  // Roadmap C12: a first visit from Kalaburagi opens in Kannada (a saved choice always wins).
+  if (
+    shouldOpenInKannada({
+      method: request.method,
+      path,
+      prefixed: pathname !== path,
+      savedLocale: request.cookies.get(LOCALE_COOKIE)?.value,
+      cityHeader: request.headers.get("x-vercel-ip-city"),
+    })
+  ) {
+    const url = new URL(`/kn${path === "/" ? "" : path}${search}`, request.url);
+    const response = NextResponse.redirect(url);
+    response.cookies.set(LOCALE_COOKIE, "kn", { path: "/", maxAge: 60 * 60 * 24 * 365, sameSite: "lax" });
+    return session.applyTo(response);
+  }
   if (!session.userId && isProtectedPath(path)) {
     const loginPath = locale === routing.defaultLocale ? "/login" : `/${locale}/login`;
     const url = new URL(loginPath, request.url);

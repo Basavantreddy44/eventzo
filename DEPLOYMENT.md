@@ -56,6 +56,7 @@ where u.email = 'you@example.com' and r.code = 'super_admin';
 | `CRON_SECRET` | 32+ random characters | Vercel Cron sends it automatically to `/api/cron/notifications` |
 | `RAZORPAY_KEY_ID` / `RAZORPAY_KEY_SECRET` / `RAZORPAY_WEBHOOK_SECRET` | From Razorpay | Test keys first. Live keys only after the CA review (D8) |
 | `WHATSAPP_ACCESS_TOKEN` / `WHATSAPP_PHONE_NUMBER_ID` | From Meta (section 3.2) | **Server-only.** Use a System User token, not a 24-hour test token |
+| `KANNADA_FIRST_CITIES` | optional, default `kalaburagi,gulbarga` | First-time visitors from these cities (Vercel `x-vercel-ip-city`) open in Kannada |
 | `WHATSAPP_TEMPLATE_LANGUAGES` | `en` (later `en,kn,hi`) | Languages whose templates are approved; others fall back to the first |
 | `RESEND_API_KEY` / `EMAIL_FROM` | From Resend; `Eventzo <noreply@your-domain>` | Booking, payment and RSVP emails. **Server-only** key |
 

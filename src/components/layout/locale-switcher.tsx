@@ -6,6 +6,7 @@ import { Check, Languages } from "lucide-react";
 import { usePathname, useRouter } from "@/i18n/navigation";
 import { localeLabels, localeShort, routing, type AppLocale } from "@/i18n/routing";
 import { isLargeText, setLargeText } from "@/lib/text-size";
+import { LOCALE_COOKIE } from "@/i18n/geo";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -48,7 +49,11 @@ export function LocaleSwitcher({ compact = false }: { compact?: boolean }) {
         <DropdownMenuSeparator />
         <DropdownMenuRadioGroup
           value={locale}
-          onValueChange={(next) => startTransition(() => router.replace(pathname, { locale: next as AppLocale }))}
+          onValueChange={(next) => {
+            // Remember the explicit choice (a saved choice beats the Kalaburagi default).
+            document.cookie = `${LOCALE_COOKIE}=${next}; path=/; max-age=31536000; samesite=lax`;
+            startTransition(() => router.replace(pathname, { locale: next as AppLocale }));
+          }}
         >
           {routing.locales.map((l) => (
             <DropdownMenuRadioItem key={l} value={l} lang={l}>

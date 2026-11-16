@@ -158,3 +158,27 @@ test("C12: the language switch shows the current language, and large text is rem
   await page.getByTestId("large-text-toggle").click();
   await expect(page.locator("html")).not.toHaveAttribute("data-text", "large");
 });
+
+test("C12: a first visit from Kalaburagi opens in Kannada; choosing English sticks", async ({ browser }) => {
+  const context = await browser.newContext({ extraHTTPHeaders: { "x-vercel-ip-city": "Gulbarga" } });
+  const page = await context.newPage();
+  await page.goto("/search");
+  await expect(page).toHaveURL(/\/kn\/search$/);
+  await expect(page.locator("html")).toHaveAttribute("lang", "kn");
+  await expect(page.getByRole("heading", { level: 1 })).toContainText("ವ್ಯಾಪಾರಿ");
+  await expect(page.getByTestId("locale-switcher")).toContainText("ಕ");
+
+  await page.getByTestId("locale-switcher").click();
+  await page.getByRole("menuitemradio", { name: "English" }).click();
+  await expect(page).toHaveURL(/\/search$/);
+  await expect(page.locator("html")).toHaveAttribute("lang", "en");
+  await page.goto("/");
+  await expect(page).not.toHaveURL(/\/kn/);
+  await expect(page.locator("html")).toHaveAttribute("lang", "en");
+  await context.close();
+
+  // Elsewhere, English stays the default.
+  const other = await (await browser.newContext({ extraHTTPHeaders: { "x-vercel-ip-city": "Mumbai" } })).newPage();
+  await other.goto("/search");
+  await expect(other).not.toHaveURL(/\/kn/);
+});
