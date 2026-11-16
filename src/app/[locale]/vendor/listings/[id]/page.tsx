@@ -13,6 +13,8 @@ import { localeFrom } from "@/i18n/params";
 import { setListingStatus } from "@/features/vendor/actions/listings";
 import { ListingForm } from "@/features/vendor/components/listing-form";
 import { PhotoManager } from "@/features/vendor/components/photo-manager";
+import { PackageManager } from "@/features/vendor/components/package-manager";
+import { createClient } from "@/lib/supabase/server";
 import { listingToInput } from "@/features/vendor/lib/listing-defaults";
 import { getListingFormOptions } from "@/features/vendor/lib/listing-options";
 import { loadVendorPage } from "@/features/vendor/lib/page";
@@ -39,6 +41,15 @@ export default async function EditListingPage({ params }: PageProps<"/[locale]/v
   const [t, options] = await Promise.all([getTranslations("vendor.listings"), getListingFormOptions(ctx, locale)]);
   const canEdit = ctx.membership.role !== "staff";
   const photos = [...(listing.service_media ?? [])].sort((a, b) => a.sort_order - b.sort_order);
+  const supabase = await createClient();
+  const { data: packages } = await supabase
+    .from("service_packages")
+    .select("id, name, description, price_paise, price_unit, includes, excludes")
+    .eq("service_id", listing.id)
+    .eq("active", true)
+    .order("sort_order")
+    .order("price_paise");
+  const tPackages = await getTranslations("vendor.packages");
   const transitions = SERVICE_STATUS_TRANSITIONS[listing.status].filter((s) => s !== "draft");
 
   return (
@@ -101,6 +112,19 @@ export default async function EditListingPage({ params }: PageProps<"/[locale]/v
               </CardContent>
             </Card>
           ) : null}
+          <Card>
+            <CardHeader>
+              <CardTitle>{tPackages("title")}</CardTitle>
+              <p className="text-muted-foreground text-sm">{tPackages("subtitle")}</p>
+            </CardHeader>
+            <CardContent>
+              {canEdit ? (
+                <PackageManager serviceId={listing.id} packages={packages ?? []} />
+              ) : (
+                <p className="text-muted-foreground text-sm">{tPackages("empty")}</p>
+              )}
+            </CardContent>
+          </Card>
           <Card>
             <CardHeader>
               <CardTitle>{t("sectionPhotos")}</CardTitle>

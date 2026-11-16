@@ -52,7 +52,7 @@ const ERRORS: Record<string, string> = {
   "42501": "enquiry.ownBusiness",
 };
 
-export async function createEnquiry(input: EnquiryInput): Promise<ActionResult<string>> {
+export async function createEnquiry(input: EnquiryInput): Promise<ActionResult<{ id: string; extra: number }>> {
   const parsed = enquirySchema.safeParse(input);
   if (!parsed.success) return fail("errors.invalidInput", toFieldErrors(parsed.error));
   const user = await getCurrentUser();
@@ -60,22 +60,67 @@ export async function createEnquiry(input: EnquiryInput): Promise<ActionResult<s
 
   const v = parsed.data;
   const supabase = await createClient();
-  const { data, error } = await supabase.rpc("create_enquiry", {
-    p_service_id: v.serviceId,
-    p_event_date: v.date,
-    p_start_time: v.startTime,
-    p_end_time: v.endTime,
-    // The SQL function accepts NULL for "not given"; generated types don't model that.
-    p_guests: (v.guests ? Number(v.guests) : null) as unknown as number,
-    p_message: (v.message || null) as unknown as string,
-    p_idempotency_key: v.idempotencyKey,
-  });
+  const send = (serviceId: string, key: string) =>
+    supabase.rpc("create_enquiry", {
+      p_service_id: serviceId,
+      p_event_date: v.date,
+      p_start_time: v.startTime,
+      p_end_time: v.endTime,
+      // The SQL function accepts NULL for "not given"; generated types don't model that.
+      p_guests: (v.guests ? Number(v.guests) : null) as unknown as number,
+      p_message: (v.message || null) as unknown as string,
+      p_idempotency_key: key,
+    });
+  const fileUnderEvent = async (enquiryId: string) => {
+    if (v.eventId) await supabase.rpc("set_enquiry_event", { p_enquiry_id: enquiryId, p_event_id: v.eventId });
+  };
+
+  const { data, error } = await send(v.serviceId, v.idempotencyKey);
   if (error) {
     if (error.code === "22023" && /guests/.test(error.message))
       return fail("errors.invalidInput", { guests: "validation.invalid" });
     return fail(ERRORS[error.code ?? ""] ?? `errors.${mapDbError(error)}`);
   }
-  return ok(data as string);
+  const id = data as string;
+  await fileUnderEvent(id);
+
+  // Roadmap C3: the same request to up to 2 similar vendors that are free. Best effort:
+  // a vendor that just got booked is skipped, never failing the main enquiry.
+  let extra = 0;
+  if (v.alsoAsk) {
+    const { data: similar } = await supabase.rpc("similar_available_services", {
+      p_service_id: v.serviceId,
+      p_event_date: v.date,
+      p_start: v.startTime,
+      p_end: v.endTime,
+      p_guests: (v.guests ? Number(v.guests) : null) as unknown as number,
+      p_limit: 2,
+    });
+    for (const [i, s] of (similar ?? []).entries()) {
+      const res = await send(s.id, `${v.idempotencyKey.slice(0, 90)}-x${i + 1}`);
+      if (!res.error && res.data) {
+        await fileUnderEvent(res.data as string);
+        extra += 1;
+      }
+    }
+  }
+  return ok({ id, extra });
+}
+
+/** The signed-in customer's upcoming events, for the enquiry form's "For event" choice. */
+export async function myUpcomingEvents(): Promise<{ id: string; title: string; start_date: string }[]> {
+  const user = await getCurrentUser();
+  if (!user) return [];
+  const supabase = await createClient();
+  const today = new Date().toISOString().slice(0, 10);
+  const { data } = await supabase
+    .from("events")
+    .select("id, title, start_date")
+    .eq("owner_id", user.id)
+    .gte("start_date", today)
+    .order("start_date")
+    .limit(20);
+  return data ?? [];
 }
 
 export async function cancelEnquiry(enquiryId: string): Promise<ActionResult> {

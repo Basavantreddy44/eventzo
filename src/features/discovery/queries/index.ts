@@ -42,3 +42,13 @@ export async function getListing(slug: string): Promise<ListingDetail | null> {
   if (error) throw new Error(`get_listing failed: ${error.message}`);
   return (data as unknown as ListingDetail | null) ?? null;
 }
+
+/** Active packages of a live listing (Roadmap C6). Public and cached like the listing. */
+export async function getListingPackages(serviceId: string) {
+  "use cache";
+  cacheLife("minutes");
+  cacheTag(LISTINGS_TAG);
+  const { data, error } = await createPublicClient().rpc("listing_packages", { p_service_id: serviceId });
+  if (error) throw new Error(`listing_packages failed: ${error.message}`);
+  return data ?? [];
+}

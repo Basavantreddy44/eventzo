@@ -61,7 +61,10 @@ Migrations: `20261119000100_outbox_channels.sql`, `20261119000200_legal_policies
 | C1 3-question start | ✅ Home page: occasion, date, guests. Signed in → event created and venues filtered by guests/city with "Your event is saved"; signed out → venues first, then sign-up returns to a prefilled event form (sign-up now honours a safe `next`) |
 | C2 Availability calendar | ✅ Month view on every listing: Free / On hold / Booked (no customer details exposed), muhurtham dates and surcharge; tapping a free day fills the enquiry date. `public.listing_month()` (migration `20261120000100_listing_calendar.sql`) |
 | C4 Shortlist, compare, share | ✅ Heart on cards and listing pages (kept in the browser, up to 4, works signed out), bottom compare bar, `/compare?l=…` side by side, Share on WhatsApp / copy link that works without an account |
-| Next | C3 "Get 3 quotes", C5 quote comparison, C6/V4 packages; then C7 reviews, C10/S2 Help + support desk, C9 day sheet, C8, C12, C13 |
+| C6/V4 Packages | ✅ Up to 6 per listing with price, unit, includes / not included (`service_packages`, RLS like listings, audited); package cards on the listing; "Start from a package" fills the quote (surcharge applied, per-plate quantity from guests) |
+| C3 Get 3 quotes | ✅ Opt-in "Also ask up to 2 similar vendors" on the enquiry form: same category and city, free that day, fits the guests, request-to-book only, verified first (`similar_available_services`). **Decision:** opt-in (unticked) so vendors never get requests the customer didn't choose — change if you prefer it on by default |
+| C5 Quote comparison | ✅ Event → **Quotes** tab: quotes side by side per category (total, lines, advance, cancellation policy, validity, notes, lowest price). Accept → the other open requests in that category are withdrawn with a polite note (`accept_event_quote`). "For event" on the enquiry form files all requests under the event |
+| Next | C7 reviews, C10/S2 Help + support desk, C9 day sheet, C8 payment timeline + reminders, C12 Kannada-first + large text, C13 budget from guests |
 
 ## QA report, 15 Nov 2026 — fixes
 

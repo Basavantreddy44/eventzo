@@ -167,10 +167,10 @@ test("a co-host joins, helps with guests and the vendor conversation; viewers on
     if (!(await availability.textContent())?.includes("Not available")) break;
     if (attempt === 4) throw new Error("No free date found in 5 tries");
   }
+  // The host's upcoming events are offered under "For event" (Roadmap C3/C5); filing happens on send.
+  await panel.getByTestId("enquiry-panel-event").selectOption({ label: title });
   await panel.getByRole("button", { name: "Send enquiry" }).click();
   await expect(owner).toHaveURL(/\/account\/enquiries\/[0-9a-f-]{36}$/);
-  await owner.getByTestId("enquiry-event-select").selectOption({ label: title });
-  await owner.getByTestId("enquiry-event").getByRole("button", { name: "Save" }).click();
   await expect(owner.getByTestId("enquiry-event").getByRole("link", { name: "Open the event" })).toBeVisible();
 
   // The co-host accepts and gets to work.

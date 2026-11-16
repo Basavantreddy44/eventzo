@@ -8,7 +8,8 @@ import { CalendarCheck, CalendarX, HelpCircle, Loader2, Sparkles } from "lucide-
 import { Link, useRouter } from "@/i18n/navigation";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { Input, NativeSelect } from "@/components/ui/input";
+import { toast } from "sonner";
 import { FormError, FormField } from "@/components/form/form-field";
 import { applyServerFieldErrors } from "@/components/form/apply-server-errors";
 import { checkAvailability, createEnquiry, type AvailabilityCheck } from "../actions/customer";
@@ -26,6 +27,7 @@ export function EnquiryPanel({
   loginHref,
   today,
   maxGuests,
+  events = [],
 }: {
   serviceId: string;
   instant: boolean;
@@ -33,6 +35,8 @@ export function EnquiryPanel({
   loginHref: string;
   today: string;
   maxGuests: number | null;
+  /** The customer's upcoming events, for "For event" (Roadmap C3/C5). */
+  events?: { id: string; title: string; start_date: string }[];
 }) {
   const t = useTranslations("enquiry");
   const router = useRouter();
@@ -52,6 +56,8 @@ export function EnquiryPanel({
       guests: "",
       message: "",
       idempotencyKey,
+      eventId: events.length === 1 ? events[0].id : "",
+      alsoAsk: false,
     },
   });
   const { errors } = form.formState;
@@ -102,7 +108,10 @@ export function EnquiryPanel({
           setAvailability((a) => (a ? { ...a, status: "unavailable" } : a));
         return;
       }
-      router.push(`/account/enquiries/${result.data}`);
+      if (result.data.extra > 0) {
+        toast.success(t("sentToMany", { count: result.data.extra + 1 }));
+        router.push("/account/enquiries");
+      } else router.push(`/account/enquiries/${result.data.id}`);
     });
   });
 
@@ -190,6 +199,32 @@ export function EnquiryPanel({
             {...form.register("message")}
           />
         </FormField>
+      ) : null}
+      {events.length > 0 ? (
+        <FormField id="enq-event" label={t("forEvent")} error={errors.eventId?.message}>
+          <NativeSelect {...form.register("eventId")} data-testid="enquiry-panel-event">
+            <option value="">{t("noEvent")}</option>
+            {events.map((ev) => (
+              <option key={ev.id} value={ev.id}>
+                {ev.title}
+              </option>
+            ))}
+          </NativeSelect>
+        </FormField>
+      ) : null}
+      {!instant ? (
+        <label className="flex items-start gap-2 text-sm">
+          <input
+            type="checkbox"
+            className="accent-primary mt-0.5 size-4 shrink-0"
+            {...form.register("alsoAsk")}
+            data-testid="enquiry-also-ask"
+          />
+          <span className="grid gap-0.5">
+            <span className="font-medium">{t("alsoAsk")}</span>
+            <span className="text-muted-foreground text-xs">{t("alsoAskHint")}</span>
+          </span>
+        </label>
       ) : null}
       <Button type="submit" size="lg" className="w-full" disabled={pending || unavailable}>
         {pending ? <Loader2 className="animate-spin" aria-hidden /> : null}

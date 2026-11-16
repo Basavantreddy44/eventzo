@@ -24,9 +24,13 @@ export const enquirySchema = z
       .refine((v) => v === "" || (/^\d{1,6}$/.test(v) && Number(v) >= 1), "validation.invalid"),
     message: z.string().trim().max(2000, "validation.message"),
     idempotencyKey: z.string().min(8).max(100),
+    /** File the enquiry (and any extra ones) under this event (Roadmap C3/C5). */
+    eventId: z.union([z.literal(""), z.uuid()]).default(""),
+    /** Also ask up to 2 similar vendors free on this date (Roadmap C3). */
+    alsoAsk: z.boolean().default(false),
   })
   .refine((v) => v.endTime > v.startTime, { path: ["endTime"], message: "validation.timeOrder" });
-export type EnquiryInput = z.infer<typeof enquirySchema>;
+export type EnquiryInput = z.input<typeof enquirySchema>;
 
 // ---------- vendor quotation ----------------------------------------------------------
 const rupees = z

@@ -185,7 +185,10 @@
     "tooLong": "This is too long",
     "slug": "Use lower-case letters, numbers and hyphens.",
     "acceptPolicies": "Please accept the Terms of Use and Privacy Policy to continue.",
-    "acceptVendorAgreement": "Please accept the Vendor Agreement to register your business."
+    "acceptVendorAgreement": "Please accept the Vendor Agreement to register your business.",
+    "packageName": "Use 2 to 60 characters.",
+    "packageLine": "Keep each line under 80 characters.",
+    "packageLines": "Up to 20 lines."
   },
   "home": {
     "heroEyebrow": "Weddings · Functions · Celebrations",
@@ -600,6 +603,42 @@
       "closedTitle": "Your business is closed",
       "reason": "Reason: {reason}",
       "body": "Your listings are hidden and you can't receive new enquiries. Existing bookings continue: serve and finish them as agreed. Contact Eventzo support to resolve this."
+    },
+    "packages": {
+      "title": "Packages",
+      "subtitle": "Ready-made offers customers see on your listing, and you can quote with one tap.",
+      "empty": "No packages yet. Add one, e.g. “Gold – hall + 300 plates + stage décor”.",
+      "add": "Add a package",
+      "addTitle": "New package",
+      "editTitle": "Edit {name}",
+      "edit": "Edit",
+      "name": "Package name",
+      "nameHint": "Short and clear, e.g. “Gold wedding package”.",
+      "price": "Price (₹)",
+      "unit": "Charged",
+      "units": {
+        "whole": "for the package",
+        "per_plate": "per plate",
+        "per_person": "per person",
+        "per_day": "per day",
+        "per_event": "per event"
+      },
+      "includes": "What's included",
+      "excludes": "Not included",
+      "linesHint": "One item per line, up to 20.",
+      "includesPlaceholder": "Hall for 12 hours\n300 veg plates\nStage décor",
+      "excludesPlaceholder": "Nadaswaram\nReturn gifts",
+      "description": "Short description",
+      "save": "Save package",
+      "saved": "Package saved.",
+      "saveError": "Couldn't save. Please try again.",
+      "delete": "Delete",
+      "deleteNamed": "Delete {name}",
+      "deleteTitle": "Delete {name}?",
+      "deleteBody": "Customers won't see it any more. Quotes already sent are not changed.",
+      "deleted": "Package deleted.",
+      "max": "You can show up to {max} packages per listing.",
+      "tooMany": "A listing can show up to 6 packages."
     }
   },
   "admin": {
@@ -1175,6 +1214,19 @@
       "surcharge": "{percent}% muhurtham surcharge",
       "hint": "For a 10:00–22:00 event. Tap a free day to use it in your enquiry; you can change the hours there.",
       "error": "Couldn't load the calendar. Please try again."
+    },
+    "packages": {
+      "title": "Packages",
+      "includes": "Includes",
+      "excludes": "Not included",
+      "unit": {
+        "whole": "for the package",
+        "per_plate": "per plate",
+        "per_person": "per person",
+        "per_day": "per day",
+        "per_event": "per event"
+      },
+      "note": "Package prices are the vendor's listed prices. Your final price comes in the vendor's quote, including any muhurtham surcharge."
     }
   },
   "muhurtham": {
@@ -1243,7 +1295,12 @@
     "instantNote": "Instant booking: the date is reserved for you at the listed price for 48 hours.",
     "loginToEnquire": "Log in to check dates and send an enquiry.",
     "unavailableError": "Sorry — this date was just taken. Please choose another date.",
-    "ownBusiness": "You can't send an enquiry to your own business."
+    "ownBusiness": "You can't send an enquiry to your own business.",
+    "forEvent": "For event",
+    "noEvent": "Not for a saved event",
+    "alsoAsk": "Also ask up to 2 similar vendors",
+    "alsoAskHint": "The same request goes to similar listings that are free on this date and can host your party, so you can compare quotes.",
+    "sentToMany": "Sent to {count} vendors. Compare their quotes as they arrive."
   },
   "enquiries": {
     "title": "My enquiries",
@@ -1300,7 +1357,9 @@
     "colItem": "Item",
     "colQty": "Qty",
     "colPrice": "Price",
-    "colAmount": "Amount"
+    "colAmount": "Amount",
+    "includes": "Includes",
+    "excludes": "Not included"
   },
   "vendorEnquiries": {
     "title": "Enquiries",
@@ -1345,7 +1404,9 @@
     "withdrawn": "Quotation withdrawn.",
     "suggested": "Pre-filled from your listing price{surcharge}.",
     "suggestedSurcharge": " incl. {percent}% auspicious-date surcharge",
-    "closed": "This enquiry is closed."
+    "closed": "This enquiry is closed.",
+    "usePackage": "Start from a package",
+    "usePackageNone": "Choose a package…"
   },
   "calendar": {
     "title": "Calendar",
@@ -1555,7 +1616,8 @@
       "overview": "Overview",
       "guests": "Guests & RSVP",
       "budget": "Budget",
-      "people": "Family & helpers"
+      "people": "Family & helpers",
+      "quotes": "Quotes"
     },
     "invitationsTitle": "You're invited to help plan",
     "invitedBy": "{name} added you as {role}",
@@ -1746,6 +1808,34 @@
       "left": "You left the event",
       "leaveTitle": "Leave this event?",
       "leaveBody": "You'll no longer see it unless the owner invites you again."
+    },
+    "quotes": {
+      "intro": "Quotes from vendors you asked for this event, side by side. Accepting one politely withdraws your other requests in that category.",
+      "emptyTitle": "No quotes yet",
+      "emptyBody": "Send enquiries for this event (choose it under “For event”), and the vendors' quotes appear here to compare.",
+      "findVendors": "Find vendors",
+      "count": "{count, plural, one {# quote} other {# quotes}}",
+      "feature": "Detail",
+      "verified": "Verified by Eventzo",
+      "accepted": "Accepted",
+      "lowest": "Lowest price",
+      "total": "Total",
+      "includes": "What's quoted",
+      "discount": "Discount {amount}",
+      "tax": "Tax {amount}",
+      "advance": "Advance to book",
+      "cancellation": "Cancellation policy",
+      "validUntil": "Valid until",
+      "notes": "Vendor's notes",
+      "action": "Action",
+      "accept": "Accept this quote",
+      "acceptTitle": "Accept {vendor}'s quote?",
+      "acceptBody": "You'll then book and pay the advance to confirm.",
+      "acceptBodyOthers": "Your other {count, plural, one {request} other {# requests}} in this category will be withdrawn with a polite note to the vendor. You'll then book and pay the advance to confirm.",
+      "acceptedToast": "Quote accepted. Book it to confirm your date.",
+      "nextStep": "Book and pay advance",
+      "withdrawn": "Withdrawn",
+      "withdrawNote": "Thank you for your quote. We have chosen another vendor for this event, so we're withdrawing this request."
     }
   },
   "rsvp": {

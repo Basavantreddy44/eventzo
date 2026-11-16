@@ -243,3 +243,79 @@ test("(C2) the listing calendar shows free, held and booked days, and a tap fill
   await expect(panel.getByLabel("Event date")).toHaveValue(day!);
   await expect(page.getByTestId("availability")).toContainText("Available");
 });
+
+test("(C6/C3/C5) a package on the listing → enquiry for an event → quote from the package → compare and accept", async ({
+  browser,
+}) => {
+  const vendor = await (await browser.newContext()).newPage();
+  const customer = await (await browser.newContext()).newPage();
+  const pkg = `Gold ${Date.now().toString().slice(-6)}`;
+
+  // Vendor adds a package to the Main Hall.
+  await loginVendor(vendor);
+  await vendor.goto("/vendor/listings");
+  await vendor.getByRole("row").filter({ hasText: "Main Hall" }).first().getByRole("link", { name: "Edit" }).click();
+  const manager = vendor.getByTestId("package-manager");
+  await manager.getByRole("button", { name: "Add a package" }).click();
+  await manager.getByLabel("Package name").fill(pkg);
+  await manager.getByLabel("Price (₹)").fill("2,50,000");
+  await manager.getByLabel("What's included").fill("Hall for 12 hours\n300 veg plates");
+  await manager.getByLabel("Not included").fill("Nadaswaram");
+  await manager.getByTestId("package-save").click();
+  await expect(vendor.getByText("Package saved.")).toBeVisible();
+  await expect(manager.getByTestId("package-row").filter({ hasText: pkg })).toContainText("300 veg plates");
+
+  // Customer sees it, creates an event and sends an enquiry for that event.
+  await registerCustomer(customer, "Package Customer");
+  await customer.goto(MAIN_HALL);
+  const packages = customer.getByTestId("listing-packages");
+  await expect(packages).toContainText(pkg);
+  await expect(packages).toContainText("Hall for 12 hours");
+  await expect(packages).toContainText("Nadaswaram");
+
+  await customer.goto("/account/events");
+  const create = customer.getByRole("form", { name: "New event" });
+  await create.getByLabel("Event name").fill("Package Wedding");
+  await create.getByLabel("Type of event").selectOption("wedding");
+  await create.getByLabel("Date").fill(randomDate());
+  await create.getByTestId("create-event").click();
+  await expect(customer).toHaveURL(/\/account\/events\/[0-9a-f-]{36}$/);
+  const eventUrl = new URL(customer.url()).pathname;
+
+  await customer.goto(MAIN_HALL);
+  const { panel } = await pickFreeDate(customer);
+  await panel.getByTestId("enquiry-panel-event").selectOption({ label: "Package Wedding" });
+  await panel.getByTestId("enquiry-also-ask").check(); // C3: also ask similar free vendors
+  await panel.getByRole("button", { name: "Send enquiry" }).click();
+  // With "also ask" on, similar free halls may get the same request (then the list opens).
+  await expect(customer).toHaveURL(/\/account\/enquiries/);
+  await customer.goto("/account/enquiries");
+  await customer.getByRole("row").filter({ hasText: "Main Hall" }).first().getByRole("link", { name: "Open" }).click();
+  await expect(customer).toHaveURL(/\/account\/enquiries\/[0-9a-f-]{36}$/);
+  const enquiryId = new URL(customer.url()).pathname.split("/").pop();
+
+  // Vendor quotes from the package in one step.
+  await vendor.goto(`/vendor/enquiries/${enquiryId}`);
+  const quote = vendor.getByRole("form", { name: "Send a quotation" });
+  await vendor.getByTestId("quote-package").selectOption({ label: pkg });
+  await expect(quote.getByLabel("Description 1")).toHaveValue(pkg);
+  await quote.getByRole("button", { name: "Send quotation" }).click();
+  await expect(vendor.getByText("Quotation sent.")).toBeVisible();
+
+  // Customer compares in the event and accepts.
+  await customer.goto(`${eventUrl}?tab=quotes`);
+  const quotes = customer.getByTestId("event-quotes");
+  await expect(quotes).toContainText(pkg);
+  await expect(quotes).toContainText("Includes: Hall for 12 hours, 300 veg plates");
+  await quotes.getByRole("button", { name: "Accept this quote" }).first().click();
+  await customer.getByRole("alertdialog").getByRole("button", { name: "Accept this quote" }).click();
+  await expect(customer.getByText("Quote accepted. Book it to confirm your date.")).toBeVisible();
+  await expect(quotes.getByText("Accepted", { exact: true })).toBeVisible();
+
+  // Tidy up: the package stays on a shared sample listing otherwise.
+  await vendor.goto("/vendor/listings");
+  await vendor.getByRole("row").filter({ hasText: "Main Hall" }).first().getByRole("link", { name: "Edit" }).click();
+  await vendor.getByRole("button", { name: `Delete ${pkg}` }).click();
+  await vendor.getByRole("alertdialog").getByRole("button", { name: "Delete" }).click();
+  await expect(vendor.getByText("Package deleted.")).toBeVisible();
+});

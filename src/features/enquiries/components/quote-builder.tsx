@@ -21,7 +21,25 @@ const textareaClass =
   "border-input bg-card focus-visible:border-primary focus-visible:ring-ring w-full rounded-md border px-3 py-2 text-base shadow-xs outline-none focus-visible:ring-[3px] md:text-sm";
 
 /** Line-item quote with a live total (the database recomputes it authoritatively). */
-export function QuoteBuilder({ initial, suggestion }: { initial: QuoteInput; suggestion: string | null }) {
+/** A listing package ready to drop into a quote (Roadmap V4): price already includes any muhurtham surcharge. */
+export type QuotePackage = {
+  id: string;
+  name: string;
+  unitPrice: string;
+  quantity: string;
+  includes: string[];
+  excludes: string[];
+};
+
+export function QuoteBuilder({
+  initial,
+  suggestion,
+  packages = [],
+}: {
+  initial: QuoteInput;
+  suggestion: string | null;
+  packages?: QuotePackage[];
+}) {
   const t = useTranslations("vendorEnquiries");
   const tQuote = useTranslations("quote");
   const tRoot = useTranslations() as unknown as (key: string) => string;
@@ -29,7 +47,18 @@ export function QuoteBuilder({ initial, suggestion }: { initial: QuoteInput; sug
   const [formError, setFormError] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
   const form = useForm<QuoteInput>({ resolver: zodResolver(quoteSchema), defaultValues: initial });
-  const { fields, append, remove } = useFieldArray({ control: form.control, name: "items" });
+  const { fields, append, remove, replace } = useFieldArray({ control: form.control, name: "items" });
+
+  const applyPackage = (id: string) => {
+    const p = packages.find((x) => x.id === id);
+    if (!p) return;
+    replace([{ description: p.name, quantity: p.quantity, unitPrice: p.unitPrice }]);
+    const lines = [
+      p.includes.length ? `${tQuote("includes")}: ${p.includes.join(", ")}` : "",
+      p.excludes.length ? `${tQuote("excludes")}: ${p.excludes.join(", ")}` : "",
+    ].filter(Boolean);
+    form.setValue("notes", lines.join("\n"));
+  };
   const { errors } = form.formState;
   const [items, discount, taxPercent] = useWatch({ control: form.control, name: ["items", "discount", "taxPercent"] });
 
@@ -60,6 +89,25 @@ export function QuoteBuilder({ initial, suggestion }: { initial: QuoteInput; sug
   return (
     <form onSubmit={onSubmit} noValidate className="grid gap-4" aria-label={t("quoteTitle")}>
       <FormError message={formError} />
+      {packages.length > 0 ? (
+        <div className="grid gap-1">
+          <Label htmlFor="quote-package">{t("usePackage")}</Label>
+          <select
+            id="quote-package"
+            defaultValue=""
+            onChange={(e) => applyPackage(e.target.value)}
+            className="border-input bg-card h-9 rounded-md border px-3 text-sm shadow-xs"
+            data-testid="quote-package"
+          >
+            <option value="">{t("usePackageNone")}</option>
+            {packages.map((p) => (
+              <option key={p.id} value={p.id}>
+                {p.name}
+              </option>
+            ))}
+          </select>
+        </div>
+      ) : null}
       {suggestion ? <p className="text-muted-foreground text-xs">{suggestion}</p> : null}
       <div className="grid gap-3">
         {fields.map((field, i) => (

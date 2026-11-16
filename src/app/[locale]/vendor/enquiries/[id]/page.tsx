@@ -19,6 +19,7 @@ import { applySurcharge } from "@/features/enquiries/lib/quote";
 import { getEnquiryContact, getEnquiryThread, rangeOf, snapshotOf } from "@/features/enquiries/queries";
 import { loadVendorPage } from "@/features/vendor/lib/page";
 import { getBookingForEnquiry } from "@/features/bookings/queries";
+import { createClient } from "@/lib/supabase/server";
 
 export const instant = false;
 
@@ -50,6 +51,27 @@ export default async function VendorEnquiryPage({ params }: PageProps<"/[locale]
   const canQuote = e.status === "open" || e.status === "quoted";
   const surcharge = snap.surcharge_bps ?? 0;
   const base = snap.base_price_paise ? applySurcharge(snap.base_price_paise, surcharge) : null;
+  // Packages of this listing (Roadmap V4), priced with the same muhurtham surcharge.
+  const { data: packageRows } = canQuote
+    ? await (
+        await createClient()
+      )
+        .from("service_packages")
+        .select("id, name, price_paise, price_unit, includes, excludes")
+        .eq("service_id", e.service_id)
+        .eq("active", true)
+        .order("sort_order")
+        .order("price_paise")
+    : { data: [] };
+  const perHead = new Set(["per_plate", "per_person"]);
+  const quotePackages = (packageRows ?? []).map((p) => ({
+    id: p.id,
+    name: p.name,
+    unitPrice: toRupees(applySurcharge(p.price_paise, surcharge)),
+    quantity: p.price_unit && perHead.has(p.price_unit) && e.guests ? String(e.guests) : "1",
+    includes: p.includes,
+    excludes: p.excludes,
+  }));
 
   return (
     <div className="grid gap-6">
@@ -173,6 +195,7 @@ export default async function VendorEnquiryPage({ params }: PageProps<"/[locale]
               </CardHeader>
               <CardContent>
                 <QuoteBuilder
+                  packages={quotePackages}
                   suggestion={
                     base !== null
                       ? t("suggested", {

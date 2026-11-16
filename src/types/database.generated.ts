@@ -2665,6 +2665,80 @@ export type Database = {
           },
         ];
       };
+      service_packages: {
+        Row: {
+          active: boolean;
+          created_at: string;
+          created_by: string | null;
+          description: string | null;
+          excludes: string[];
+          id: string;
+          includes: string[];
+          name: string;
+          organization_id: string;
+          price_paise: number;
+          price_unit: Database["public"]["Enums"]["price_unit"] | null;
+          service_id: string;
+          sort_order: number;
+          updated_at: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          active?: boolean;
+          created_at?: string;
+          created_by?: string | null;
+          description?: string | null;
+          excludes?: string[];
+          id?: string;
+          includes?: string[];
+          name: string;
+          organization_id: string;
+          price_paise: number;
+          price_unit?: Database["public"]["Enums"]["price_unit"] | null;
+          service_id: string;
+          sort_order?: number;
+          updated_at?: string;
+        };
+        Update: {
+          active?: boolean;
+          created_at?: string;
+          created_by?: string | null;
+          description?: string | null;
+          excludes?: string[];
+          id?: string;
+          includes?: string[];
+          name?: string;
+          organization_id?: string;
+          price_paise?: number;
+          price_unit?: Database["public"]["Enums"]["price_unit"] | null;
+          service_id?: string;
+          sort_order?: number;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "service_packages_created_by_fkey";
+            columns: ["created_by"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "service_packages_organization_id_fkey";
+            columns: ["organization_id"];
+            isOneToOne: false;
+            referencedRelation: "organizations";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "service_packages_service_id_organization_id_fkey";
+            columns: ["service_id", "organization_id"];
+            isOneToOne: false;
+            referencedRelation: "services";
+            referencedColumns: ["id", "organization_id"];
+          },
+        ];
+      };
       services: {
         Row: {
           advance_bps: number;
@@ -3099,6 +3173,7 @@ export type Database = {
       [_ in never]: never;
     };
     Functions: {
+      accept_event_quote: { Args: { p_note: string; p_quotation_id: string }; Returns: number };
       admin_list_users: {
         Args: { p_limit?: number; p_offset?: number; p_search?: string };
         Returns: {
@@ -3289,6 +3364,33 @@ export type Database = {
           user_id: string;
         }[];
       };
+      event_quote_options: {
+        Args: { p_event_id: string };
+        Returns: {
+          advance_bps: number;
+          cancellation_policy: string;
+          category_name: string;
+          category_name_i18n: Json;
+          category_slug: string;
+          currency: string;
+          discount_paise: number;
+          enquiry_id: string;
+          enquiry_status: string;
+          is_owner: boolean;
+          items: Json;
+          listing_slug: string;
+          listing_title: string;
+          notes: string;
+          quotation_id: string;
+          quotation_status: string;
+          subtotal_paise: number;
+          tax_paise: number;
+          total_paise: number;
+          valid_until: string;
+          vendor_name: string;
+          verified: boolean;
+        }[];
+      };
       event_vendors: {
         Args: { p_event_id: string };
         Returns: {
@@ -3352,6 +3454,18 @@ export type Database = {
           day: string;
           status: string;
           surcharge_bps: number;
+        }[];
+      };
+      listing_packages: {
+        Args: { p_service_id: string };
+        Returns: {
+          description: string;
+          excludes: string[];
+          id: string;
+          includes: string[];
+          name: string;
+          price_paise: number;
+          price_unit: Database["public"]["Enums"]["price_unit"];
         }[];
       };
       mark_guests_invited: { Args: { p_guest_ids: string[] }; Returns: number };
@@ -3635,6 +3749,23 @@ export type Database = {
       set_user_block: { Args: { p_block: boolean; p_reason?: string; p_user_id: string }; Returns: undefined };
       set_whatsapp_consent: { Args: { p_granted: boolean; p_user_agent?: string }; Returns: undefined };
       settle_online_refund: { Args: { p_razorpay_refund_id: string; p_success: boolean }; Returns: undefined };
+      similar_available_services: {
+        Args: {
+          p_end: string;
+          p_event_date: string;
+          p_guests?: number;
+          p_limit?: number;
+          p_service_id: string;
+          p_start: string;
+        };
+        Returns: {
+          id: string;
+          slug: string;
+          title: string;
+          vendor_name: string;
+          verified: boolean;
+        }[];
+      };
       start_payment: {
         Args: { p_booking_item_id: string };
         Returns: {

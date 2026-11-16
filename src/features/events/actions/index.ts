@@ -340,3 +340,19 @@ export async function quickStartEvent(input: QuickStartInput): Promise<ActionRes
     idempotencyKey: v.idempotencyKey,
   });
 }
+
+/**
+ * Roadmap C5: accept one quote from the event's comparison; the other open
+ * requests in the same category are withdrawn with a polite note.
+ */
+export async function acceptEventQuote(quotationId: string): Promise<ActionResult<number>> {
+  if (!isUuid(quotationId)) return fail("errors.invalidInput");
+  const t = await getTranslations({ locale: await getLocale(), namespace: "events.quotes" });
+  const supabase = await createClient();
+  const { data, error } = await supabase.rpc("accept_event_quote", {
+    p_quotation_id: quotationId,
+    p_note: t("withdrawNote"),
+  });
+  if (error) return dbFail(error);
+  return ok(Number(data ?? 0));
+}

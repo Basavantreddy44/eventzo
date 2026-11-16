@@ -348,3 +348,33 @@ export const registerDocumentSchema = z.object({
   sizeBytes: z.number().int().positive().max(DOCUMENT_MAX_BYTES),
 });
 export type RegisterDocumentInput = z.infer<typeof registerDocumentSchema>;
+
+// ---------- listing packages (Roadmap C6/V4) ------------------------------------------
+export const PACKAGE_UNITS = ["", "per_plate", "per_person", "per_day", "per_event"] as const;
+const packageLines = z
+  .string()
+  .max(2000, "validation.tooLong")
+  .transform((v) =>
+    v
+      .split("\n")
+      .map((l) => l.replace(/^[\s•\-*✓✗]+/, "").trim())
+      .filter(Boolean),
+  )
+  .pipe(z.array(z.string().max(80, "validation.packageLine")).max(20, "validation.packageLines"));
+
+export const packageSchema = z.object({
+  id: z.union([z.literal(""), z.uuid()]),
+  serviceId: z.uuid(),
+  name: z.string().trim().min(2, "validation.packageName").max(60, "validation.packageName"),
+  description: z.string().trim().max(300, "validation.tooLong"),
+  price: z
+    .string()
+    .trim()
+    .min(1, "validation.required")
+    .refine((v) => rupeesToPaise(v) !== null, "validation.amount"),
+  priceUnit: z.enum(PACKAGE_UNITS),
+  includes: packageLines,
+  excludes: packageLines,
+});
+export type PackageInput = z.input<typeof packageSchema>;
+export type PackageOutput = z.output<typeof packageSchema>;

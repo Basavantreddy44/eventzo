@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { connection } from "next/server";
 import { getLocale, getTranslations } from "next-intl/server";
-import { ArrowLeft, BadgeCheck, CalendarHeart, MapPin, MessageSquare, Zap } from "lucide-react";
+import { ArrowLeft, BadgeCheck, CalendarHeart, Check, MapPin, MessageSquare, X, Zap } from "lucide-react";
 import { Link } from "@/i18n/navigation";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -12,7 +12,7 @@ import { formatPaise } from "@/lib/money";
 import { formatDateTime, intlLocale } from "@/lib/datetime";
 import { ListingCover } from "@/features/discovery/components/listing-cover";
 import { formatListingPrice, type PriceTranslator } from "@/features/discovery/lib/price";
-import { getListing } from "@/features/discovery/queries";
+import { getListing, getListingPackages } from "@/features/discovery/queries";
 import { forCity, getAuspiciousDates, significanceKey } from "@/features/muhurtham/queries";
 import { todayIn } from "@/features/muhurtham/lib/calendar";
 import { getActiveCities } from "@/features/taxonomy/queries";
@@ -20,6 +20,7 @@ import type { ListingDetail } from "@/types/database";
 import { getCurrentUser } from "@/lib/auth/session";
 import { localizedPath } from "@/lib/auth/portal-user";
 import { EnquiryPanel } from "@/features/enquiries/components/enquiry-panel";
+import { myUpcomingEvents } from "@/features/enquiries/actions/customer";
 import { AvailabilityCalendar } from "@/features/enquiries/components/availability-calendar";
 import { PickedDateProvider } from "@/features/enquiries/components/picked-date";
 import { ShortlistButton } from "@/features/shortlist/components/shortlist-button";
@@ -143,6 +144,10 @@ async function ListingContent({ params }: { params: Props["params"] }) {
 
             <Suspense fallback={<Skeleton className="h-80" />}>
               <ListingCalendar serviceId={listing.id} timeZone={listing.location.timezone} />
+            </Suspense>
+
+            <Suspense fallback={null}>
+              <ListingPackages serviceId={listing.id} />
             </Suspense>
 
             {listing.venue ? <VenueDetails venue={listing.venue} t={t} /> : null}
@@ -351,6 +356,67 @@ async function ListingMuhurtham({ citySlug, timeZone }: { citySlug: string; time
   );
 }
 
+/** Package cards with what's included and what isn't (Roadmap C6). */
+async function ListingPackages({ serviceId }: { serviceId: string }) {
+  const [packages, t, locale] = await Promise.all([
+    getListingPackages(serviceId).catch(() => []),
+    getTranslations("listing.packages"),
+    getLocale(),
+  ]);
+  if (packages.length === 0) return null;
+  return (
+    <section className="grid gap-3" aria-labelledby="packages-title">
+      <h2 id="packages-title" className="text-xl font-semibold">
+        {t("title")}
+      </h2>
+      <ul className="grid gap-3 sm:grid-cols-2" data-testid="listing-packages">
+        {packages.map((p) => (
+          <li key={p.id} className="bg-card grid content-start gap-3 rounded-xl border p-4">
+            <div className="grid gap-0.5">
+              <h3 className="font-semibold">{p.name}</h3>
+              <p className="text-primary-strong text-lg font-semibold">
+                {formatPaise(BigInt(p.price_paise), { locale: intlLocale(locale) })}
+                <span className="text-muted-foreground text-sm font-normal">
+                  {" "}
+                  {p.price_unit ? t(`unit.${p.price_unit as "per_plate"}`) : t("unit.whole")}
+                </span>
+              </p>
+              {p.description ? <p className="text-muted-foreground text-sm">{p.description}</p> : null}
+            </div>
+            {p.includes.length ? (
+              <div className="grid gap-1 text-sm">
+                <p className="font-medium">{t("includes")}</p>
+                <ul className="grid gap-0.5">
+                  {p.includes.map((line) => (
+                    <li key={line} className="flex items-start gap-1.5">
+                      <Check className="text-success mt-0.5 size-4 shrink-0" aria-hidden />
+                      {line}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ) : null}
+            {p.excludes.length ? (
+              <div className="grid gap-1 text-sm">
+                <p className="font-medium">{t("excludes")}</p>
+                <ul className="text-muted-foreground grid gap-0.5">
+                  {p.excludes.map((line) => (
+                    <li key={line} className="flex items-start gap-1.5">
+                      <X className="mt-0.5 size-4 shrink-0" aria-hidden />
+                      {line}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ) : null}
+          </li>
+        ))}
+      </ul>
+      <p className="text-muted-foreground text-xs">{t("note")}</p>
+    </section>
+  );
+}
+
 /** Month calendar (Roadmap C2). "Today" is in the listing's time zone, so request-time. */
 async function ListingCalendar({ serviceId, timeZone }: { serviceId: string; timeZone: string }) {
   await connection();
@@ -381,6 +447,7 @@ async function EnquirySection(props: {
 }) {
   await connection();
   const user = await getCurrentUser();
+  const events = user ? await myUpcomingEvents() : [];
   const next = localizedPath(props.locale, `/listings/${props.slug}`);
   return (
     <EnquiryPanel
@@ -391,6 +458,7 @@ async function EnquirySection(props: {
       loginHref={`/login?next=${encodeURIComponent(next)}`}
       today={todayIn(props.timeZone)}
       maxGuests={props.maxGuests}
+      events={events}
     />
   );
 }

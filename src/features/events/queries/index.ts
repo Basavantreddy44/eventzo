@@ -55,6 +55,14 @@ export async function getEventVendors(eventId: string) {
   return data ?? [];
 }
 
+/** Quotes received for this event, for side-by-side comparison (Roadmap C5). */
+export async function getEventQuoteOptions(eventId: string) {
+  const supabase = await createClient();
+  const { data, error } = await supabase.rpc("event_quote_options", { p_event_id: eventId });
+  if (error) throw new Error(`Failed to load event quotes: ${error.message}`);
+  return data ?? [];
+}
+
 export async function listGuests(eventId: string) {
   const supabase = await createClient();
   const { data, error } = await supabase
