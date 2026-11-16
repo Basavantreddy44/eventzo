@@ -83,6 +83,22 @@ Migrations: `20261122000100_reviews_support_reminders.sql`, `20261122000200_even
 Tests (local stack, 16 Nov 2026, after Kannada): pgTAP **441/441** (new: `16_roadmap_b3.test.sql` reviews, support desk, reminders; `17_day_sheet.test.sql`), Vitest **311/311** (`roadmap-b3.test.ts`, `kannada.test.ts`), Playwright **59/59** desktop (new: `support-reviews.spec.ts`, `day-sheet.spec.ts`) + mobile auth **10/10**. Also fixed on the way: batch 2's package-line check relied on a default permission that the new migration's tightening removed; it now has an explicit grant.
 
 
+**Phase C — vendors and safety, batch 1 (16 Nov 2026)**
+
+| Item | Status |
+|---|---|
+| V2 Auto calendar | ✅ Publishing a venue listing creates its calendar (one exclusive venue space, 2 h setup / 1 h breakdown) at the end of the save, unless the vendor added one; existing published halls without one were given one. Resources moved to the end of the menu as "Advanced: resources" |
+| V4 Quote packages | ✅ Done in Phase B (C6) |
+| V5 Hold nudges + response time | ✅ Every 15 min: an enquiry nobody has answered (no quote, message or decline) is nudged to the owner/branch manager 24 h and 4 h before its hold lapses (once each). Listing pages show "Usually replies within N hours" (median over 90 days, after 3 answered enquiries) |
+| V6 Offline booking | ✅ Since Phase 4 (calendar → Add to calendar → Offline booking) |
+| V8 Leads | ✅ Enquiries page is a leads list: stage (New / Quoted / Won / Lost), customer first name and guests, last contact, "Remind me" date; a follow-up form on each enquiry, reminder that morning |
+| V9 Score card | ✅ Dashboard tiles for the last 90 days: reply time, quotes that became bookings, rating, cancellations by the vendor, each with a tip when it needs attention |
+| V11 + S4 Under review / request changes | ✅ Admin → Verification has **Request changes** (reason required) besides Verify / Reject; the vendor is notified and sees a banner with the reason, **Fix** and **Send for review again** (a new document also resubmits). While pending: "Eventzo is checking your documents (usually 24 h)". The decision history (with reasons) shows on the admin page |
+
+Migrations: `20261123000100_verification_changes_requested.sql` (enum value, separate because it can't be used in the same transaction), `20261123000200_vendor_ease.sql`. WhatsApp templates: 5 new (34 in total).
+Tests (local, 16 Nov 2026): pgTAP **468/468** (new `18_vendor_ease.test.sql`), Vitest **318/318** (`vendor-ease.test.ts`), Playwright **61/61** desktop (new `vendor-ease.spec.ts`; the discovery filter test now searches "Sample" first so live halls left by other tests can't push the seed hall to page 2) + mobile auth 10/10.
+Next: batch C2 (V1 setup wizard, V3 quote from a WhatsApp link, V10 staff "Reached / Done" links), C3 (S1, S3, S5, S6, S7, S9), C4 (V7, S8, S10, S11, S12).
+
 ## QA report, 15 Nov 2026 — fixes
 
 | Bug | Status | Fix |

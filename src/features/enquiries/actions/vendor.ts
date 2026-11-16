@@ -78,3 +78,20 @@ export async function releaseCalendarEntry(reservationId: string): Promise<Actio
   if (error) return fail(`errors.${mapDbError(error)}`);
   return ok(undefined);
 }
+
+/** Roadmap V8: "Remind me" on a lead (null clears it). The database checks the date and access. */
+export async function setFollowUp(enquiryId: string, on: string | null, note: string): Promise<ActionResult> {
+  if (!z.uuid().safeParse(enquiryId).success) return fail("errors.invalidInput");
+  if (on !== null && !/^\d{4}-\d{2}-\d{2}$/.test(on)) return fail("validation.date");
+  if (note.length > 300) return fail("validation.tooLong");
+  const actor = await requireVendorActor(MANAGERS);
+  if (!actor.ok) return actor.result;
+  const supabase = await createClient();
+  const { error } = await supabase.rpc("set_enquiry_follow_up", {
+    p_enquiry_id: enquiryId,
+    p_on: on as string, // null clears the reminder
+    p_note: note.trim() || undefined,
+  });
+  if (error) return fail(error.code === "22023" ? "validation.dateFuture" : `errors.${mapDbError(error)}`);
+  return ok(undefined);
+}

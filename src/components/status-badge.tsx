@@ -16,6 +16,7 @@ const STATUS_VARIANTS: Record<string, Variant> = {
   pending: "warning",
   verified: "success",
   rejected: "destructive",
+  changes_requested: "gold",
   // reservations
   hold: "warning",
   confirmed: "success",

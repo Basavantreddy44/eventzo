@@ -34,11 +34,11 @@ export async function reviewDocument(documentId: string, approve: boolean, reaso
 
 export async function decideVerification(
   organizationId: string,
-  status: "verified" | "rejected",
+  status: "verified" | "rejected" | "changes_requested",
   reason: string,
 ): Promise<ActionResult> {
   if (!z.uuid().safeParse(organizationId).success) return fail("errors.invalidInput");
-  if (status === "rejected" && reason.trim() === "") return fail("admin.verification.reasonRequired");
+  if (status !== "verified" && reason.trim() === "") return fail("admin.verification.reasonRequired");
   const denied = await requireReviewer();
   if (denied) return denied;
 
@@ -69,4 +69,14 @@ export async function getReviewDocumentUrl(documentId: string): Promise<ActionRe
   const { data, error } = await supabase.storage.from("business-documents").createSignedUrl(doc.storage_path, 120);
   if (error || !data) return fail("vendor.documents.openFailed");
   return ok(data.signedUrl);
+}
+
+/** V11: the owner sends the business back for review after fixing what was asked. */
+export async function resubmitVerification(organizationId: string): Promise<ActionResult> {
+  if (!z.uuid().safeParse(organizationId).success) return fail("errors.invalidInput");
+  const supabase = await createClient();
+  const { error } = await supabase.rpc("resubmit_verification", { p_organization_id: organizationId });
+  if (error?.code === "22023") return fail("vendor.verificationBanner.resubmitNeedsDocument");
+  if (error) return fail(`errors.${mapDbError(error)}`);
+  return ok(undefined);
 }

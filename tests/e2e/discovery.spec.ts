@@ -31,7 +31,8 @@ test.describe("discovery", () => {
   });
 
   test("filters narrow the results and are reflected in the URL", async ({ page }) => {
-    await page.goto("/search");
+    // Narrow to the seed listings: other tests keep adding live halls to the local database.
+    await page.goto("/search?q=Sample");
     const results = page.getByTestId("search-results");
     await expect(results.getByRole("link", { name: "Sample Lakshmi Mini Hall" })).toBeVisible();
 

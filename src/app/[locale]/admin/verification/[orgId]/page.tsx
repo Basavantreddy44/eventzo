@@ -11,6 +11,7 @@ import { formatDateTime } from "@/lib/datetime";
 import { requireUser } from "@/lib/auth/session";
 import { hasPermission } from "@/lib/auth/permissions";
 import { localizedPath } from "@/lib/auth/portal-user";
+import { getVerificationHistory } from "@/features/vendor/queries";
 import { createClient } from "@/lib/supabase/server";
 import { localeFrom } from "@/i18n/params";
 import { getReviewDocumentUrl } from "@/features/vendor/actions/verification";
@@ -52,7 +53,11 @@ export default async function VerificationDetailPage({ params }: PageProps<"/[lo
   ]);
   if (!org) notFound();
   if (docsError) throw new Error(`Failed to load documents: ${docsError.message}`);
-  const [t, tDocs] = await Promise.all([getTranslations("admin.verification"), getTranslations("vendor.documents")]);
+  const [t, tDocs, history] = await Promise.all([
+    getTranslations("admin.verification"),
+    getTranslations("vendor.documents"),
+    getVerificationHistory(org.id),
+  ]);
 
   const facts = [
     { label: t("gstin"), value: profile?.gstin },
@@ -143,6 +148,26 @@ export default async function VerificationDetailPage({ params }: PageProps<"/[lo
             </CardHeader>
             <CardContent>
               <VerificationDecision organizationId={org.id} queueHref={localizedPath(locale, "/admin/verification")} />
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader>
+              <CardTitle>{t("history")}</CardTitle>
+            </CardHeader>
+            <CardContent>
+              {history.length === 0 ? (
+                <p className="text-muted-foreground text-sm">{t("noHistory")}</p>
+              ) : (
+                <ol className="grid gap-2 text-xs" data-testid="verification-history">
+                  {history.map((h, i) => (
+                    <li key={i}>
+                      <span className="text-muted-foreground">{formatDateTime(h.at, locale)}</span> · {h.actor ?? "—"}:{" "}
+                      {t(`historyActions.${h.action.replace("organization.verification_", "") as "verified"}`)}
+                      {h.reason ? <span className="block">“{h.reason}”</span> : null}
+                    </li>
+                  ))}
+                </ol>
+              )}
             </CardContent>
           </Card>
         </div>

@@ -5,7 +5,9 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { DataTable } from "@/components/data-table";
 import { Link } from "@/i18n/navigation";
 import { PageHeader } from "@/components/page-header";
-import { getReadiness } from "@/features/vendor/queries";
+import { getReadiness, getScorecard } from "@/features/vendor/queries";
+import { VendorScorecard } from "@/features/vendor/components/scorecard";
+import { VerificationBanner } from "@/features/vendor/components/verification-banner";
 import { StatusBadge } from "@/components/status-badge";
 import { EmptyState } from "@/components/states/empty-state";
 import { formatDateTime } from "@/lib/datetime";
@@ -31,12 +33,14 @@ export default async function VendorDashboardPage({ params }: PageProps<"/[local
   const ctx = await getVendorContext();
   if (!ctx) return null; // the layout redirects to /access-denied
 
-  const [t, tGo, tSource, data, readiness] = await Promise.all([
+  const isStaff = ctx.membership.role === "staff";
+  const [t, tGo, tSource, data, readiness, scorecard] = await Promise.all([
     getTranslations("vendor.dashboard"),
     getTranslations("vendor.golive"),
     getTranslations("reservationSource"),
     getVendorDashboard(ctx),
     getReadiness(ctx.membership.organization_id),
+    isStaff ? null : getScorecard(ctx.membership.organization_id).catch(() => null),
   ]);
   const tStatus = await getTranslations("status");
   const orgStatus = data.organization.status;
@@ -56,7 +60,6 @@ export default async function VendorDashboardPage({ params }: PageProps<"/[local
     { label: tGo("stepListing"), done: readiness.hasPublishedListing, href: "/vendor/listings" },
     { label: tGo("stepDocuments"), done: readiness.documentsUploaded, href: "/vendor/documents" },
     { label: tGo("stepVerified"), done: verified, href: "/vendor/documents" },
-    { label: t("checklistResources"), done: data.checklist.resourcesAdded, href: "/vendor/resources" },
   ];
   const golive =
     orgStatus === "active"
@@ -91,6 +94,17 @@ export default async function VendorDashboardPage({ params }: PageProps<"/[local
           </>
         }
       />
+
+      <VerificationBanner
+        organizationId={data.organization.id}
+        status={data.organization.verification_status}
+        note={data.organization.verification_note}
+        noteAt={data.organization.verification_note_at}
+        isOwner={ctx.membership.role === "owner"}
+        locale={locale}
+      />
+
+      {scorecard ? <VendorScorecard data={scorecard} /> : null}
 
       <div className="grid gap-4 sm:grid-cols-3">
         {stats.map((s) => (

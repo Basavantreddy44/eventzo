@@ -12,6 +12,8 @@ import { formatDateTime } from "@/lib/datetime";
 import { localeFrom } from "@/i18n/params";
 import { withdrawQuotation } from "@/features/enquiries/actions/vendor";
 import { DeclineEnquiry } from "@/features/enquiries/components/decline-enquiry";
+import { FollowUpForm } from "@/features/enquiries/components/follow-up-form";
+import { todayIn } from "@/features/muhurtham/lib/calendar";
 import { MessageComposer } from "@/features/enquiries/components/message-composer";
 import { QuoteBuilder } from "@/features/enquiries/components/quote-builder";
 import { MessageList, QuoteView } from "@/features/enquiries/components/quote-view";
@@ -175,6 +177,21 @@ export default async function VendorEnquiryPage({ params }: PageProps<"/[locale]
         </div>
 
         <div className="grid content-start gap-6">
+          {e.status !== "booked" && ctx.membership.role !== "staff" ? (
+            <Card>
+              <CardHeader>
+                <CardTitle>{t("followUp.title")}</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <FollowUpForm
+                  enquiryId={e.id}
+                  initialDate={e.follow_up_on}
+                  initialNote={e.follow_up_note}
+                  today={todayIn("Asia/Kolkata")}
+                />
+              </CardContent>
+            </Card>
+          ) : null}
           {booking ? (
             <Card data-testid="booking-link">
               <CardContent className="grid gap-2 text-sm">

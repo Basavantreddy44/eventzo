@@ -43,6 +43,16 @@ export async function getListing(slug: string): Promise<ListingDetail | null> {
   return (data as unknown as ListingDetail | null) ?? null;
 }
 
+/** Roadmap V5: median minutes to the vendor's first reply (null until 3 answered enquiries). */
+export async function getListingResponseTime(serviceId: string): Promise<number | null> {
+  "use cache";
+  cacheLife("hours");
+  cacheTag(LISTINGS_TAG);
+  const { data, error } = await createPublicClient().rpc("listing_response_time", { p_service_id: serviceId });
+  if (error) return null;
+  return data?.[0]?.median_minutes ?? null;
+}
+
 /** Active packages of a live listing (Roadmap C6). Public and cached like the listing. */
 export async function getListingPackages(serviceId: string) {
   "use cache";

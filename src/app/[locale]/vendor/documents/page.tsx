@@ -12,6 +12,7 @@ import { localeFrom } from "@/i18n/params";
 import { deleteDocument, getDocumentUrl } from "@/features/vendor/actions/documents";
 import { DocumentUploadForm, OpenDocumentButton } from "@/features/vendor/components/document-upload-form";
 import { loadVendorPage } from "@/features/vendor/lib/page";
+import { VerificationBanner } from "@/features/vendor/components/verification-banner";
 import { getBusinessProfile, getDocuments } from "@/features/vendor/queries";
 
 export const instant = false;
@@ -52,6 +53,15 @@ export default async function VendorDocumentsPage({ params }: PageProps<"/[local
             {t("verification")} <StatusBadge status={organization.verification_status} />
           </span>
         }
+      />
+      <VerificationBanner
+        organizationId={orgId}
+        status={organization.verification_status}
+        note={organization.verification_note}
+        noteAt={organization.verification_note_at}
+        isOwner
+        locale={locale}
+        showFixLink={false}
       />
       <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_22rem]">
         <div className="grid min-w-0 content-start gap-2">

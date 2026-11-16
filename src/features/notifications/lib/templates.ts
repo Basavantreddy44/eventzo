@@ -11,6 +11,8 @@ export const NOTIFICATION_KINDS = {
   "enquiry.declined": { whatsapp: { name: "eventzo_enquiry_declined", vars: ["listing"] } },
   "enquiry.expired": { whatsapp: { name: "eventzo_enquiry_expired", vars: ["listing"] } },
   "enquiry.cancelled": { whatsapp: { name: "eventzo_enquiry_cancelled", vars: ["listing", "date"] } },
+  "enquiry.hold_expiring": { whatsapp: { name: "eventzo_enquiry_hold_expiring", vars: ["listing", "date", "count"] } },
+  "enquiry.follow_up": { whatsapp: { name: "eventzo_enquiry_follow_up", vars: ["listing", "date"] } },
   "quote.received": { whatsapp: { name: "eventzo_quote_received", vars: ["vendor", "listing", "amount"] } },
   "quote.accepted": { whatsapp: { name: "eventzo_quote_accepted", vars: ["listing", "date"] } },
   "message.from_customer": { whatsapp: { name: "eventzo_message_customer", vars: ["listing"] } },
@@ -38,6 +40,9 @@ export const NOTIFICATION_KINDS = {
   "vendor.suspended": { whatsapp: { name: "eventzo_vendor_suspended", vars: ["vendor", "reason"] } },
   "vendor.closed": { whatsapp: { name: "eventzo_vendor_closed", vars: ["vendor", "reason"] } },
   "vendor.reinstated": { whatsapp: { name: "eventzo_vendor_reinstated", vars: ["vendor"] } },
+  "vendor.changes_requested": { whatsapp: { name: "eventzo_vendor_changes_requested", vars: ["vendor", "reason"] } },
+  "vendor.rejected": { whatsapp: { name: "eventzo_vendor_rejected", vars: ["vendor", "reason"] } },
+  "vendor.verified": { whatsapp: { name: "eventzo_vendor_verified", vars: ["vendor"] } },
 } as const satisfies Record<string, { whatsapp: { name: string; vars: readonly string[] } }>;
 
 export type NotificationKind = keyof typeof NOTIFICATION_KINDS;

@@ -24,7 +24,7 @@ export const snapshotOf = (v: Json): PriceSnapshot =>
 export const rangeOf = (period: unknown) => parseTstzRange(String(period));
 
 const ENQUIRY_FIELDS =
-  "id, organization_id, service_id, customer_id, event_id, event_date, period, guests, message, status, booking_mode, reservation_id, hold_expires_at, price_snapshot, created_at";
+  "id, organization_id, service_id, customer_id, event_id, event_date, period, guests, message, status, booking_mode, reservation_id, hold_expires_at, price_snapshot, follow_up_on, follow_up_note, created_at";
 
 export async function listMyEnquiries(userId: string) {
   const supabase = await createClient();

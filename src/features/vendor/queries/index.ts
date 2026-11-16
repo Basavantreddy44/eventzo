@@ -1,6 +1,7 @@
 import "server-only";
 
 import { createClient } from "@/lib/supabase/server";
+import { parseScorecard } from "../lib/scorecard";
 
 /**
  * Vendor-side reads. Every query runs with the user's session, so RLS limits
@@ -12,7 +13,7 @@ export async function getBusinessProfile(organizationId: string) {
   const [org, profile] = await Promise.all([
     supabase
       .from("organizations")
-      .select("id, name, legal_name, status, verification_status")
+      .select("id, name, legal_name, status, verification_status, verification_note, verification_note_at")
       .eq("id", organizationId)
       .single(),
     supabase.from("business_profiles").select("*").eq("organization_id", organizationId).maybeSingle(),
@@ -128,4 +129,29 @@ export async function getReadiness(organizationId: string) {
     hasPublishedListing: (published.count ?? 0) > 0,
     documentsUploaded: (documents.count ?? 0) > 0,
   };
+}
+
+/** Roadmap V9: last-90-day score card for the business (members only). */
+export async function getScorecard(organizationId: string) {
+  const supabase = await createClient();
+  const { data, error } = await supabase.rpc("vendor_scorecard", { p_organization_id: organizationId });
+  if (error) throw new Error(`Failed to load the score card: ${error.message}`);
+  return parseScorecard(data);
+}
+
+/** Roadmap V8: enquiries as leads (stage, last contact, follow-up), scoped like the enquiries themselves. */
+export async function getVendorLeads(organizationId: string, activeOnly: boolean) {
+  const supabase = await createClient();
+  const { data, error } = await supabase.rpc("vendor_leads", {
+    p_organization_id: organizationId,
+    p_active_only: activeOnly,
+  });
+  if (error) throw new Error(`Failed to load leads: ${error.message}`);
+  return data ?? [];
+}
+
+export async function getVerificationHistory(organizationId: string) {
+  const supabase = await createClient();
+  const { data } = await supabase.rpc("verification_history", { p_organization_id: organizationId });
+  return data ?? [];
 }

@@ -75,7 +75,8 @@
     "supportDesk": "Support desk",
     "reviews": "Reviews",
     "largeText": "Large text",
-    "display": "Display"
+    "display": "Display",
+    "advancedResources": "Advanced: resources"
   },
   "auth": {
     "login": {
@@ -644,6 +645,44 @@
       "deleted": "Package deleted.",
       "max": "You can show up to {max} packages per listing.",
       "tooMany": "A listing can show up to 6 packages."
+    },
+    "verificationBanner": {
+      "pendingTitle": "Eventzo is checking your documents",
+      "pendingBody": "This usually takes about 24 hours. You'll get a notification when it's done; your listings go live once you're verified.",
+      "changes_requestedTitle": "Eventzo asked for a change",
+      "changes_requestedBody": "Fix what's asked below (usually a clearer or missing document), then send it for review again.",
+      "rejectedTitle": "Verification not approved",
+      "rejectedBody": "Your business couldn't be verified. Contact Eventzo support if you think this is a mistake.",
+      "reasonLabel": "Reason:",
+      "fix": "Fix",
+      "resubmit": "Send for review again",
+      "resubmitted": "Sent for review. We'll let you know.",
+      "resubmitNeedsDocument": "Upload a document first."
+    },
+    "scorecard": {
+      "title": "Your score card",
+      "period": "Last 90 days",
+      "hours": "{hours, plural, one {# hour} other {# hours}}",
+      "responseSub": "{answered} of {total} enquiries answered",
+      "conversionSub": "{won} booked of {quoted} quoted",
+      "ratingSub": "{count, plural, =0 {No reviews yet} one {# review} other {# reviews}}",
+      "cancellationsSub": "Bookings you cancelled",
+      "response": {
+        "label": "Reply time",
+        "tip": "Reply within a few hours: customers book the vendor who answers first, and the 48-hour hold lapses otherwise."
+      },
+      "conversion": {
+        "label": "Quotes that became bookings",
+        "tip": "Try a package that fits the guest count, and follow up a day after quoting."
+      },
+      "rating": {
+        "label": "Rating",
+        "tip": "Read your reviews and reply politely; one small fix often lifts the next rating."
+      },
+      "cancellations": {
+        "label": "Cancellations by you",
+        "tip": "Keep the calendar current (block dates booked outside Eventzo) so you never have to cancel."
+      }
     }
   },
   "admin": {
@@ -755,7 +794,18 @@
       "pan": "PAN",
       "phone": "Phone",
       "email": "Email",
-      "owner": "Owner"
+      "owner": "Owner",
+      "requestChanges": "Request changes",
+      "changesRequested": "Changes requested. The vendor has been told why.",
+      "history": "History",
+      "noHistory": "No decisions yet.",
+      "historyActions": {
+        "verified": "verified",
+        "rejected": "rejected",
+        "pending": "back to review",
+        "changes_requested": "requested changes",
+        "resubmitted": "resubmitted for review"
+      }
     },
     "pagination": "Pages",
     "previous": "Previous",
@@ -1064,7 +1114,8 @@
     "checked_in": "Checked in",
     "blocked_user": "Blocked",
     "hidden": "Hidden",
-    "created": "Not paid"
+    "created": "Not paid",
+    "changes_requested": "Changes requested"
   },
   "reservationSource": {
     "platform": "Eventzo",
@@ -1232,7 +1283,8 @@
         "per_event": "per event"
       },
       "note": "Package prices are the vendor's listed prices. Your final price comes in the vendor's quote, including any muhurtham surcharge."
-    }
+    },
+    "responseTime": "{hours, plural, one {Usually replies within an hour} other {Usually replies within # hours}}"
   },
   "muhurtham": {
     "title": "Muhurtham calendar",
@@ -1411,7 +1463,29 @@
     "suggestedSurcharge": " incl. {percent}% auspicious-date surcharge",
     "closed": "This enquiry is closed.",
     "usePackage": "Start from a package",
-    "usePackageNone": "Choose a package…"
+    "usePackageNone": "Choose a package…",
+    "colStage": "Stage",
+    "colLastContact": "Last contact",
+    "colFollowUp": "Remind me",
+    "stages": {
+      "new": "New",
+      "quoted": "Quoted",
+      "won": "Won",
+      "lost": "Lost"
+    },
+    "guestsShort": "{count} guests",
+    "holdUntil": "Reply by {time}",
+    "followUp": {
+      "title": "Follow up",
+      "date": "Remind me on",
+      "note": "Note",
+      "notePlaceholder": "e.g. call about the menu",
+      "hint": "You'll get a reminder that morning (in the app, and on WhatsApp once connected).",
+      "save": "Set reminder",
+      "clear": "Clear",
+      "saved": "Reminder set.",
+      "cleared": "Reminder cleared."
+    }
   },
   "calendar": {
     "title": "Calendar",
@@ -1921,7 +1995,9 @@
         "new": "New enquiry for {listing} on {date}",
         "declined": "{listing} declined your enquiry",
         "expired": "Your hold on {listing} expired",
-        "cancelled": "The customer cancelled the enquiry for {listing} on {date}"
+        "cancelled": "The customer cancelled the enquiry for {listing} on {date}",
+        "hold_expiring": "Reply soon: the hold on {listing} for {date} lapses in {count} hours",
+        "follow_up": "Follow up today: {listing} ({date}) {reason}"
       },
       "quote": {
         "received": "{vendor} sent a quote for {listing}: {amount}",
@@ -1959,7 +2035,10 @@
       "vendor": {
         "suspended": "{vendor} has been suspended by Eventzo: {reason}",
         "closed": "{vendor} has been closed by Eventzo: {reason}",
-        "reinstated": "{vendor} has been reinstated"
+        "reinstated": "{vendor} has been reinstated",
+        "changes_requested": "Eventzo asked {vendor} for changes: {reason}",
+        "rejected": "{vendor}'s verification was not approved: {reason}",
+        "verified": "{vendor} is verified by Eventzo"
       },
       "review": {
         "request": "How was {listing}? Leave a review to help other families",

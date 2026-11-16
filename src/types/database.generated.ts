@@ -923,11 +923,16 @@ export type Database = {
           customer_id: string;
           event_date: string;
           event_id: string | null;
+          follow_up_note: string | null;
+          follow_up_on: string | null;
+          follow_up_sent_on: string | null;
           guests: number | null;
           hold_expires_at: string | null;
           id: string;
           idempotency_key: string | null;
           message: string | null;
+          nudged_24h_at: string | null;
+          nudged_4h_at: string | null;
           organization_id: string;
           period: unknown;
           price_snapshot: NonNullable<Json>;
@@ -945,11 +950,16 @@ export type Database = {
           customer_id: string;
           event_date: string;
           event_id?: string | null;
+          follow_up_note?: string | null;
+          follow_up_on?: string | null;
+          follow_up_sent_on?: string | null;
           guests?: number | null;
           hold_expires_at?: string | null;
           id?: string;
           idempotency_key?: string | null;
           message?: string | null;
+          nudged_24h_at?: string | null;
+          nudged_4h_at?: string | null;
           organization_id: string;
           period: unknown;
           price_snapshot?: NonNullable<Json>;
@@ -966,11 +976,16 @@ export type Database = {
           customer_id?: string;
           event_date?: string;
           event_id?: string | null;
+          follow_up_note?: string | null;
+          follow_up_on?: string | null;
+          follow_up_sent_on?: string | null;
           guests?: number | null;
           hold_expires_at?: string | null;
           id?: string;
           idempotency_key?: string | null;
           message?: string | null;
+          nudged_24h_at?: string | null;
+          nudged_4h_at?: string | null;
           organization_id?: string;
           period?: unknown;
           price_snapshot?: NonNullable<Json>;
@@ -1861,6 +1876,8 @@ export type Database = {
           status_changed_by: string | null;
           status_reason: string | null;
           updated_at: string;
+          verification_note: string | null;
+          verification_note_at: string | null;
           verification_status: Database["public"]["Enums"]["verification_status"];
           verified_at: string | null;
         };
@@ -1880,6 +1897,8 @@ export type Database = {
           status_changed_by?: string | null;
           status_reason?: string | null;
           updated_at?: string;
+          verification_note?: string | null;
+          verification_note_at?: string | null;
           verification_status?: Database["public"]["Enums"]["verification_status"];
           verified_at?: string | null;
         };
@@ -1898,6 +1917,8 @@ export type Database = {
           status_changed_by?: string | null;
           status_reason?: string | null;
           updated_at?: string;
+          verification_note?: string | null;
+          verification_note_at?: string | null;
           verification_status?: Database["public"]["Enums"]["verification_status"];
           verified_at?: string | null;
         };
@@ -3754,6 +3775,13 @@ export type Database = {
           total: number;
         }[];
       };
+      listing_response_time: {
+        Args: { p_service_id: string };
+        Returns: {
+          answered: number;
+          median_minutes: number;
+        }[];
+      };
       listing_reviews: {
         Args: { p_limit?: number; p_offset?: number; p_service_id: string };
         Returns: {
@@ -3934,6 +3962,7 @@ export type Database = {
         };
         Returns: undefined;
       };
+      resubmit_verification: { Args: { p_organization_id: string }; Returns: undefined };
       review_business_document: {
         Args: { p_approve: boolean; p_document_id: string; p_reason?: string };
         Returns: {
@@ -4013,7 +4042,9 @@ export type Database = {
         };
         Returns: string;
       };
+      send_vendor_nudges: { Args: Record<PropertyKey, never>; Returns: Json };
       set_enquiry_event: { Args: { p_enquiry_id: string; p_event_id: string }; Returns: undefined };
+      set_enquiry_follow_up: { Args: { p_enquiry_id: string; p_note?: string; p_on: string }; Returns: undefined };
       set_event_status: {
         Args: { p_event_id: string; p_status: Database["public"]["Enums"]["event_status"] };
         Returns: undefined;
@@ -4043,6 +4074,8 @@ export type Database = {
           status_changed_by: string | null;
           status_reason: string | null;
           updated_at: string;
+          verification_note: string | null;
+          verification_note_at: string | null;
           verification_status: Database["public"]["Enums"]["verification_status"];
           verified_at: string | null;
         };
@@ -4105,7 +4138,35 @@ export type Database = {
         Args: { p_assigned_to: string; p_priority: string; p_status: string; p_ticket_id: string };
         Returns: undefined;
       };
+      vendor_leads: {
+        Args: { p_active_only?: boolean; p_organization_id: string };
+        Returns: {
+          created_at: string;
+          customer_name: string;
+          event_date: string;
+          first_response_at: string;
+          follow_up_note: string;
+          follow_up_on: string;
+          guests: number;
+          hold_expires_at: string;
+          id: string;
+          last_contact_at: string;
+          listing_title: string;
+          stage: string;
+          status: string;
+        }[];
+      };
       vendor_report: { Args: { p_from: string; p_organization_id: string; p_to: string }; Returns: Json };
+      vendor_scorecard: { Args: { p_organization_id: string }; Returns: Json };
+      verification_history: {
+        Args: { p_organization_id: string };
+        Returns: {
+          action: string;
+          actor: string;
+          at: string;
+          reason: string;
+        }[];
+      };
       withdraw_quotation: { Args: { p_quotation_id: string }; Returns: undefined };
     };
     Enums: {
@@ -4164,7 +4225,7 @@ export type Database = {
       role_scope: "platform" | "organization";
       rsvp_status: "pending" | "attending" | "maybe" | "declined";
       service_status: "draft" | "published" | "paused" | "archived";
-      verification_status: "unverified" | "pending" | "verified" | "rejected";
+      verification_status: "unverified" | "pending" | "changes_requested" | "verified" | "rejected";
     };
     CompositeTypes: {
       [_ in never]: never;
@@ -4329,7 +4390,7 @@ export const Constants = {
       role_scope: ["platform", "organization"],
       rsvp_status: ["pending", "attending", "maybe", "declined"],
       service_status: ["draft", "published", "paused", "archived"],
-      verification_status: ["unverified", "pending", "verified", "rejected"],
+      verification_status: ["unverified", "pending", "changes_requested", "verified", "rejected"],
     },
   },
 } as const;

@@ -63,14 +63,20 @@ export function VerificationDecision({ organizationId, queueHref }: { organizati
   const [reason, setReason] = useState("");
   const [pending, startTransition] = useTransition();
 
-  const decide = (status: "verified" | "rejected") =>
+  const decide = (status: "verified" | "rejected" | "changes_requested") =>
     startTransition(async () => {
       const result = await decideVerification(organizationId, status, reason);
       if (!result.ok) {
         toast.error(tRoot(result.error));
         return;
       }
-      toast.success(status === "verified" ? t("vendorVerified") : t("vendorRejected"));
+      toast.success(
+        status === "verified"
+          ? t("vendorVerified")
+          : status === "changes_requested"
+            ? t("changesRequested")
+            : t("vendorRejected"),
+      );
       router.push(queueHref);
       router.refresh();
     });
@@ -88,6 +94,14 @@ export function VerificationDecision({ organizationId, queueHref }: { organizati
         <Button disabled={pending} onClick={() => decide("verified")} data-testid="verify-vendor">
           {pending ? <Loader2 className="animate-spin" aria-hidden /> : <Check aria-hidden />}
           {t("verify")}
+        </Button>
+        <Button
+          variant="secondary"
+          disabled={pending}
+          onClick={() => decide("changes_requested")}
+          data-testid="request-changes"
+        >
+          {t("requestChanges")}
         </Button>
         <Button variant="outline" disabled={pending} onClick={() => decide("rejected")}>
           <X aria-hidden />

@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { connection } from "next/server";
 import { getLocale, getTranslations } from "next-intl/server";
-import { ArrowLeft, BadgeCheck, CalendarHeart, Check, MapPin, MessageSquare, X, Zap } from "lucide-react";
+import { ArrowLeft, BadgeCheck, CalendarHeart, Check, MapPin, MessageSquare, X, Zap, Clock3 } from "lucide-react";
 import { Link } from "@/i18n/navigation";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -12,7 +12,8 @@ import { formatPaise } from "@/lib/money";
 import { formatDateTime, intlLocale } from "@/lib/datetime";
 import { ListingCover } from "@/features/discovery/components/listing-cover";
 import { formatListingPrice, type PriceTranslator } from "@/features/discovery/lib/price";
-import { getListing, getListingPackages } from "@/features/discovery/queries";
+import { getListing, getListingPackages, getListingResponseTime } from "@/features/discovery/queries";
+import { responseBadgeHours } from "@/features/vendor/lib/scorecard";
 import { forCity, getAuspiciousDates, significanceKey } from "@/features/muhurtham/queries";
 import { todayIn } from "@/features/muhurtham/lib/calendar";
 import { ListingReviews } from "@/features/reviews/components/listing-reviews";
@@ -161,6 +162,9 @@ async function ListingContent({ params }: { params: Props["params"] }) {
             <section className="grid gap-2">
               <h2 className="text-xl font-semibold">{t("aboutVendor")}</h2>
               <p className="font-medium">{listing.vendor.name}</p>
+              <Suspense fallback={null}>
+                <ResponseTime serviceId={listing.id} />
+              </Suspense>
               {listing.vendor.tagline ? <p className="text-muted-foreground">{listing.vendor.tagline}</p> : null}
               {listing.vendor.about ? (
                 <p className="text-muted-foreground leading-relaxed">{listing.vendor.about}</p>
@@ -465,5 +469,18 @@ async function EnquirySection(props: {
       maxGuests={props.maxGuests}
       events={events}
     />
+  );
+}
+
+/** Roadmap V5: "Usually replies within N hours" once the vendor has answered 3+ enquiries. */
+async function ResponseTime({ serviceId }: { serviceId: string }) {
+  const [minutes, t] = await Promise.all([getListingResponseTime(serviceId), getTranslations("listing")]);
+  const hours = responseBadgeHours(minutes);
+  if (hours == null) return null;
+  return (
+    <p className="text-success flex items-center gap-1.5 text-sm font-medium" data-testid="response-time">
+      <Clock3 className="size-4" aria-hidden />
+      {t("responseTime", { hours })}
+    </p>
   );
 }

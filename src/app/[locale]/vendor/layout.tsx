@@ -32,7 +32,6 @@ export default async function VendorLayout({ children, params }: LayoutProps<"/[
     { href: "/vendor/enquiries", label: t("nav.enquiries"), icon: "enquiries" },
     { href: "/vendor/calendar", label: t("nav.calendar"), icon: "calendar" },
     { href: "/vendor/listings", label: t("nav.listings"), icon: "services" },
-    { href: "/vendor/resources", label: t("nav.resources"), icon: "resources" },
     { href: "/vendor/branches", label: t("nav.branches"), icon: "branches" },
     { href: "/vendor/team", label: t("nav.team"), icon: "team" },
     ...manager([{ href: "/vendor/staff", label: t("nav.staff"), icon: "staff" }]),
@@ -43,6 +42,8 @@ export default async function VendorLayout({ children, params }: LayoutProps<"/[
       { href: "/vendor/finance", label: t("nav.finance"), icon: "finance" },
       { href: "/vendor/reports", label: t("nav.reports"), icon: "reports" },
     ]),
+    // Roadmap V2: venue calendars are created automatically; resources are an advanced setting.
+    { href: "/vendor/resources", label: t("nav.advancedResources"), icon: "resources" },
   ];
 
   return (

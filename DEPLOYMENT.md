@@ -107,6 +107,8 @@ Pricing: Meta charges per 24-hour conversation (Utility category in India is rou
 | `eventzo_enquiry_declined` | {{1}} declined your enquiry | {{1}} = listing |
 | `eventzo_enquiry_expired` | Your hold on {{1}} expired | {{1}} = listing |
 | `eventzo_enquiry_cancelled` | The customer cancelled the enquiry for {{1}} on {{2}} | {{1}} = listing, {{2}} = date |
+| `eventzo_enquiry_hold_expiring` | Reply soon: the hold on {{1}} for {{2}} lapses in {{3}} hours | {{1}} = listing, {{2}} = date, {{3}} = hours |
+| `eventzo_enquiry_follow_up` | Follow up today: {{1}} ({{2}}) | {{1}} = listing, {{2}} = date |
 | `eventzo_quote_received` | {{1}} sent a quote for {{2}}: {{3}} | {{1}} = vendor, {{2}} = listing, {{3}} = amount |
 | `eventzo_quote_accepted` | Your quote for {{1}} on {{2}} was accepted | {{1}} = listing, {{2}} = date |
 | `eventzo_message_customer` | New message about {{1}} | {{1}} = listing |
@@ -132,6 +134,9 @@ Pricing: Meta charges per 24-hour conversation (Utility category in India is rou
 | `eventzo_vendor_suspended` | {{1}} has been suspended by Eventzo: {{2}} | {{1}} = vendor, {{2}} = reason |
 | `eventzo_vendor_closed` | {{1}} has been closed by Eventzo: {{2}} | {{1}} = vendor, {{2}} = reason |
 | `eventzo_vendor_reinstated` | {{1}} has been reinstated | {{1}} = vendor |
+| `eventzo_vendor_changes_requested` | Eventzo asked {{1}} for changes: {{2}} | {{1}} = vendor, {{2}} = reason |
+| `eventzo_vendor_rejected` | {{1}}'s verification was not approved: {{2}} | {{1}} = vendor, {{2}} = reason |
+| `eventzo_vendor_verified` | {{1}} is verified by Eventzo | {{1}} = vendor |
 
 ### 3.3 Email (Resend) — also fixes sign-up emails (A4)
 
@@ -151,7 +156,7 @@ Pricing: Meta charges per 24-hour conversation (Utility category in India is rou
 | 4 | Cancellation policy texts reviewed by a lawyer; terms & privacy written | Product owner + legal |
 | 5 | Launch city decided (D7). Mark it in *Admin → Categories & cities* | Product owner |
 | 6 | Custom SMTP sending, and signup / reset / invite emails tested from the real domain | Dev |
-| 7 | WhatsApp provider chosen and the 29 templates in `src/features/notifications/lib/templates.ts` approved by Meta, or keep WhatsApp off | Product owner |
+| 7 | WhatsApp provider chosen and the 34 templates in `src/features/notifications/lib/templates.ts` approved by Meta, or keep WhatsApp off | Product owner |
 | 8 | Kannada and Hindi translations reviewed by native speakers (the vendor and staff areas are English-only today) | Product owner |
 | 9 | Uptime monitor on `https://<your-domain>/api/health` (UptimeRobot, Better Stack…) | Dev |
 | 10 | PITR / backups on; restore tested once | Dev |

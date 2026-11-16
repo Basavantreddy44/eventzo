@@ -16,7 +16,10 @@ export type UpcomingReservation = {
 };
 
 export type VendorDashboard = {
-  organization: Pick<OrganizationRow, "id" | "name" | "status" | "verification_status">;
+  organization: Pick<
+    OrganizationRow,
+    "id" | "name" | "status" | "verification_status" | "verification_note" | "verification_note_at"
+  >;
   branchCount: number;
   resourceCount: number;
   upcomingCount: number;
@@ -32,7 +35,11 @@ export async function getVendorDashboard(ctx: VendorContext): Promise<VendorDash
   const orgId = ctx.membership.organization_id;
 
   const [orgRes, resourcesRes, profileRes, docsRes] = await Promise.all([
-    supabase.from("organizations").select("id, name, status, verification_status").eq("id", orgId).single(),
+    supabase
+      .from("organizations")
+      .select("id, name, status, verification_status, verification_note, verification_note_at")
+      .eq("id", orgId)
+      .single(),
     (() => {
       let q = supabase.from("bookable_resources").select("id, name").eq("organization_id", orgId).eq("active", true);
       if (ctx.activeBranchId) q = q.eq("branch_id", ctx.activeBranchId);
