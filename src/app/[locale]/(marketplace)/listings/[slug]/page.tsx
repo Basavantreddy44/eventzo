@@ -20,6 +20,9 @@ import type { ListingDetail } from "@/types/database";
 import { getCurrentUser } from "@/lib/auth/session";
 import { localizedPath } from "@/lib/auth/portal-user";
 import { EnquiryPanel } from "@/features/enquiries/components/enquiry-panel";
+import { AvailabilityCalendar } from "@/features/enquiries/components/availability-calendar";
+import { PickedDateProvider } from "@/features/enquiries/components/picked-date";
+import { ShortlistButton } from "@/features/shortlist/components/shortlist-button";
 
 type Props = PageProps<"/[locale]/listings/[slug]">;
 
@@ -86,7 +89,10 @@ async function ListingContent({ params }: { params: Props["params"] }) {
             {t(`bookingMode.${listing.booking_mode}`)}
           </Badge>
         </div>
-        <h1 className="font-display text-primary-strong text-3xl font-semibold sm:text-4xl">{listing.title}</h1>
+        <div className="flex flex-wrap items-start justify-between gap-3">
+          <h1 className="font-display text-primary-strong text-3xl font-semibold sm:text-4xl">{listing.title}</h1>
+          <ShortlistButton slug={listing.slug} title={listing.title} variant="button" />
+        </div>
         <p className="text-muted-foreground flex flex-wrap items-center gap-x-4 gap-y-1">
           <span>{listing.vendor.name}</span>
           <span className="inline-flex items-center gap-1">
@@ -96,93 +102,101 @@ async function ListingContent({ params }: { params: Props["params"] }) {
         </p>
       </header>
 
-      <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_20rem]">
-        <div className="grid min-w-0 content-start gap-8">
-          <section aria-label={listing.title} className="grid gap-2">
-            <ListingCover
-              path={cover?.path ?? null}
-              alt={cover?.alt ?? t("photoAlt", { title: listing.title, n: 1 })}
-              icon={listing.category.icon}
-              className="rounded-xl"
-              sizes="(min-width: 1024px) 60vw, 100vw"
-              priority
-              placeholderLabel={t("noPhotos")}
-            />
-            {gallery.length > 0 ? (
-              <ul className="grid grid-cols-3 gap-2 sm:grid-cols-4">
-                {gallery.map((m, i) => (
-                  <li key={m.path}>
-                    <ListingCover
-                      path={m.path}
-                      alt={m.alt ?? t("photoAlt", { title: listing.title, n: i + 2 })}
-                      icon={listing.category.icon}
-                      className="rounded-lg"
-                      sizes="25vw"
-                    />
-                  </li>
-                ))}
-              </ul>
-            ) : null}
-          </section>
-
-          {listing.description || listing.summary ? (
-            <section className="grid gap-2">
-              <h2 className="text-xl font-semibold">{t("about")}</h2>
-              <p className="text-muted-foreground leading-relaxed whitespace-pre-line">
-                {listing.description ?? listing.summary}
-              </p>
-            </section>
-          ) : null}
-
-          {listing.venue ? <VenueDetails venue={listing.venue} t={t} /> : null}
-          {listing.catering ? <CateringDetails catering={listing.catering} t={t} money={money} /> : null}
-
-          <section className="grid gap-2">
-            <h2 className="text-xl font-semibold">{t("aboutVendor")}</h2>
-            <p className="font-medium">{listing.vendor.name}</p>
-            {listing.vendor.tagline ? <p className="text-muted-foreground">{listing.vendor.tagline}</p> : null}
-            {listing.vendor.about ? (
-              <p className="text-muted-foreground leading-relaxed">{listing.vendor.about}</p>
-            ) : null}
-            <dl className="text-muted-foreground flex flex-wrap gap-x-6 gap-y-1 text-sm">
-              {listing.vendor.year_established ? (
-                <div>{t("established", { year: listing.vendor.year_established })}</div>
-              ) : null}
-              {listing.vendor.languages.length > 0 ? (
-                <div>
-                  <dt className="inline">{t("languages")}: </dt>
-                  <dd className="inline">{listing.vendor.languages.map((l) => t(`languageNames.${l}`)).join(", ")}</dd>
-                </div>
-              ) : null}
-            </dl>
-          </section>
-        </div>
-
-        <aside className="grid content-start gap-4">
-          <Card className="lg:sticky lg:top-20">
-            <CardHeader>
-              <p className="text-muted-foreground text-sm">{t("priceLabel")}</p>
-              <CardTitle className="text-primary-strong text-xl">
-                {formatListingPrice(listing, tPrice, locale)}
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="grid gap-4">
-              <GuestRange listing={listing} t={t} />
-              <EnquirySection
-                serviceId={listing.id}
-                instant={listing.booking_mode === "instant"}
-                maxGuests={listing.max_guests}
-                timeZone={listing.location.timezone}
-                locale={locale}
-                slug={listing.slug}
+      <PickedDateProvider>
+        <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_20rem]">
+          <div className="grid min-w-0 content-start gap-8">
+            <section aria-label={listing.title} className="grid gap-2">
+              <ListingCover
+                path={cover?.path ?? null}
+                alt={cover?.alt ?? t("photoAlt", { title: listing.title, n: 1 })}
+                icon={listing.category.icon}
+                className="rounded-xl"
+                sizes="(min-width: 1024px) 60vw, 100vw"
+                priority
+                placeholderLabel={t("noPhotos")}
               />
-            </CardContent>
-          </Card>
-          <Suspense fallback={<Skeleton className="h-40" />}>
-            <ListingMuhurtham citySlug={listing.location.city_slug} timeZone={listing.location.timezone} />
-          </Suspense>
-        </aside>
-      </div>
+              {gallery.length > 0 ? (
+                <ul className="grid grid-cols-3 gap-2 sm:grid-cols-4">
+                  {gallery.map((m, i) => (
+                    <li key={m.path}>
+                      <ListingCover
+                        path={m.path}
+                        alt={m.alt ?? t("photoAlt", { title: listing.title, n: i + 2 })}
+                        icon={listing.category.icon}
+                        className="rounded-lg"
+                        sizes="25vw"
+                      />
+                    </li>
+                  ))}
+                </ul>
+              ) : null}
+            </section>
+
+            {listing.description || listing.summary ? (
+              <section className="grid gap-2">
+                <h2 className="text-xl font-semibold">{t("about")}</h2>
+                <p className="text-muted-foreground leading-relaxed whitespace-pre-line">
+                  {listing.description ?? listing.summary}
+                </p>
+              </section>
+            ) : null}
+
+            <Suspense fallback={<Skeleton className="h-80" />}>
+              <ListingCalendar serviceId={listing.id} timeZone={listing.location.timezone} />
+            </Suspense>
+
+            {listing.venue ? <VenueDetails venue={listing.venue} t={t} /> : null}
+            {listing.catering ? <CateringDetails catering={listing.catering} t={t} money={money} /> : null}
+
+            <section className="grid gap-2">
+              <h2 className="text-xl font-semibold">{t("aboutVendor")}</h2>
+              <p className="font-medium">{listing.vendor.name}</p>
+              {listing.vendor.tagline ? <p className="text-muted-foreground">{listing.vendor.tagline}</p> : null}
+              {listing.vendor.about ? (
+                <p className="text-muted-foreground leading-relaxed">{listing.vendor.about}</p>
+              ) : null}
+              <dl className="text-muted-foreground flex flex-wrap gap-x-6 gap-y-1 text-sm">
+                {listing.vendor.year_established ? (
+                  <div>{t("established", { year: listing.vendor.year_established })}</div>
+                ) : null}
+                {listing.vendor.languages.length > 0 ? (
+                  <div>
+                    <dt className="inline">{t("languages")}: </dt>
+                    <dd className="inline">
+                      {listing.vendor.languages.map((l) => t(`languageNames.${l}`)).join(", ")}
+                    </dd>
+                  </div>
+                ) : null}
+              </dl>
+            </section>
+          </div>
+
+          <aside className="grid content-start gap-4">
+            <Card className="lg:sticky lg:top-20">
+              <CardHeader>
+                <p className="text-muted-foreground text-sm">{t("priceLabel")}</p>
+                <CardTitle className="text-primary-strong text-xl">
+                  {formatListingPrice(listing, tPrice, locale)}
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="grid gap-4" id="enquiry-panel-anchor">
+                <GuestRange listing={listing} t={t} />
+                <EnquirySection
+                  serviceId={listing.id}
+                  instant={listing.booking_mode === "instant"}
+                  maxGuests={listing.max_guests}
+                  timeZone={listing.location.timezone}
+                  locale={locale}
+                  slug={listing.slug}
+                />
+              </CardContent>
+            </Card>
+            <Suspense fallback={<Skeleton className="h-40" />}>
+              <ListingMuhurtham citySlug={listing.location.city_slug} timeZone={listing.location.timezone} />
+            </Suspense>
+          </aside>
+        </div>
+      </PickedDateProvider>
     </article>
   );
 }
@@ -335,6 +349,12 @@ async function ListingMuhurtham({ citySlug, timeZone }: { citySlug: string; time
       </CardContent>
     </Card>
   );
+}
+
+/** Month calendar (Roadmap C2). "Today" is in the listing's time zone, so request-time. */
+async function ListingCalendar({ serviceId, timeZone }: { serviceId: string; timeZone: string }) {
+  await connection();
+  return <AvailabilityCalendar serviceId={serviceId} today={todayIn(timeZone)} />;
 }
 
 function ListingSkeleton() {

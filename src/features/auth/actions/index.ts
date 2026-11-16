@@ -64,12 +64,13 @@ export async function sendMagicLink(input: MagicLinkInput, next?: string | null)
   return redirect({ href: "/check-email", locale: await getLocale() });
 }
 
-export async function signUp(input: RegisterInput): Promise<ActionResult> {
+export async function signUp(input: RegisterInput, next?: string | null): Promise<ActionResult> {
   const parsed = registerSchema.safeParse(input);
   if (!parsed.success) return fail("errors.invalidInput", toFieldErrors(parsed.error));
 
   const { fullName, email, password, locale } = parsed.data;
-  const accountPath = getPathname({ href: "/account", locale });
+  // Same-origin return path only (e.g. the quick start's event form, Roadmap C1).
+  const accountPath = safeNextPath(next, getPathname({ href: "/account", locale }));
 
   const supabase = await createClient();
   const { data, error } = await supabase.auth.signUp({

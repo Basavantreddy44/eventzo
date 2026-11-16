@@ -46,7 +46,15 @@ function CityOptions({ cities }: { cities: CityOption[] }) {
   );
 }
 
-export function CreateEventForm({ cities, defaultCityId }: { cities: CityOption[]; defaultCityId: string }) {
+export function CreateEventForm({
+  cities,
+  defaultCityId,
+  prefill,
+}: {
+  cities: CityOption[];
+  defaultCityId: string;
+  prefill?: Partial<Pick<CreateEventInput, "eventType" | "startDate" | "guestEstimate">>;
+}) {
   const t = useTranslations("events");
   const tCommon = useTranslations("common");
   const router = useRouter();
@@ -57,11 +65,11 @@ export function CreateEventForm({ cities, defaultCityId }: { cities: CityOption[
     resolver: zodResolver(createEventSchema),
     defaultValues: {
       title: "",
-      eventType: "wedding",
+      eventType: prefill?.eventType ?? "wedding",
       cityId: defaultCityId,
-      startDate: "",
+      startDate: prefill?.startDate ?? "",
       endDate: "",
-      guestEstimate: "",
+      guestEstimate: prefill?.guestEstimate ?? "",
       idempotencyKey: key,
     },
   });

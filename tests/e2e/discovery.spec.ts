@@ -215,3 +215,44 @@ test.describe("admin price ranges", () => {
     await expect(page.getByTestId("access-denied")).toBeVisible();
   });
 });
+
+test.describe("shortlist and compare (Roadmap C4)", () => {
+  test("heart two listings, compare them side by side, and share a link that works signed out", async ({
+    page,
+    browser,
+  }) => {
+    await page.goto("/search?q=mantapa");
+    await page.waitForLoadState("networkidle");
+    const results = page.getByTestId("search-results");
+    await results.getByRole("button", { name: /Save Sample Lakshmi Kalyana Mantapa – Main Hall/ }).click();
+    const bar = page.getByTestId("shortlist-bar");
+    await expect(bar).toContainText("1 saved");
+    await expect(bar).toContainText("Save one more to compare");
+
+    await page.goto("/listings/sample-lakshmi-mini-hall");
+    await page.waitForLoadState("networkidle");
+    await page.getByTestId("shortlist-toggle").first().click();
+    await expect(page.getByTestId("shortlist-toggle").first()).toHaveAttribute("aria-pressed", "true");
+    await expect(bar).toContainText("2 saved");
+
+    await bar.getByTestId("shortlist-compare").click();
+    await expect(page).toHaveURL(
+      /\/compare\?l=sample-lakshmi-main-hall%2Csample-lakshmi-mini-hall|\/compare\?l=sample-lakshmi-main-hall,sample-lakshmi-mini-hall/,
+    );
+    const table = page.getByTestId("compare-table");
+    await expect(table.getByRole("link", { name: "Sample Lakshmi Kalyana Mantapa – Main Hall" })).toBeVisible();
+    await expect(table.getByRole("rowheader", { name: "Price" })).toBeVisible();
+    await expect(table.getByRole("rowheader", { name: "Seated capacity" })).toBeVisible();
+
+    const share = page.getByTestId("share-whatsapp");
+    const href = (await share.getAttribute("href")) ?? "";
+    expect(href).toMatch(/^https:\/\/wa\.me\/\?text=/);
+    const shared = decodeURIComponent(href.split("text=")[1]).match(/https?:\/\/\S+\/compare\?l=\S+/)?.[0];
+    expect(shared).toBeTruthy();
+
+    // A family member opens the shared link without an account.
+    const guest = await (await browser.newContext()).newPage();
+    await guest.goto(new URL(shared!).pathname + new URL(shared!).search);
+    await expect(guest.getByTestId("compare-table").getByRole("link", { name: /Sample Lakshmi/ })).toHaveCount(2);
+  });
+});

@@ -16,6 +16,7 @@ import { getActiveCities, localizedName } from "@/features/taxonomy/queries";
 import { getPreferredCitySlug } from "@/features/discovery/lib/city-preference";
 import { respondEventInvitation } from "@/features/events/actions";
 import { CreateEventForm } from "@/features/events/components/event-forms";
+import { EVENT_TYPES, type EventType } from "@/features/events/schemas";
 import { listMyEvents, myEventInvitations } from "@/features/events/queries";
 
 export const instant = false;
@@ -27,8 +28,16 @@ export async function generateMetadata({ params }: PageProps<"/[locale]/account/
 
 const day = (d: string, locale: string) => formatDateTime(`${d}T00:00:00Z`, locale, "UTC", { dateStyle: "medium" });
 
-export default async function MyEventsPage({ params }: PageProps<"/[locale]/account/events">) {
+export default async function MyEventsPage({ params, searchParams }: PageProps<"/[locale]/account/events">) {
   const locale = await localeFrom(params);
+  const sp = await searchParams;
+  const one = (v: string | string[] | undefined) => (Array.isArray(v) ? v[0] : v) ?? "";
+  // Answers carried from the home page's quick start (Roadmap C1) after sign-up.
+  const prefill = {
+    eventType: (EVENT_TYPES as readonly string[]).includes(one(sp.type)) ? (one(sp.type) as EventType) : undefined,
+    startDate: /^\d{4}-\d{2}-\d{2}$/.test(one(sp.date)) ? one(sp.date) : undefined,
+    guestEstimate: /^\d{1,6}$/.test(one(sp.guests)) ? one(sp.guests) : undefined,
+  };
   const user = await requireUser(locale, localizedPath(locale, "/account/events"));
   const [t, events, invitations, cities, preferred] = await Promise.all([
     getTranslations("events"),
@@ -121,7 +130,7 @@ export default async function MyEventsPage({ params }: PageProps<"/[locale]/acco
             <CardDescription>{t("newBody")}</CardDescription>
           </CardHeader>
           <CardContent>
-            <CreateEventForm cities={cityOptions} defaultCityId={defaultCityId} />
+            <CreateEventForm cities={cityOptions} defaultCityId={defaultCityId} prefill={prefill} />
           </CardContent>
         </Card>
       </div>

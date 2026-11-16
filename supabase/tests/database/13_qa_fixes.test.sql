@@ -2,7 +2,7 @@
 begin;
 \ir 00_helpers.sql.inc
 
-select plan(6);
+select plan(12);
 
 create temp table ctx (k text primary key, v uuid) on commit drop;
 grant all on ctx to anon, authenticated;
@@ -39,6 +39,35 @@ select is((select status from public.listing_availability((select v from ctx whe
   'unavailable', 'a late slot on the booked day that falls in the breakdown buffer is refused');
 select throws_ok($$ select * from public.listing_availability((select v from ctx where k = 'svc'), '2027-12-23', '2027-12-23', '22:00', '10:00') $$,
   '22023', null, 'the end time must be after the start time');
+
+-- ---------- Roadmap C2: month calendar ---------------------------------------------
+-- A live enquiry hold on 10 Dec, an expired one on 12 Dec, a muhurtham date on 23 Dec.
+insert into public.resource_reservations (resource_id, organization_id, period, status, source, hold_expires_at)
+values ((select v from ctx where k = 'res'), (select v from ctx where k = 'org'),
+        tstzrange('2027-12-10 10:00+05:30', '2027-12-10 22:00+05:30', '[)'), 'hold', 'platform', now() + interval '1 day'),
+       ((select v from ctx where k = 'res'), (select v from ctx where k = 'org'),
+        tstzrange('2027-12-12 10:00+05:30', '2027-12-12 22:00+05:30', '[)'), 'hold', 'platform', now() - interval '1 hour');
+insert into public.auspicious_dates (date, city_id, tradition, title, significance, source, is_published)
+values ('2027-12-23', tests.city_id('kalaburagi'), 'general', 'Test muhurtham', 3, 'test', true);
+update public.services set auspicious_surcharge_bps = 1000 where id = (select v from ctx where k = 'svc');
+
+select tests.login_anon();
+select is((select count(*)::int from public.listing_month((select v from ctx where k = 'svc'), '2027-12-15')), 31,
+  'the month view covers every day of the month');
+select is((select status from public.listing_month((select v from ctx where k = 'svc'), '2027-12-01') where day = '2027-12-22'),
+  'booked', 'a booked or blocked day reads Booked');
+select is((select status from public.listing_month((select v from ctx where k = 'svc'), '2027-12-01') where day = '2027-12-10'),
+  'held', 'a day with only an enquiry hold reads On hold');
+select is((select status from public.listing_month((select v from ctx where k = 'svc'), '2027-12-01') where day = '2027-12-12'),
+  'free', 'an expired hold does not block the day');
+select is((select (auspicious, surcharge_bps)::text from public.listing_month((select v from ctx where k = 'svc'), '2027-12-01') where day = '2027-12-23'),
+  '(t,1000)', 'muhurtham dates carry the listing surcharge');
+select tests.logout();
+update public.organizations set status = 'draft' where id = (select v from ctx where k = 'org');
+select tests.login_anon();
+select throws_ok($$ select * from public.listing_month((select v from ctx where k = 'svc'), '2027-12-01') $$,
+  'P0002', null, 'a vendor that is not live shows no calendar');
+select tests.logout();
 
 select * from finish();
 rollback;

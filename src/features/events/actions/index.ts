@@ -1,7 +1,7 @@
 "use server";
 
 import { z } from "zod";
-import { getLocale } from "next-intl/server";
+import { getLocale, getTranslations } from "next-intl/server";
 import { fail, mapDbError, ok, type ActionResult } from "@/lib/errors";
 import { getPublicEnv } from "@/lib/env";
 import { rupeesToPaise } from "@/lib/money";
@@ -30,6 +30,8 @@ import {
   type GuestInput,
   type HostRsvpInput,
   type InviteMemberInput,
+  quickStartSchema,
+  type QuickStartInput,
 } from "../schemas";
 
 const NULL = null as unknown as string; // SQL accepts NULL for optional RPC arguments
@@ -308,4 +310,33 @@ export async function fillBudgetFromEstimate(eventId: string): Promise<ActionRes
   if (rows.length === 0) return fail("events.estimateNothing");
   const { error } = await supabase.from("event_budget_lines").insert(rows);
   return error ? dbFail(error) : ok(rows.length);
+}
+
+/**
+ * Roadmap C1: creates the event from the home page's three questions, titled
+ * "<occasion> · <date>" in the visitor's language. The caller then shows
+ * matching venues.
+ */
+export async function quickStartEvent(input: QuickStartInput): Promise<ActionResult<string>> {
+  const parsed = quickStartSchema.safeParse(input);
+  if (!parsed.success) return fail("errors.invalidInput", toFieldErrors(parsed.error));
+  const v = parsed.data;
+  if (!(await userId()).uid) return fail("errors.unauthenticated");
+  const locale = await getLocale();
+  const t = await getTranslations({ locale, namespace: "events.types" });
+  const date = new Intl.DateTimeFormat(locale === "en" ? "en-IN" : locale, {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+    timeZone: "UTC",
+  }).format(new Date(`${v.startDate}T00:00:00Z`));
+  return createEvent({
+    title: `${t(v.eventType)} · ${date}`,
+    eventType: v.eventType,
+    cityId: v.cityId,
+    startDate: v.startDate,
+    endDate: "",
+    guestEstimate: v.guestEstimate,
+    idempotencyKey: v.idempotencyKey,
+  });
 }

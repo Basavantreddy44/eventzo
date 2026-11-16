@@ -7,6 +7,7 @@ import { intlLocale } from "@/lib/datetime";
 import type { ListingSummary } from "@/types/database";
 import { formatListingPrice, type PriceTranslator } from "../lib/price";
 import { ListingCover } from "./listing-cover";
+import { ShortlistButton } from "@/features/shortlist/components/shortlist-button";
 
 export async function ListingCard({ listing }: { listing: ListingSummary }) {
   const t = await getTranslations("listing");
@@ -22,6 +23,7 @@ export async function ListingCard({ listing }: { listing: ListingSummary }) {
         icon={listing.business_category_icon}
         placeholderLabel={listing.service_category_name}
       />
+      <ShortlistButton slug={listing.slug} title={listing.title} className="absolute top-3 right-3" />
       <div className="flex flex-1 flex-col gap-2 p-4">
         <div className="flex flex-wrap items-center gap-1.5">
           <Badge variant="secondary">{listing.service_category_name}</Badge>

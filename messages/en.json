@@ -207,7 +207,20 @@
     "browseCategory": "Browse {category}",
     "estimatorCtaTitle": "How much will it cost?",
     "estimatorCtaBody": "Get a rough budget for your guest count and city in under a minute.",
-    "estimatorCtaButton": "Estimate my budget"
+    "estimatorCtaButton": "Estimate my budget",
+    "quickStart": {
+      "title": "Plan your event in 3 questions",
+      "occasion": "What's the occasion?",
+      "when": "When?",
+      "guests": "How many guests?",
+      "submit": "Show venues",
+      "hintSignedIn": "We'll save this as your event and show venues that fit your guests.",
+      "hintSignedOut": "See venues that fit right away. Create a free account to save it as your event.",
+      "saved": "Your event “{title}” is saved.",
+      "openEvent": "Open event",
+      "saveOffer": "Like what you see? Save these answers as your event.",
+      "saveOfferLink": "Create a free account"
+    }
   },
   "account": {
     "title": "My account",
@@ -1145,7 +1158,24 @@
     "backToSearch": "Back to search",
     "noPhotos": "Photos coming soon",
     "photoAlt": "{title} – photo {n}",
-    "notFound": "This listing isn't available. It may have been paused or removed."
+    "notFound": "This listing isn't available. It may have been paused or removed.",
+    "calendar": {
+      "title": "Availability",
+      "previous": "Previous month",
+      "next": "Next month",
+      "legend": "What the colours mean",
+      "status": {
+        "free": "Free",
+        "held": "On hold",
+        "booked": "Booked",
+        "unknown": "Ask the vendor"
+      },
+      "past": "Past",
+      "muhurtham": "Muhurtham date",
+      "surcharge": "{percent}% muhurtham surcharge",
+      "hint": "For a 10:00–22:00 event. Tap a free day to use it in your enquiry; you can change the hours there.",
+      "error": "Couldn't load the calendar. Please try again."
+    }
   },
   "muhurtham": {
     "title": "Muhurtham calendar",
@@ -2188,6 +2218,48 @@
       "privacy": "Privacy Policy",
       "refunds": "Refund & Cancellation",
       "vendorAgreement": "Vendor Agreement"
+    }
+  },
+  "shortlist": {
+    "add": "Save {title} to your shortlist",
+    "remove": "Remove {title} from your shortlist",
+    "save": "Save",
+    "saved": "Saved",
+    "full": "Your shortlist holds up to {max} listings. Remove one to add another.",
+    "barLabel": "Your shortlist",
+    "count": "{count, plural, one {# saved} other {# saved}}",
+    "clear": "Clear",
+    "addOneMore": "Save one more to compare",
+    "compare": "Compare {count}",
+    "compareTitle": "Compare",
+    "compareSubtitle": "{count, plural, one {# listing} other {# listings side by side}}",
+    "emptyTitle": "Nothing to compare yet",
+    "emptyBody": "Tap the heart on listings you like, then compare them here.",
+    "browse": "Browse venues and vendors",
+    "removeFromCompare": "Remove from comparison",
+    "shareWhatsapp": "Share on WhatsApp",
+    "copyLink": "Copy link",
+    "copied": "Link copied.",
+    "copyFailed": "Couldn't copy. Select the address bar and copy it instead.",
+    "shareText": "Let's compare these for our event: {list}\n{url}",
+    "compareNote": "Prices are the vendors' listed prices. Final prices come in each vendor's quote.",
+    "guestsRange": "{min}–{max}",
+    "yes": "Yes",
+    "no": "No",
+    "rows": {
+      "feature": "Feature",
+      "price": "Price",
+      "category": "Type",
+      "location": "Location",
+      "guests": "Guests",
+      "seated": "Seated capacity",
+      "floating": "Floating capacity",
+      "ac": "Air-conditioned",
+      "parking": "Parking (cars)",
+      "vegPlate": "Veg per plate",
+      "nonvegPlate": "Non-veg per plate",
+      "booking": "How to book",
+      "verified": "Verified by Eventzo"
     }
   }
 }

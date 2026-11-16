@@ -103,3 +103,29 @@ export async function postEnquiryMessage(enquiryId: string, body: string): Promi
   if (error) return fail(`errors.${mapDbError(error)}`);
   return ok(undefined);
 }
+
+export type CalendarDay = {
+  day: string;
+  status: "free" | "held" | "booked" | "unknown";
+  auspicious: boolean;
+  surchargeBps: number;
+};
+
+/** Public, read-only: one month of a listing's calendar (Roadmap C2). `month` is YYYY-MM. */
+export async function listingMonth(serviceId: string, month: string): Promise<ActionResult<CalendarDay[]>> {
+  if (!z.uuid().safeParse(serviceId).success || !/^\d{4}-(0[1-9]|1[0-2])$/.test(month))
+    return fail("errors.invalidInput");
+  const { data, error } = await createPublicClient().rpc("listing_month", {
+    p_service_id: serviceId,
+    p_month: `${month}-01`,
+  });
+  if (error) return fail(`errors.${mapDbError(error)}`);
+  return ok(
+    (data ?? []).map((d) => ({
+      day: d.day,
+      status: d.status as CalendarDay["status"],
+      auspicious: d.auspicious,
+      surchargeBps: d.surcharge_bps,
+    })),
+  );
+}

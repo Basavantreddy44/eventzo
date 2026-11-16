@@ -257,3 +257,55 @@ test("WhatsApp opt-in needs a mobile number; operators see the outbox; cron is l
   const cron = await request.get("/api/cron/notifications");
   expect([401, 503]).toContain(cron.status());
 });
+
+test.describe("3-question start (Roadmap C1)", () => {
+  const when = () => futureDate(90, 300);
+
+  test("signed in: occasion, date and guests create the event and open matching venues", async ({ page }) => {
+    await register(page, "Quick Start Host");
+    await page.goto("/");
+    await page.waitForLoadState("networkidle");
+    const form = page.getByTestId("quick-start");
+    await form.getByLabel("What's the occasion?").selectOption("wedding");
+    const date = when();
+    await form.getByLabel("When?").fill(date);
+    await form.getByLabel("How many guests?").fill("400");
+    await form.getByTestId("quick-start-submit").click();
+
+    await expect(page).toHaveURL(/\/search\?.*category=venues.*guests=400.*event=[0-9a-f-]{36}/);
+    const note = page.getByTestId("quick-start-note");
+    await expect(note).toContainText("is saved");
+    await note.getByRole("link", { name: "Open event" }).click();
+    await expect(page).toHaveURL(/\/account\/events\/[0-9a-f-]{36}$/);
+    await expect(page.getByRole("heading", { level: 1 })).toContainText("Wedding");
+  });
+
+  test("signed out: venues first, then sign-up keeps the answers", async ({ page }) => {
+    await page.goto("/");
+    await page.waitForLoadState("networkidle");
+    const form = page.getByTestId("quick-start");
+    await form.getByLabel("What's the occasion?").selectOption("engagement");
+    const date = when();
+    await form.getByLabel("When?").fill(date);
+    await form.getByLabel("How many guests?").fill("150");
+    await form.getByTestId("quick-start-submit").click();
+
+    await expect(page).toHaveURL(/\/search\?.*category=venues.*guests=150.*start=1/);
+    const note = page.getByTestId("quick-start-note");
+    await note.getByRole("link", { name: "Create a free account" }).click();
+
+    const email = `e2e-qs-${Date.now()}-${Math.floor(Math.random() * 1e6)}@example.test`;
+    await page.getByLabel("Full name").fill("Quick Start Guest");
+    await page.getByLabel("Email").fill(email);
+    await page.getByLabel("Password", { exact: true }).fill("Mantapa2027");
+    await page.getByLabel("Confirm password", { exact: true }).fill("Mantapa2027");
+    await page.getByLabel(/I agree to the Terms of Use/).check();
+    await page.getByRole("button", { name: "Create account" }).click();
+
+    await expect(page).toHaveURL(/\/account\/events\?type=engagement/);
+    const create = page.getByRole("form", { name: "New event" });
+    await expect(create.getByLabel("Type of event")).toHaveValue("engagement");
+    await expect(create.getByLabel("Date", { exact: true })).toHaveValue(date);
+    await expect(create.getByLabel("Expected guests")).toHaveValue("150");
+  });
+});

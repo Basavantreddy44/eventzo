@@ -169,3 +169,13 @@ export function parseGuestLines(text: string): { guests: ParsedGuest[]; invalidL
   });
   return { guests: guestsOut, invalidLines };
 }
+
+/** Home-page "3-question start" (Roadmap C1): occasion, date, guests. */
+export const quickStartSchema = z.object({
+  eventType: z.enum(EVENT_TYPES, "validation.required"),
+  startDate: isoDate,
+  guestEstimate: guests.refine((v) => v !== "", "validation.guests"),
+  cityId: optionalUuid,
+  idempotencyKey: z.string().min(8).max(100),
+});
+export type QuickStartInput = z.infer<typeof quickStartSchema>;

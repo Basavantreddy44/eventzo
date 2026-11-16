@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useEffect, useState, useTransition } from "react";
 import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useTranslations } from "next-intl";
@@ -13,6 +13,7 @@ import { FormError, FormField } from "@/components/form/form-field";
 import { applyServerFieldErrors } from "@/components/form/apply-server-errors";
 import { checkAvailability, createEnquiry, type AvailabilityCheck } from "../actions/customer";
 import { enquirySchema, type EnquiryInput } from "../schemas";
+import { usePickedDate } from "./picked-date";
 
 const textareaClass =
   "border-input bg-card focus-visible:border-primary focus-visible:ring-ring aria-invalid:border-destructive w-full rounded-md border px-3 py-2 text-base shadow-xs outline-none focus-visible:ring-[3px] md:text-sm";
@@ -56,17 +57,6 @@ export function EnquiryPanel({
   const { errors } = form.formState;
   const date = useWatch({ control: form.control, name: "date" });
 
-  if (!signedIn) {
-    return (
-      <div className="grid gap-3">
-        <p className="text-muted-foreground text-sm">{t("loginToEnquire")}</p>
-        <Button asChild size="lg" className="w-full">
-          <Link href={loginHref}>{instant ? t("reserve") : t("send")}</Link>
-        </Button>
-      </div>
-    );
-  }
-
   // Re-check whenever the date or the hours change; the check covers the requested hours (QA B12).
   const recheck = (next: Partial<Pick<EnquiryInput, "date" | "startTime" | "endTime">> = {}) => {
     const v = { ...form.getValues(), ...next };
@@ -77,6 +67,29 @@ export function EnquiryPanel({
       if (result.ok) setAvailability(result.data);
     });
   };
+
+  // A day picked on the listing calendar (Roadmap C2) fills the date.
+  const { subscribe } = usePickedDate();
+  // Re-subscribes each render so the handler always sees the current form.
+  useEffect(() =>
+    signedIn
+      ? subscribe((picked) => {
+          form.setValue("date", picked, { shouldValidate: true });
+          recheck({ date: picked });
+        })
+      : undefined,
+  );
+
+  if (!signedIn) {
+    return (
+      <div className="grid gap-3">
+        <p className="text-muted-foreground text-sm">{t("loginToEnquire")}</p>
+        <Button asChild size="lg" className="w-full">
+          <Link href={loginHref}>{instant ? t("reserve") : t("send")}</Link>
+        </Button>
+      </div>
+    );
+  }
 
   const onSubmit = form.handleSubmit((values) => {
     setFormError(null);

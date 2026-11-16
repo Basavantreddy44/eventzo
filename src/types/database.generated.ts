@@ -3345,6 +3345,15 @@ export type Database = {
           surcharge_bps: number;
         }[];
       };
+      listing_month: {
+        Args: { p_end?: string; p_month: string; p_service_id: string; p_start?: string };
+        Returns: {
+          auspicious: boolean;
+          day: string;
+          status: string;
+          surcharge_bps: number;
+        }[];
+      };
       mark_guests_invited: { Args: { p_guest_ids: string[] }; Returns: number };
       mark_notifications_read: { Args: { p_ids?: string[] }; Returns: number };
       mark_online_payment_failed: { Args: { p_order_id: string }; Returns: undefined };

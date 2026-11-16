@@ -54,6 +54,15 @@ Source: "Eventzo — Roadmap to 9.9 / 10" (tester, 15 Nov 2026). Worked in its p
 
 Migrations: `20261119000100_outbox_channels.sql`, `20261119000200_legal_policies.sql`.
 
+**Phase B — customer ease (batch 1, 16 Nov 2026)** · A5 (mobile OTP) skipped for now by the product owner.
+
+| Item | Status |
+|---|---|
+| C1 3-question start | ✅ Home page: occasion, date, guests. Signed in → event created and venues filtered by guests/city with "Your event is saved"; signed out → venues first, then sign-up returns to a prefilled event form (sign-up now honours a safe `next`) |
+| C2 Availability calendar | ✅ Month view on every listing: Free / On hold / Booked (no customer details exposed), muhurtham dates and surcharge; tapping a free day fills the enquiry date. `public.listing_month()` (migration `20261120000100_listing_calendar.sql`) |
+| C4 Shortlist, compare, share | ✅ Heart on cards and listing pages (kept in the browser, up to 4, works signed out), bottom compare bar, `/compare?l=…` side by side, Share on WhatsApp / copy link that works without an account |
+| Next | C3 "Get 3 quotes", C5 quote comparison, C6/V4 packages; then C7 reviews, C10/S2 Help + support desk, C9 day sheet, C8, C12, C13 |
+
 ## QA report, 15 Nov 2026 — fixes
 
 | Bug | Status | Fix |

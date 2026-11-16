@@ -1,7 +1,10 @@
 import { Suspense } from "react";
 import type { Metadata } from "next";
+import { connection } from "next/server";
 import { getLocale, getTranslations } from "next-intl/server";
-import { CloudOff, SearchX } from "lucide-react";
+import { CalendarCheck, CloudOff, SearchX } from "lucide-react";
+import { Link } from "@/i18n/navigation";
+import { createClient } from "@/lib/supabase/server";
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { EmptyState } from "@/components/states/empty-state";
@@ -71,6 +74,7 @@ async function SearchResults({ searchParams }: { searchParams: PageProps<"/[loca
           hidden={{ city: parsed.city, category: filters.category, guests: filters.guests?.toString() }}
         />
         {!filters.city ? <p className="text-muted-foreground text-sm">{t("allCitiesHint")}</p> : null}
+        <QuickStartNote raw={raw} />
       </div>
 
       <div className="grid gap-6 lg:grid-cols-[16rem_minmax(0,1fr)]">
@@ -106,6 +110,51 @@ async function SearchResults({ searchParams }: { searchParams: PageProps<"/[loca
       </div>
     </>
   );
+}
+
+/** Roadmap C1: after the home page's quick start, confirm the saved event or offer to save it. */
+async function QuickStartNote({ raw }: { raw: Record<string, string | string[] | undefined> }) {
+  const one = (v: string | string[] | undefined) => (Array.isArray(v) ? v[0] : v) ?? "";
+  const t = await getTranslations("home.quickStart");
+  const eventId = one(raw.event);
+  if (/^[0-9a-f-]{36}$/.test(eventId)) {
+    await connection(); // the signed-in session (and its clock checks) is request-time
+    const supabase = await createClient();
+    const { data } = await supabase.from("events").select("id, title").eq("id", eventId).maybeSingle();
+    if (!data) return null;
+    return (
+      <p
+        className="bg-success/10 border-success/30 flex flex-wrap items-center gap-2 rounded-md border px-3 py-2 text-sm"
+        role="status"
+        data-testid="quick-start-note"
+      >
+        <CalendarCheck className="text-success size-4" aria-hidden />
+        {t("saved", { title: data.title })}
+        <Link href={`/account/events/${data.id}`} className="text-primary font-medium underline underline-offset-4">
+          {t("openEvent")}
+        </Link>
+      </p>
+    );
+  }
+  if (one(raw.start) === "1") {
+    const next = `/account/events?type=${encodeURIComponent(one(raw.type))}&date=${encodeURIComponent(one(raw.date))}&guests=${encodeURIComponent(one(raw.guests))}`;
+    return (
+      <p
+        className="bg-accent/50 flex flex-wrap items-center gap-2 rounded-md border px-3 py-2 text-sm"
+        role="status"
+        data-testid="quick-start-note"
+      >
+        {t("saveOffer")}
+        <Link
+          href={{ pathname: "/register", query: { next } }}
+          className="text-primary font-medium underline underline-offset-4"
+        >
+          {t("saveOfferLink")}
+        </Link>
+      </p>
+    );
+  }
+  return null;
 }
 
 function SearchSkeleton({ title }: { title: string }) {

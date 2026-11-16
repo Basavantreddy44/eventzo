@@ -9,10 +9,34 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Skeleton } from "@/components/ui/skeleton";
 import { EmptyState } from "@/components/states/empty-state";
 import { CategoryIcon } from "@/features/taxonomy/components/category-icon";
-import { getBusinessCategories, localizedName } from "@/features/taxonomy/queries";
+import { getActiveCities, getBusinessCategories, localizedName } from "@/features/taxonomy/queries";
 import { localeFrom } from "@/i18n/params";
 import { SearchBox } from "@/features/discovery/components/search-box";
 import { UpcomingMuhurtham } from "@/features/muhurtham/components/upcoming-muhurtham";
+import { QuickStart } from "@/features/events/components/quick-start";
+import { getPreferredCitySlug } from "@/features/discovery/lib/city-preference";
+import { todayIn } from "@/features/muhurtham/lib/calendar";
+import { getCurrentUser } from "@/lib/auth/session";
+import { siteConfig } from "@/config/site";
+
+/** Roadmap C1: the three questions. Request-time (session, remembered city, today). */
+async function QuickStartCard() {
+  await connection();
+  const [user, preferred, cities] = await Promise.all([
+    getCurrentUser(),
+    getPreferredCitySlug(),
+    getActiveCities().catch(() => []),
+  ]);
+  const city = cities.find((c) => c.slug === preferred);
+  return (
+    <QuickStart
+      signedIn={!!user}
+      cityId={city?.id ?? ""}
+      citySlug={city?.slug ?? null}
+      today={todayIn(siteConfig.defaultTimeZone)}
+    />
+  );
+}
 
 export default async function HomePage({ params }: PageProps<"/[locale]">) {
   const locale = await localeFrom(params);
@@ -33,6 +57,11 @@ export default async function HomePage({ params }: PageProps<"/[locale]">) {
             {t("heroTitle")}
           </h1>
           <p className="text-muted-foreground max-w-2xl text-lg">{t("heroSubtitle")}</p>
+          <div className="max-w-4xl">
+            <Suspense fallback={<Skeleton className="h-40" />}>
+              <QuickStartCard />
+            </Suspense>
+          </div>
           <div className="grid max-w-2xl gap-2">
             <p className="text-sm font-medium">{t("searchTitle")}</p>
             <SearchBox placeholder={t("searchPlaceholder")} submitLabel={t("searchSubmit")} size="lg" />

@@ -210,3 +210,36 @@ test("enquiry pages fit a phone screen", async ({ page }) => {
     expect(scroll, `${path} overflows horizontally`).toBeLessThanOrEqual(viewport);
   }
 });
+
+test("(C2) the listing calendar shows free, held and booked days, and a tap fills the enquiry date", async ({
+  page,
+}) => {
+  await registerCustomer(page, "Calendar Customer");
+  await page.goto(MAIN_HALL);
+  await page.waitForLoadState("networkidle");
+  const calendar = page.getByTestId("availability-calendar");
+  await expect(calendar.getByRole("heading", { name: "Availability" })).toBeVisible();
+  for (const label of ["Free", "On hold", "Booked", "Muhurtham date"]) {
+    await expect(calendar.getByText(label, { exact: true })).toBeVisible();
+  }
+  await expect(calendar.getByRole("button", { name: "Previous month" })).toBeDisabled();
+
+  // Two months ahead, every day has a status; pick the first free one.
+  const month = calendar.getByTestId("calendar-month");
+  const start = await month.textContent();
+  await calendar.getByRole("button", { name: "Next month" }).click();
+  await expect(month).not.toHaveText(start ?? "");
+  const second = await month.textContent();
+  await calendar.getByRole("button", { name: "Next month" }).click();
+  await expect(month).not.toHaveText(second ?? "");
+  // Wait for that month's days to load before reading one.
+  await expect(calendar.getByRole("grid")).toHaveAttribute("aria-busy", "false");
+  const free = calendar.locator('[data-status="free"]').first();
+  await expect(free).toBeVisible();
+  const day = await free.getAttribute("data-day");
+  await free.click();
+
+  const panel = page.getByTestId("enquiry-panel");
+  await expect(panel.getByLabel("Event date")).toHaveValue(day!);
+  await expect(page.getByTestId("availability")).toContainText("Available");
+});

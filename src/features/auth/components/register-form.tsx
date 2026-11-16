@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import { useSearchParams } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useLocale, useTranslations } from "next-intl";
@@ -19,6 +20,7 @@ import { signUp } from "../actions";
 export function RegisterForm() {
   const t = useTranslations("auth.register");
   const locale = useLocale() as AppLocale;
+  const searchParams = useSearchParams();
   const [formError, setFormError] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
 
@@ -31,7 +33,7 @@ export function RegisterForm() {
   const onSubmit = form.handleSubmit((values) => {
     setFormError(null);
     startTransition(async () => {
-      const result = await signUp({ ...values, locale });
+      const result = await signUp({ ...values, locale }, searchParams.get("next"));
       if (result && !result.ok) {
         setFormError(result.error);
         applyServerFieldErrors(form.setError, result.fieldErrors);
